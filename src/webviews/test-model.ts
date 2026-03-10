@@ -6,7 +6,7 @@ export function getTestModelWebviewContent(modelUI: SemanticModelUI, sldsUri: st
   // Build field tree: objects -> (dims, meas, calcDims, calcMeas)
   const objectTree: any[] = [];
 
-  for (const obj of modelUI.dataObjects) {
+  for (const obj of modelUI.dataObjects.filter((o: any) => !o.unmapped)) {
     const dims = (obj.semanticDimensions ?? []).map(d => ({
       apiName: d.apiName, label: d.label, dataType: d.dataType ?? 'Text',
       tableApiName: obj.apiName, fieldType: 'dimension', category: 'Dimensions',
@@ -34,6 +34,7 @@ export function getTestModelWebviewContent(modelUI: SemanticModelUI, sldsUri: st
     objectTree.push({
       apiName: obj.apiName, label: obj.label, type: 'dataObject',
       dataObjectType: obj.dataObjectType || '',
+      baseModelApiName: (obj as any).baseModelApiName || null,
       groups: [
         { category: 'Dimensions', fields: dims, dotClass: 'dim' },
         { category: 'Measurements', fields: meas, dotClass: 'meas' },
@@ -43,7 +44,7 @@ export function getTestModelWebviewContent(modelUI: SemanticModelUI, sldsUri: st
     });
   }
 
-  for (const lv of modelUI.logicalViews) {
+  for (const lv of modelUI.logicalViews.filter((v: any) => !v.unmapped)) {
     const lvDims: any[] = [];
     const lvMeas: any[] = [];
     ((lv as any).semanticDataObjects ?? []).forEach((sdo: any) => {
@@ -90,6 +91,7 @@ export function getTestModelWebviewContent(modelUI: SemanticModelUI, sldsUri: st
     if (groups.length > 0) {
       objectTree.push({
         apiName: lv.apiName, label: lv.label, type: 'logicalView',
+        baseModelApiName: (lv as any).baseModelApiName || null,
         groups,
       });
     }
@@ -127,6 +129,14 @@ export function getTestModelWebviewContent(modelUI: SemanticModelUI, sldsUri: st
     .object-icon.dmo { background: #FF538A; color: #ffffff; }
     .object-icon.dlo { background: #5A1BA9; color: #ffffff; }
     .object-icon.lv { background: #FF5D2D; color: #ffffff; }
+    .object-icon.base-model {
+      position: relative; overflow: hidden;
+    }
+    .object-icon.base-model::after {
+      content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: repeating-linear-gradient(45deg, transparent, transparent 3px, rgba(255,255,255,0.25) 3px, rgba(255,255,255,0.25) 6px);
+      border-radius: 4px; pointer-events: none;
+    }
     .object-name { font-size: 13px; font-weight: 500; flex: 1; }
     .object-count { font-size: 10px; color: var(--slds-g-color-neutral-base-50, #747474); background: var(--slds-g-color-neutral-base-95, #f3f3f3); padding: 1px 6px; border-radius: 8px; }
     .object-body { display: none; padding-bottom: 0.25rem; }
@@ -389,11 +399,12 @@ export function getTestModelWebviewContent(modelUI: SemanticModelUI, sldsUri: st
         const chevronClass = (!filterLower && oi > 0) ? '' : ' open';
         const iconClass = obj.type === 'logicalView' ? 'lv' : (obj.dataObjectType === 'Dlo' ? 'dlo' : 'dmo');
         const iconText = obj.type === 'logicalView' ? 'LV' : (obj.dataObjectType === 'Dlo' ? 'DLO' : 'DMO');
+        const baseClass = obj.baseModelApiName ? ' base-model' : '';
 
         html += '<div class="object-group">';
         html += '<div class="object-header" onclick="toggleObject(this)">';
         html += '<span class="object-chevron' + chevronClass + '">\\u25B6</span>';
-        html += '<span class="object-icon ' + iconClass + '">' + iconText + '</span>';
+        html += '<span class="object-icon ' + iconClass + baseClass + '">' + iconText + '</span>';
         html += '<span class="object-name">' + obj.label + '</span>';
         html += '<span class="object-count">' + totalFields + '</span>';
         html += '</div>';

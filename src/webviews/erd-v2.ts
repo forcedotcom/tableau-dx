@@ -4920,7 +4920,7 @@ export function getERDV2WebviewContent(
       sidebar.classList.add('open');
       
       const actionsDiv = document.getElementById('sidebar-actions');
-      if ((nodeData.type === 'dataObject' || nodeData.type === 'logicalView') && (dims.length > 0 || meas.length > 0)) {
+      if ((nodeData.type === 'dataObject' || nodeData.type === 'logicalView') && (dims.length > 0 || meas.length > 0) && !nodeData.unmapped) {
         actionsDiv.style.display = 'block';
         currentQueryNode = nodeData;
       } else {
