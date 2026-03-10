@@ -1017,6 +1017,10 @@ export function getERDV2WebviewContent(
     .diff-dimmed .node-icon svg rect { fill: #ffffff !important; opacity: 0.5; }
     .diff-dimmed .node-label .node-title { color: #c9c7c5 !important; }
     .diff-dimmed .node-label::after { display: none !important; }
+    .diff-dimmed .base-model-badge { opacity: 0.2 !important; }
+    .diff-dimmed .shared-badge { opacity: 0.2 !important; }
+    .diff-dimmed.pattern-base .node-circle::before,
+    .diff-dimmed.pattern-base .entity-circle::before { opacity: 0.1 !important; }
 
     .diff-dimmed.entity-node .entity-circle {
       background: #e5e5e5 !important;
@@ -1029,6 +1033,7 @@ export function getERDV2WebviewContent(
     .diff-dimmed.entity-node .entity-title { color: #c9c7c5 !important; }
     .diff-dimmed.entity-node .entity-type-label { color: #e5e5e5 !important; }
     .diff-dimmed.entity-node .entity-label-wrap::after { display: none !important; }
+    .diff-dimmed.entity-node .base-model-badge { opacity: 0.2 !important; }
 
     .diff-dimmed.edge-object .edge-object-circle {
       background: #e5e5e5 !important;
