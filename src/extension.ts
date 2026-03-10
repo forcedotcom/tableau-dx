@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
+import * as fs from 'fs';
 import {
   showOrgInfoCommand,
   listModelsCommand,
@@ -29,6 +30,14 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.executeCommand('markdown.showPreview', readmeUri).then(undefined, () => {
       vscode.commands.executeCommand('vscode.open', readmeUri);
     });
+  }
+
+  const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+  if (workspaceRoot) {
+    const semanticModelsFolder = path.join(workspaceRoot, 'Semantic Models');
+    if (!fs.existsSync(semanticModelsFolder)) {
+      fs.mkdirSync(semanticModelsFolder, { recursive: true });
+    }
   }
 
   const showOrgInfoDisposable = vscode.commands.registerCommand(
