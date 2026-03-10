@@ -136,6 +136,54 @@ export async function exportToFolderCommand(uri: vscode.Uri) {
           'modelFilters.json': { items: decoded.semanticModelFilters ?? [] },
         };
 
+        // Partition base model entities into separate folders
+        const baseModels = (modelMeta.baseModels ?? []) as { apiName: string; label: string }[];
+        if (baseModels.length > 0) {
+          const baseModelLabelMap = new Map(baseModels.map(bm => [bm.apiName, bm.label]));
+
+          const partitionableFiles = [
+            'dataObjects.json', 'relationships.json', 'calculatedDimensions.json',
+            'calculatedMeasurements.json', 'parameters.json', 'logicalViews.json',
+            'dimensionHierarchies.json', 'metrics.json', 'fieldsOverrides.json',
+            'modelFilters.json', 'groupings.json',
+          ];
+
+          for (const fileName of partitionableFiles) {
+            const data = entities[fileName] as Record<string, unknown>;
+            const itemsKey = fileName === 'groupings.json' ? 'groupings' : 'items';
+            const allItems = (data[itemsKey] as Array<Record<string, unknown>>) ?? [];
+
+            const mainItems: Record<string, unknown>[] = [];
+            const byBase = new Map<string, Record<string, unknown>[]>();
+
+            for (const item of allItems) {
+              const baseApiName = item.baseModelApiName as string | undefined;
+              if (baseApiName && baseModelLabelMap.has(baseApiName)) {
+                const label = baseModelLabelMap.get(baseApiName)!;
+                if (!byBase.has(label)) { byBase.set(label, []); }
+                byBase.get(label)!.push(item);
+              } else {
+                mainItems.push(item);
+              }
+            }
+
+            data[itemsKey] = mainItems;
+
+            for (const [label, items] of byBase) {
+              if (items.length === 0) { continue; }
+              const baseFolderPath = path.join(modelFolderPath, 'base', label);
+              if (!fs.existsSync(baseFolderPath)) {
+                fs.mkdirSync(baseFolderPath, { recursive: true });
+              }
+              fs.writeFileSync(
+                path.join(baseFolderPath, fileName),
+                JSON.stringify({ [itemsKey]: items }, null, 2),
+                'utf8'
+              );
+            }
+          }
+        }
+
         for (const [fileName, data] of Object.entries(entities)) {
           const filePath = path.join(modelFolderPath, fileName);
           fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');

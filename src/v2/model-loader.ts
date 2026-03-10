@@ -17,6 +17,20 @@ import {
 } from './types';
 import { getFileAtCommit } from '../utils/git';
 
+const BASE_ENTITY_FILES: { fileName: string; itemsKey: string; resultKey: keyof RawSemanticModel }[] = [
+  { fileName: 'dataObjects.json', itemsKey: 'items', resultKey: 'dataObjects' },
+  { fileName: 'relationships.json', itemsKey: 'items', resultKey: 'relationships' },
+  { fileName: 'calculatedDimensions.json', itemsKey: 'items', resultKey: 'calculatedDimensions' },
+  { fileName: 'calculatedMeasurements.json', itemsKey: 'items', resultKey: 'calculatedMeasurements' },
+  { fileName: 'groupings.json', itemsKey: 'groupings', resultKey: 'groupings' },
+  { fileName: 'logicalViews.json', itemsKey: 'items', resultKey: 'logicalViews' },
+  { fileName: 'parameters.json', itemsKey: 'items', resultKey: 'parameters' },
+  { fileName: 'dimensionHierarchies.json', itemsKey: 'items', resultKey: 'dimensionHierarchies' },
+  { fileName: 'metrics.json', itemsKey: 'items', resultKey: 'metrics' },
+  { fileName: 'fieldsOverrides.json', itemsKey: 'items', resultKey: 'fieldsOverrides' },
+  { fileName: 'modelFilters.json', itemsKey: 'items', resultKey: 'modelFilters' },
+];
+
 function readJsonFile<T>(folderPath: string, filename: string, fallback: T): T {
   const filePath = path.join(folderPath, filename);
   if (!fs.existsSync(filePath)) {
@@ -24,6 +38,26 @@ function readJsonFile<T>(folderPath: string, filename: string, fallback: T): T {
   }
   const content = fs.readFileSync(filePath, 'utf8');
   return JSON.parse(content) as T;
+}
+
+function mergeBaseModelEntities(result: RawSemanticModel, folderPath: string): void {
+  const baseFolderPath = path.join(folderPath, 'base');
+  if (!fs.existsSync(baseFolderPath) || !fs.statSync(baseFolderPath).isDirectory()) {
+    return;
+  }
+
+  const baseDirs = fs.readdirSync(baseFolderPath).filter(d =>
+    fs.statSync(path.join(baseFolderPath, d)).isDirectory()
+  );
+
+  for (const baseDir of baseDirs) {
+    const baseEntityPath = path.join(baseFolderPath, baseDir);
+    for (const { fileName, itemsKey, resultKey } of BASE_ENTITY_FILES) {
+      const file = readJsonFile<Record<string, unknown[]>>(baseEntityPath, fileName, {});
+      const items = file[itemsKey] ?? [];
+      (result[resultKey] as unknown[]).push(...items);
+    }
+  }
 }
 
 export function loadSemanticModelFiles(folderPath: string): RawSemanticModel {
@@ -42,7 +76,7 @@ export function loadSemanticModelFiles(folderPath: string): RawSemanticModel {
   const fieldsOverridesFile = readJsonFile<{ items: FieldOverride[] }>(folderPath, 'fieldsOverrides.json', { items: [] });
   const modelFiltersFile = readJsonFile<{ items: ModelFilter[] }>(folderPath, 'modelFilters.json', { items: [] });
 
-  return {
+  const result: RawSemanticModel = {
     model,
     dataObjects: dataObjectsFile.items ?? [],
     relationships: relationshipsFile.items ?? [],
@@ -57,6 +91,10 @@ export function loadSemanticModelFiles(folderPath: string): RawSemanticModel {
     fieldsOverrides: fieldsOverridesFile.items ?? [],
     modelFilters: modelFiltersFile.items ?? [],
   };
+
+  mergeBaseModelEntities(result, folderPath);
+
+  return result;
 }
 
 async function readGitJsonFile<T>(folderPath: string, filename: string, commitHash: string, fallback: T): Promise<T> {
@@ -65,6 +103,28 @@ async function readGitJsonFile<T>(folderPath: string, filename: string, commitHa
     return JSON.parse(content) as T;
   } catch {
     return fallback;
+  }
+}
+
+async function mergeBaseModelEntitiesFromCommit(
+  result: RawSemanticModel,
+  folderPath: string,
+  commitHash: string
+): Promise<void> {
+  const baseModels = result.model.baseModels;
+  if (!baseModels || baseModels.length === 0) {
+    return;
+  }
+
+  for (const baseModel of baseModels) {
+    const basePrefix = path.join('base', baseModel.label);
+    for (const { fileName, itemsKey, resultKey } of BASE_ENTITY_FILES) {
+      const file = await readGitJsonFile<Record<string, unknown[]>>(
+        folderPath, path.join(basePrefix, fileName), commitHash, {}
+      );
+      const items = file[itemsKey] ?? [];
+      (result[resultKey] as unknown[]).push(...items);
+    }
   }
 }
 
@@ -84,7 +144,7 @@ export async function loadRawModelFromCommit(folderPath: string, commitHash: str
   const fieldsOverridesFile = await readGitJsonFile<{ items: FieldOverride[] }>(folderPath, 'fieldsOverrides.json', commitHash, { items: [] });
   const modelFiltersFile = await readGitJsonFile<{ items: ModelFilter[] }>(folderPath, 'modelFilters.json', commitHash, { items: [] });
 
-  return {
+  const result: RawSemanticModel = {
     model,
     dataObjects: dataObjectsFile.items ?? [],
     relationships: relationshipsFile.items ?? [],
@@ -99,4 +159,8 @@ export async function loadRawModelFromCommit(folderPath: string, commitHash: str
     fieldsOverrides: fieldsOverridesFile.items ?? [],
     modelFilters: modelFiltersFile.items ?? [],
   };
+
+  await mergeBaseModelEntitiesFromCommit(result, folderPath, commitHash);
+
+  return result;
 }
