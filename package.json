@@ -1,0 +1,129 @@
+{
+  "name": "salesforce-semantic-layer",
+  "displayName": "Salesforce Semantic Layer",
+  "description": "Retrieve and deploy Salesforce Semantic Layer JSON",
+  "version": "1.1.0",
+  "publisher": "your-publisher",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "Salesforce Semantic Layer",
+      "properties": {
+        "semanticLayer.defaultModelFilter": {
+          "type": "string",
+          "default": "",
+          "description": "Default search term to filter models (e.g., 'sales'). Leave empty to show all models."
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "semanticLayer.showOrgInfo",
+        "title": "Tableau Semantic: Show Org Info"
+      },
+      {
+        "command": "semanticLayer.listModels",
+        "title": "Tableau Semantic: List Models"
+      },
+      {
+        "command": "semanticLayer.exportToFolder",
+        "title": "Tableau Semantic: Retrieve Model to Folder"
+      },
+      {
+        "command": "semanticLayer.updateModel",
+        "title": "Tableau Semantic: Deploy Model"
+      },
+      {
+        "command": "semanticLayer.visualizeCompareERD",
+        "title": "Tableau Semantic: Visualize and Compare Local to Remote"
+      },
+      {
+        "command": "semanticLayer.viewModelHistory",
+        "title": "Tableau Semantic: View Model History"
+      },
+      {
+        "command": "semanticLayer.visualizeLocalERDV2",
+        "title": "Tableau Semantic: Visualize Local ERD"
+      },
+      {
+        "command": "semanticLayer.clearPositionCache",
+        "title": "Tableau Semantic: Clear Position Cache"
+      },
+      {
+        "command": "semanticLayer.showPositionCacheStats",
+        "title": "Tableau Semantic: Show Position Cache Stats"
+      },
+      {
+        "command": "semanticLayer.testModel",
+        "title": "Tableau Semantic: Test Model"
+      },
+      {
+        "command": "semanticLayer.autoGenerateGroups",
+        "title": "Tableau Semantic: Auto-Generate Groups"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "semanticLayer.exportToFolder",
+          "when": "explorerResourceIsFolder",
+          "group": "semantic@1"
+        },
+        {
+          "command": "semanticLayer.updateModel",
+          "when": "resourceExtname == .json",
+          "group": "semantic@3"
+        },
+        {
+          "command": "semanticLayer.visualizeLocalERDV2",
+          "when": "resourceFilename == model.json",
+          "group": "semantic@4"
+        },
+        {
+          "command": "semanticLayer.visualizeCompareERD",
+          "when": "resourceFilename == model.json",
+          "group": "semantic@5"
+        },
+        {
+          "command": "semanticLayer.viewModelHistory",
+          "when": "resourceFilename == model.json || explorerResourceIsFolder",
+          "group": "semantic@6"
+        },
+        {
+          "command": "semanticLayer.testModel",
+          "when": "resourceFilename == model.json",
+          "group": "semantic@7"
+        },
+        {
+          "command": "semanticLayer.autoGenerateGroups",
+          "when": "resourceFilename == model.json",
+          "group": "semantic@8"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src --ext ts"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0",
+    "eslint": "^8.54.0",
+    "typescript": "^5.3.0"
+  },
+  "dependencies": {
+    "@salesforce-ux/design-system": "^2.29.0"
+  }
+}
