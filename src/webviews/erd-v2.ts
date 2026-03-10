@@ -621,14 +621,14 @@ export function getERDV2WebviewContent(
     .edge-label {
       position: absolute;
       background: rgba(255,255,255,0.9); border: 1px solid rgba(147,147,147,0.5);
-      border-radius: 10px; padding: 1px 6px; font-size: 9px;
+      border-radius: 10px; padding: 2px 7px; font-size: 11px;
       text-align: center; pointer-events: none; z-index: 3; white-space: nowrap;
       box-shadow: 0 1px 4px rgba(0,0,0,0.08);
     }
     .edge-label .cardinality { color: #3e3e3c; font-weight: 600; }
     .edge-label.edge-label-classic {
       border: 1px solid #939393; border-radius: 16px;
-      padding: 6px 12px; font-size: 22px;
+      padding: 4px 10px; font-size: 13px;
       background: rgba(255,255,255,0.95);
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
@@ -932,6 +932,18 @@ export function getERDV2WebviewContent(
       vertical-align: middle;
       background: #5C5C5C;
       color: #fff;
+    }
+    .sidebar-unmapped-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 6px;
+      margin-left: 8px;
+      vertical-align: middle;
+      background: #999;
+      color: #fff;
+      opacity: 0.7;
     }
     .sidebar-base-badge {
       display: inline-block;
@@ -1311,19 +1323,23 @@ export function getERDV2WebviewContent(
         <button onclick="zoomOut()" title="Zoom Out"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 520"><path fill="currentColor" d="M190 250h120c6 0 10-4 10-10v-40c0-6-4-10-10-10H190m0 0h-60c-6 0-10 4-10 10v40c0 6 4 10 10 10h60m306 203L381 338A200 200 0 00220 20C110 20 20 110 20 220a200 200 0 00318 161l115 115c6 6 15 6 21 0l21-21c6-6 6-16 1-22m-276-93c-77 0-140-63-140-140S143 80 220 80s140 63 140 140-63 140-140 140"/></svg></button>
         <button onclick="resetView()" title="Fit to Screen"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 520"><path fill="currentColor" d="M296 240h154c10 0 13-11 5-19l-49-50 90-91c5-5 5-14 0-19l-37-37c-5-4-13-4-19 1l-90 90-51-49c-8-8-19-5-19 5v154c0 7 9 15 16 15m-72 40H70c-10 0-13 11-5 19l49 50-90 91c-5 5-5 14 0 19l37 37c5 5 13 5 19 0l91-91 51 49c7 9 18 6 18-4V297c0-7-9-17-16-17m56 16v154c0 10 11 13 19 5l50-49 91 90c5 5 14 5 19 0l37-37c5-5 5-13 0-19l-91-90 49-51c8-8 5-19-5-19H296c-7 0-16 9-16 16m-40-72V70c0-10-11-13-19-5l-50 49-91-90c-5-5-14-5-19 0l-37 37c-4 5-4 13 1 19l90 90-49 51c-8 8-5 19 5 19h154c7 0 15-9 15-16"/></svg></button>
       </div>
+      <div class="controls-row" id="layoutControls">
+        <button onclick="toggleLayoutMode()" id="layoutToggleBtn" title="Grid Layout"><svg viewBox="0 0 16 16" fill="currentColor" stroke="none"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg></button>
+        <button onclick="toggleRelationships()" id="relToggleBtn" title="Hide Relationships" class="route-active"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><circle cx="3" cy="8" r="2"/><circle cx="13" cy="8" r="2"/><line x1="5" y1="8" x2="11" y2="8"/></svg></button>
+      </div>
       <div class="controls-row group-row ${hasGroups ? 'visible' : ''}" id="groupControls">
         <button onclick="expandAllGroups()" id="expandAllBtn" title="Expand All Groups"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="8" y1="5" x2="8" y2="1"/><line x1="8" y1="11" x2="8" y2="15"/><line x1="5" y1="8" x2="1" y2="8"/><line x1="11" y1="8" x2="15" y2="8"/><polyline points="6.5,3 8,1 9.5,3"/><polyline points="6.5,13 8,15 9.5,13"/><polyline points="3,6.5 1,8 3,9.5"/><polyline points="13,6.5 15,8 13,9.5"/></svg></button>
         <button onclick="collapseAllGroups()" id="collapseAllBtn" title="Collapse All Groups"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="8" y1="1" x2="8" y2="5"/><line x1="8" y1="15" x2="8" y2="11"/><line x1="1" y1="8" x2="5" y2="8"/><line x1="15" y1="8" x2="11" y2="8"/><polyline points="6.5,3 8,5 9.5,3"/><polyline points="6.5,13 8,11 9.5,13"/><polyline points="3,6.5 5,8 3,9.5"/><polyline points="13,6.5 11,8 13,9.5"/></svg></button>
       </div>
       <div class="controls-row" id="gridControls">
         <button onclick="toggleGridMode()" id="gridToggleBtn" title="Grid Snap: ON" class="route-active"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"><line x1="4" y1="1" x2="4" y2="15"/><line x1="8" y1="1" x2="8" y2="15"/><line x1="12" y1="1" x2="12" y2="15"/><line x1="1" y1="4" x2="15" y2="4"/><line x1="1" y1="8" x2="15" y2="8"/><line x1="1" y1="12" x2="15" y2="12"/></svg></button>
-        <button onclick="runAutoLayout()" id="autoLayoutBtn" title="Auto-Layout"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 14 L6 2 L8 8 L14 4"/><polyline points="10,4 14,4 14,8"/></svg></button>
+        <button onclick="runAutoLayout()" id="autoLayoutBtn" title="Auto-Layout"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6 C2 2 8 2 12 2"/><polyline points="10,0.5 12,2 10,3.5"/><path d="M14 10 C14 14 8 14 4 14"/><polyline points="6,15.5 4,14 6,12.5"/></svg></button>
       </div>
       <div class="controls-row" id="routingControls">
-        <button onclick="setRoutingMode('classic')" id="routeClassicBtn" title="Classic Routing" class="route-active"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M 2 13 Q 8 5 14 3"/><polyline points="11,1 14,3 11,5"/></svg></button>
-        <button onclick="setRoutingMode('orthogonal')" id="routeOrthBtn" title="Orthogonal Routing"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M 2 12 L 2 5 Q 2 3 4 3 L 14 3"/><polyline points="11,1 14,3 11,5"/></svg></button>
-        <button onclick="setRoutingMode('curved')" id="routeCurvedBtn" title="Curved Routing"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M 2 13 C 2 6, 14 10, 14 3"/><polyline points="11,1 14,3 11,5"/></svg></button>
-        <button onclick="setRoutingMode('straight')" id="routeStraightBtn" title="Straight Routing"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="2" y1="13" x2="14" y2="3"/><polyline points="11,1 14,3 11,5"/></svg></button>
+        <button onclick="setRoutingMode('classic')" id="routeClassicBtn" title="Classic Routing" class="route-active"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="2" cy="13" r="1.5" fill="currentColor" stroke="none"/><circle cx="14" cy="3" r="1.5" fill="currentColor" stroke="none"/><path d="M3.5 12 Q 8 4 12.5 3.5"/></svg></button>
+        <button onclick="setRoutingMode('orthogonal')" id="routeOrthBtn" title="Orthogonal Routing"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="2" cy="13" r="1.5" fill="currentColor" stroke="none"/><circle cx="14" cy="3" r="1.5" fill="currentColor" stroke="none"/><path d="M3.5 13 L8 13 L8 3 L12.5 3"/></svg></button>
+        <button onclick="setRoutingMode('curved')" id="routeCurvedBtn" title="Curved Routing"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="2" cy="13" r="1.5" fill="currentColor" stroke="none"/><circle cx="14" cy="3" r="1.5" fill="currentColor" stroke="none"/><path d="M3.5 12.5 C4 6 12 10 12.5 3.5"/></svg></button>
+        <button onclick="setRoutingMode('straight')" id="routeStraightBtn" title="Straight Routing"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="2" cy="13" r="1.5" fill="currentColor" stroke="none"/><circle cx="14" cy="3" r="1.5" fill="currentColor" stroke="none"/><line x1="3.5" y1="12" x2="12.5" y2="4"/></svg></button>
       </div>
     </div>
     <div id="viewport">
@@ -1345,17 +1361,19 @@ export function getERDV2WebviewContent(
       <div class="item"><span class="legend-box" style="background:#1B96FF;border-color:#1B96FF;"></span> Calculated Insight (CI)</div>
       <div class="item"><span class="legend-box" style="background:#FF5D2D;border-color:#FF5D2D;"></span> Logical View</div>
       <div class="item"><span class="legend-line" style="background:#939393;"></span> Relationship</div>
-      <div style="border-top:1px solid #dddbda;margin:8px 0;"></div>
-      <div class="title" style="margin-bottom:8px;">Entities (drill-down)</div>
-      <div class="item"><span class="legend-swatch" style="border:none;background:#0b5cab;border-radius:50%;"></span> Calc Dimension</div>
-      <div class="item"><span class="legend-swatch" style="border:none;background:#06a59a;border-radius:50%;"></span> Calc Measurement</div>
-      <div class="item"><span class="legend-swatch" style="border:none;background:#481a54;border-radius:50%;"></span> Dim Hierarchy</div>
-      <div class="item"><span class="legend-swatch" style="border:none;background:#032d60;border-radius:50%;"></span> Metric</div>
-      <div class="item"><span class="legend-swatch" style="border:none;background:#706e6b;border-radius:50%;"></span> Group / Bin</div>
+      <div id="drilldownLegendSection" style="display:none;">
+        <div style="border-top:1px solid #dddbda;margin:8px 0;"></div>
+        <div class="title" style="margin-bottom:8px;">Entities (drill-down)</div>
+        <div class="item"><span class="legend-swatch" style="border:none;background:#0b5cab;border-radius:50%;"></span> Calc Dimension</div>
+        <div class="item"><span class="legend-swatch" style="border:none;background:#06a59a;border-radius:50%;"></span> Calc Measurement</div>
+        <div class="item"><span class="legend-swatch" style="border:none;background:#481a54;border-radius:50%;"></span> Dim Hierarchy</div>
+        <div class="item"><span class="legend-swatch" style="border:none;background:#032d60;border-radius:50%;"></span> Metric</div>
+        <div class="item"><span class="legend-swatch" style="border:none;background:#706e6b;border-radius:50%;"></span> Group / Bin</div>
+      </div>
       <div style="border-top:1px solid #dddbda;margin:8px 0;"></div>
       <div class="title" style="margin-bottom:8px;">Indicators</div>
       <div class="item"><span class="legend-swatch" style="border:none;border-radius:50%;background:linear-gradient(45deg,#FF538A 0%,#FF538A 100%);position:relative;overflow:hidden;"><span style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:50%;background:repeating-linear-gradient(45deg,transparent,transparent 3px,rgba(255,255,255,0.5) 3px,rgba(255,255,255,0.5) 6px);"></span></span> Base Model</div>
-      <div class="item" id="unmappedLegendItem" style="display:none;"><span class="legend-swatch" style="border:2px dashed #999;background:rgba(200,200,200,0.3);border-radius:50%;opacity:0.5;"></span> Unmapped</div>
+      <div class="item" id="unmappedLegendItem" style="display:none;"><span class="legend-swatch" style="border:none;background:#FF538A;border-radius:50%;opacity:0.35;filter:grayscale(40%);"></span> Unmapped</div>
       <div id="diffLegendSection" style="display:none;">
         <div style="border-top:1px solid #dddbda;margin:10px 0;"></div>
         <div class="title" style="margin-bottom:8px;" id="diffLegendTitle">Changes (Local vs Remote)</div>
@@ -1584,6 +1602,9 @@ export function getERDV2WebviewContent(
     var routingMode = 'classic'; // 'classic' | 'orthogonal' | 'curved' | 'straight'
     var showUnmapped = true;
     var isGridMode = true;
+    var layoutMode = 'force';
+    var hideRelationships = false;
+    var topHoverActive = false;
 
     var GRID_CELL = { w: 170, h: 200 };
 
@@ -1597,6 +1618,11 @@ export function getERDV2WebviewContent(
 
     function cellToPos(col, row, cs) {
       return { x: col * cs.w, y: row * cs.h };
+    }
+
+    function isComplexModel() {
+      var objectCount = nodes.length;
+      return objectCount > 30 || (objectCount > 15 && edges.length > 1.3 * objectCount);
     }
 
     function gridKey(col, row) { return col + ',' + row; }
@@ -3364,8 +3390,12 @@ export function getERDV2WebviewContent(
             } else if (initialViewMode === 'grouped' && hasGroups) {
               renderGroupedView();
             } else {
+              if (isComplexModel()) {
+                layoutMode = 'grid';
+                hideRelationships = true;
+              }
               renderTopLevel();
-              if (Object.keys(cachedPositions).length === 0) {
+              if (Object.keys(cachedPositions).length === 0 && layoutMode !== 'grid') {
                 saveAllCachedPositions(nodePositions);
               }
             }
@@ -3405,10 +3435,12 @@ export function getERDV2WebviewContent(
       const repulsion = 15000;
       const springLength = 200;
       const springStiffness = 0.04;
-      const gravity = 0.008;
+      const baseGravity = 0.008;
+      const gravity = baseGravity * Math.max(1, nodeList.length / 20);
+      const maxDisplacement = 50;
       const padding = 150;
-      const canvasWidth = Math.max(1200, nodeList.length * 180);
-      const canvasHeight = Math.max(800, nodeList.length * 120);
+      const canvasWidth = Math.max(1200, Math.min(nodeList.length * 140, 3000));
+      const canvasHeight = Math.max(800, Math.min(nodeList.length * 100, 2200));
       
       const degree = {};
       nodeList.forEach(n => { degree[n.id] = 0; });
@@ -3476,6 +3508,11 @@ export function getERDV2WebviewContent(
         nodeList.forEach(n => {
           velocities[n.id].x = (velocities[n.id].x + forces[n.id].x) * 0.85;
           velocities[n.id].y = (velocities[n.id].y + forces[n.id].y) * 0.85;
+          var speed = Math.sqrt(velocities[n.id].x * velocities[n.id].x + velocities[n.id].y * velocities[n.id].y);
+          if (speed > maxDisplacement) {
+            velocities[n.id].x *= maxDisplacement / speed;
+            velocities[n.id].y *= maxDisplacement / speed;
+          }
           positions[n.id].x += velocities[n.id].x;
           positions[n.id].y += velocities[n.id].y;
         });
@@ -3496,6 +3533,20 @@ export function getERDV2WebviewContent(
       });
       snapAllToGrid(nodePositions, getGridCellSize('top'));
     }
+
+    function layoutGrid(nodeList) {
+      var count = nodeList.length;
+      if (count === 0) return;
+      var cols = Math.ceil(Math.sqrt(count * 4 / 3));
+      var CELL_W = 180;
+      var CELL_H = 190;
+      var PAD = 60;
+      nodeList.forEach(function(n, idx) {
+        var col = idx % cols;
+        var row = Math.floor(idx / cols);
+        nodePositions[n.id] = { x: PAD + col * CELL_W, y: PAD + row * CELL_H };
+      });
+    }
     
     // --- Top-level rendering ---
     function renderTopLevel(forceRelayout) {
@@ -3505,8 +3556,12 @@ export function getERDV2WebviewContent(
       svg.innerHTML = '';
       nodePositions = {};
       nodeElements = {};
+      topHoverActive = false;
       document.getElementById('backBtn').style.display = 'none';
-      document.getElementById('headerTitle').textContent = ${JSON.stringify(escapeHtml(modelUI.model.label))} + (isCompareMode ? ' - Compare (Local vs Remote)' : ' - ERD V2');
+      var ddLegend = document.getElementById('drilldownLegendSection');
+      if (ddLegend) ddLegend.style.display = 'none';
+      var viewSuffix = isCompareMode ? ' - Compare (Local vs Remote)' : (layoutMode === 'grid' ? ' - Grid View' : ' - ERD V2');
+      document.getElementById('headerTitle').textContent = ${JSON.stringify(escapeHtml(modelUI.model.label))} + viewSuffix;
       document.getElementById('topStats').style.display = 'flex';
       
       var visibleNodes = showUnmapped ? nodes : nodes.filter(function(n) { return !n.unmapped; });
@@ -3515,7 +3570,12 @@ export function getERDV2WebviewContent(
         var toVisible = visibleNodes.some(function(n) { return n.id === e.to; });
         return fromVisible && toVisible;
       });
-      layoutForceAtlas2(visibleNodes, visibleEdges, !!forceRelayout);
+
+      if (layoutMode === 'grid') {
+        layoutGrid(visibleNodes);
+      } else {
+        layoutForceAtlas2(visibleNodes, visibleEdges, !!forceRelayout);
+      }
       
       visibleNodes.forEach(n => {
         const div = document.createElement('div');
@@ -3534,41 +3594,201 @@ export function getERDV2WebviewContent(
         const pos = nodePositions[n.id];
         div.style.left = pos.x + 'px';
         div.style.top = pos.y + 'px';
-        
-        let clickStartTime = 0, clickStartPos = { x: 0, y: 0 };
-        
-        div.addEventListener('mousedown', (e) => {
-          e.stopPropagation();
-          clickStartTime = Date.now();
-          clickStartPos = { x: e.clientX, y: e.clientY };
-          draggingNode = n.id;
-          const rect = div.getBoundingClientRect();
-          dragOffsetX = e.clientX - rect.left;
-          dragOffsetY = e.clientY - rect.top;
-        });
-        
-        div.addEventListener('mouseup', (e) => {
-          const dur = Date.now() - clickStartTime;
-          const dist = Math.sqrt(Math.pow(e.clientX - clickStartPos.x, 2) + Math.pow(e.clientY - clickStartPos.y, 2));
-          if (dur < 300 && dist < 10) {
-            openSidebar(n);
-          }
-        });
-        
-        div.addEventListener('dblclick', (e) => {
-          e.stopPropagation();
-          e.preventDefault();
-          enterDrillDown(n);
-        });
+
+        if (layoutMode === 'grid') {
+          div.style.cursor = 'pointer';
+          div.addEventListener('click', function(e) { e.stopPropagation(); openSidebar(n); });
+          div.addEventListener('dblclick', function(e) { e.stopPropagation(); e.preventDefault(); enterDrillDown(n); });
+          div.addEventListener('mouseenter', function() { topLevelHoverIn(n.id); });
+          div.addEventListener('mouseleave', function() { topLevelHoverOut(); });
+        } else {
+          let clickStartTime = 0, clickStartPos = { x: 0, y: 0 };
+          div.addEventListener('mousedown', (e) => {
+            e.stopPropagation();
+            clickStartTime = Date.now();
+            clickStartPos = { x: e.clientX, y: e.clientY };
+            draggingNode = n.id;
+            const rect = div.getBoundingClientRect();
+            dragOffsetX = e.clientX - rect.left;
+            dragOffsetY = e.clientY - rect.top;
+          });
+          div.addEventListener('mouseup', (e) => {
+            const dur = Date.now() - clickStartTime;
+            const dist = Math.sqrt(Math.pow(e.clientX - clickStartPos.x, 2) + Math.pow(e.clientY - clickStartPos.y, 2));
+            if (dur < 300 && dist < 10) {
+              openSidebar(n);
+            }
+          });
+          div.addEventListener('dblclick', (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            enterDrillDown(n);
+          });
+          div.addEventListener('mouseenter', function() { topLevelHoverIn(n.id); });
+          div.addEventListener('mouseleave', function() { topLevelHoverOut(); });
+        }
         
         nodesLayer.appendChild(div);
         nodeElements[n.id] = div;
       });
       
-      drawEdges();
+      if (!hideRelationships) {
+        drawEdges();
+      }
       fitToViewport();
+      updateLayoutControls();
     }
     
+    function drawHoverEdges(relEdges) {
+      if (relEdges.length === 0) return;
+      createArrowMarkers(svg, { default: '#0070d2' }, 'tophover-');
+      var portMap = isClassicMode() ? null : buildPortMap(relEdges, nodePositions, NODE_SIZE);
+
+      relEdges.forEach(function(edge, idx) {
+        var fp = nodePositions[edge.from];
+        var tp = nodePositions[edge.to];
+        if (!fp || !tp) return;
+        var r = NODE_SIZE / 2;
+        var d;
+
+        if (isClassicMode()) {
+          var fcx = fp.x + r, fcy = fp.y + r;
+          var tcx = tp.x + r, tcy = tp.y + r;
+          var angle = Math.atan2(tcy - fcy, tcx - fcx);
+          var fex = fcx + Math.cos(angle) * (r + 5);
+          var fey = fcy + Math.sin(angle) * (r + 5);
+          var tex = tcx - Math.cos(angle) * (r + 10);
+          var tey = tcy - Math.sin(angle) * (r + 10);
+          var co = 20 * (idx % 2 === 0 ? 1 : -1);
+          var cp = generateClassicPath(fex, fey, tex, tey, co);
+          d = cp.d;
+        } else {
+          var fcx2 = fp.x + r, fcy2 = fp.y + r;
+          var tcx2 = tp.x + r, tcy2 = tp.y + r;
+          var fSide = getSide(fcx2, fcy2, tcx2, tcy2);
+          var tSide = getSide(tcx2, tcy2, fcx2, fcy2);
+          var edgeId = edge.from + '>' + edge.to;
+          var fOff = getPortOffset(edgeId, edge.from, fSide, portMap, NODE_SIZE);
+          var tOff = getPortOffset(edgeId, edge.to, tSide, portMap, NODE_SIZE);
+          var fPt = getPortPoint(fcx2, fcy2, fSide, fOff, r + 2);
+          var tPt = getPortPoint(tcx2, tcy2, tSide, tOff, r + 8);
+          var co2 = 20 * (idx % 2 === 0 ? 1 : -1);
+          d = generateRoutedPath(fPt.x, fPt.y, tPt.x, tPt.y, co2, nodePositions, NODE_SIZE);
+        }
+
+        var hoverStroke = isClassicMode() ? '5' : '3';
+        var hoverGlow = isClassicMode() ? '12' : '8';
+
+        var glow = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        glow.setAttribute('d', d);
+        glow.setAttribute('stroke', '#0070d2');
+        glow.setAttribute('stroke-width', hoverGlow);
+        glow.setAttribute('fill', 'none');
+        glow.setAttribute('opacity', '0.25');
+        glow.setAttribute('stroke-linecap', 'round');
+        svg.appendChild(glow);
+
+        var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', d);
+        path.setAttribute('stroke', '#0070d2');
+        path.setAttribute('stroke-width', hoverStroke);
+        path.setAttribute('fill', 'none');
+        path.setAttribute('marker-end', 'url(#tophover-default)');
+        path.setAttribute('stroke-linecap', 'round');
+        svg.appendChild(path);
+      });
+    }
+
+    function topLevelHoverIn(nodeId) {
+      if (topHoverActive) topLevelHoverOut();
+      topHoverActive = true;
+
+      var connectedIds = new Set();
+      connectedIds.add(nodeId);
+      var relEdges = [];
+      edges.forEach(function(e) {
+        if (e.from === nodeId || e.to === nodeId) {
+          connectedIds.add(e.from);
+          connectedIds.add(e.to);
+          relEdges.push(e);
+        }
+      });
+
+      if (hideRelationships) {
+        Object.keys(nodeElements).forEach(function(id) {
+          var el = nodeElements[id];
+          if (connectedIds.has(id)) {
+            el.classList.add('list-hover-related');
+            el.classList.remove('list-hover-dimmed');
+          } else {
+            el.classList.add('list-hover-dimmed');
+            el.classList.remove('list-hover-related');
+          }
+        });
+        svg.innerHTML = '';
+        drawHoverEdges(relEdges);
+      } else {
+        svg.querySelectorAll('path').forEach(function(p) { p.setAttribute('opacity', '0.12'); });
+        document.querySelectorAll('.edge-label').forEach(function(el) { el.style.opacity = '0.12'; });
+        drawHoverEdges(relEdges);
+      }
+    }
+
+    function topLevelHoverOut() {
+      if (!topHoverActive) return;
+      topHoverActive = false;
+
+      Object.keys(nodeElements).forEach(function(id) {
+        var el = nodeElements[id];
+        el.classList.remove('list-hover-dimmed', 'list-hover-related');
+      });
+
+      if (hideRelationships) {
+        svg.innerHTML = '';
+      } else {
+        document.querySelectorAll('.edge-label').forEach(function(el) { el.style.opacity = ''; });
+        drawEdges();
+      }
+    }
+
+    function toggleLayoutMode() {
+      if (currentView === 'drilldown') return;
+      layoutMode = layoutMode === 'grid' ? 'force' : 'grid';
+      if (layoutMode === 'grid') {
+        hideRelationships = true;
+      }
+      updateLayoutControls();
+      renderTopLevel(true);
+    }
+
+    function toggleRelationships() {
+      if (currentView === 'drilldown') return;
+      hideRelationships = !hideRelationships;
+      updateLayoutControls();
+      if (currentView === 'top') {
+        if (hideRelationships) {
+          svg.innerHTML = '';
+          document.querySelectorAll('.edge-label').forEach(function(el) { el.remove(); });
+        } else {
+          drawEdges();
+        }
+      }
+    }
+
+    function updateLayoutControls() {
+      var layoutBtn = document.getElementById('layoutToggleBtn');
+      var relBtn = document.getElementById('relToggleBtn');
+
+      if (layoutBtn) {
+        layoutBtn.classList.toggle('route-active', layoutMode === 'grid');
+        layoutBtn.title = layoutMode === 'grid' ? 'Switch to Force Layout' : 'Switch to Grid Layout';
+      }
+      if (relBtn) {
+        relBtn.classList.toggle('route-active', !hideRelationships);
+        relBtn.title = hideRelationships ? 'Show Relationships' : 'Hide Relationships';
+      }
+    }
+
     function isClassicMode() { return routingMode === 'classic'; }
 
     function edgeStroke() { return isClassicMode() ? '3' : '1.5'; }
@@ -3603,6 +3823,11 @@ export function getERDV2WebviewContent(
     }
 
     function drawEdges() {
+      if (hideRelationships && currentView === 'top') {
+        svg.innerHTML = '';
+        document.querySelectorAll('.edge-label').forEach(function(el) { el.remove(); });
+        return;
+      }
       svg.innerHTML = '';
       var arrowColors = { default: '#939393', added: '#2ecc71', modified: '#f1c40f', removed: '#e74c3c', dimmed: '#e5e5e5' };
       createArrowMarkers(svg, arrowColors, 'arrowhead-');
@@ -3803,7 +4028,9 @@ export function getERDV2WebviewContent(
       // --- PHASE 2: After fade, swap to drill-down (500ms later) ---
       setTimeout(() => {
         currentView = 'drilldown';
-        
+        var ddLegend = document.getElementById('drilldownLegendSection');
+        if (ddLegend) ddLegend.style.display = '';
+
         // Use cached positions from file if available, otherwise use algorithm layout.
         // Always merge algorithm positions for entities missing from cache (e.g. newly added calcs).
         var useCached = pendingDrilldownPositions && Object.keys(pendingDrilldownPositions).length > 0;
@@ -4372,9 +4599,16 @@ export function getERDV2WebviewContent(
         
         currentView = 'top';
         document.getElementById('backBtn').style.display = 'none';
-        document.getElementById('headerTitle').textContent = ${JSON.stringify(escapeHtml(modelUI.model.label))} + (isCompareMode ? ' - Compare (Local vs Remote)' : ' - ERD V2');
+        var exitViewSuffix = isCompareMode ? ' - Compare (Local vs Remote)' : (layoutMode === 'grid' ? ' - Grid View' : ' - ERD V2');
+        document.getElementById('headerTitle').textContent = ${JSON.stringify(escapeHtml(modelUI.model.label))} + exitViewSuffix;
         document.getElementById('topStats').style.display = 'flex';
         
+        if (layoutMode === 'grid') {
+          renderTopLevel();
+          isTransitioning = false;
+          return;
+        }
+
         // Restore saved viewport
         panX = savedTopViewState.panX;
         panY = savedTopViewState.panY;
@@ -4404,11 +4638,9 @@ export function getERDV2WebviewContent(
           const finalPos = nodePositions[n.id];
           
           if (n.id === savedDrillNodeId) {
-            // Start at center (it was the drilled node)
             div.style.left = (viewCx - NODE_SIZE / 2) + 'px';
             div.style.top = (viewCy - NODE_SIZE / 2) + 'px';
           } else {
-            // Start at final position but invisible
             div.style.left = finalPos.x + 'px';
             div.style.top = finalPos.y + 'px';
             div.classList.add('morph-fade-in-start');
@@ -4434,6 +4666,8 @@ export function getERDV2WebviewContent(
             e.preventDefault();
             enterDrillDown(n);
           });
+          div.addEventListener('mouseenter', function() { topLevelHoverIn(n.id); });
+          div.addEventListener('mouseleave', function() { topLevelHoverOut(); });
           
           nodesLayer.appendChild(div);
           nodeElements[n.id] = div;
@@ -4457,7 +4691,6 @@ export function getERDV2WebviewContent(
         setTimeout(() => {
           drawEdges();
           isTransitioning = false;
-          // Clean up animation classes
           nodes.forEach(n => {
             const el = nodeElements[n.id];
             if (el) el.classList.remove('morph-animate', 'morph-fade-in-start', 'morph-fade-in', 'morph-fade-out');
@@ -4482,7 +4715,8 @@ export function getERDV2WebviewContent(
         : 'Data Model Object';
       const sharedLabel = nodeData.tableType === 'Shared' ? ' <span class="sidebar-shared-badge">Shared Table</span>' : '';
       const baseLabel = nodeData.baseModelApiName ? ' <span class="sidebar-base-badge">Base: ' + (baseModelLabels[nodeData.baseModelApiName] || nodeData.baseModelApiName) + '</span>' : '';
-      document.getElementById('sidebar-title').innerHTML = nodeData.label + diffBadgeHtml(nodeData.diffStatus) + sharedLabel + baseLabel;
+      const unmappedLabel = nodeData.unmapped ? ' <span class="sidebar-unmapped-badge">Unmapped</span>' : '';
+      document.getElementById('sidebar-title').innerHTML = nodeData.label + diffBadgeHtml(nodeData.diffStatus) + sharedLabel + baseLabel + unmappedLabel;
       document.getElementById('sidebar-type').textContent = typeLabel;
       document.getElementById('sidebar-api').textContent = nodeData.id;
       
@@ -5111,7 +5345,11 @@ export function getERDV2WebviewContent(
           return fromV && toV;
         });
         nodePositions = {};
-        layoutForceAtlas2(visibleNodes, visibleEdges, true);
+        if (layoutMode === 'grid') {
+          layoutGrid(visibleNodes);
+        } else {
+          layoutForceAtlas2(visibleNodes, visibleEdges, true);
+        }
         Object.keys(nodePositions).forEach(function(id) {
           var el = nodeElements[id];
           if (el) {
@@ -5123,9 +5361,13 @@ export function getERDV2WebviewContent(
         setTimeout(function() {
           Object.keys(nodeElements).forEach(function(id) { nodeElements[id].style.transition = ''; });
         }, 320);
-        drawEdges();
+        if (!hideRelationships) {
+          drawEdges();
+        }
         fitToViewport();
-        saveAllCachedPositions(nodePositions);
+        if (layoutMode !== 'grid') {
+          saveAllCachedPositions(nodePositions);
+        }
       } else if (currentView === 'grouped') {
         clearCachedPositions('topLevel');
         groupNodePositions = {};
