@@ -3634,6 +3634,13 @@ export function getERDV2WebviewContent(
       var viewSuffix = isCompareMode ? ' - Compare (Local vs Remote)' : (layoutMode === 'grid' ? ' - Grid View' : ' - ERD V2');
       document.getElementById('headerTitle').textContent = ${JSON.stringify(escapeHtml(modelUI.model.label))} + viewSuffix;
       document.getElementById('topStats').style.display = 'flex';
+
+      if (hasUnmappedNodes) { var unmGrpR = document.getElementById('unmappedGroup'); if (unmGrpR) unmGrpR.classList.add('visible'); }
+      var relEyeR = document.getElementById('relToggleBtn'); if (relEyeR) relEyeR.style.display = '';
+      var gridBtnR = document.getElementById('layoutGridBtn');
+      var forceBtnR = document.getElementById('layoutForceBtn');
+      if (gridBtnR) { gridBtnR.disabled = false; gridBtnR.style.opacity = ''; gridBtnR.style.pointerEvents = ''; }
+      if (forceBtnR) { forceBtnR.disabled = false; forceBtnR.style.opacity = ''; forceBtnR.style.pointerEvents = ''; }
       
       var visibleNodes = showUnmapped ? nodes : nodes.filter(function(n) { return !n.unmapped; });
       var visibleEdges = edges.filter(function(e) {
@@ -4148,6 +4155,15 @@ export function getERDV2WebviewContent(
         document.getElementById('backBtn').style.display = 'flex';
         document.getElementById('headerTitle').textContent = 'Drill-Down: ' + nodeData.label;
         document.getElementById('topStats').style.display = 'none';
+
+        var unmGrp = document.getElementById('unmappedGroup');
+        if (unmGrp) unmGrp.classList.remove('visible');
+        var relEye = document.getElementById('relToggleBtn');
+        if (relEye) relEye.style.display = 'none';
+        var gridBtn = document.getElementById('layoutGridBtn');
+        var forceBtn = document.getElementById('layoutForceBtn');
+        if (gridBtn) { gridBtn.disabled = true; gridBtn.style.opacity = '0.3'; gridBtn.style.pointerEvents = 'none'; }
+        if (forceBtn) { forceBtn.disabled = true; forceBtn.style.opacity = '0.3'; forceBtn.style.pointerEvents = 'none'; }
         
         // Fit drill-down to viewport first (compute scale/pan)
         const allX = [], allY = [];
@@ -4694,6 +4710,13 @@ export function getERDV2WebviewContent(
         var exitViewSuffix = isCompareMode ? ' - Compare (Local vs Remote)' : (layoutMode === 'grid' ? ' - Grid View' : ' - ERD V2');
         document.getElementById('headerTitle').textContent = ${JSON.stringify(escapeHtml(modelUI.model.label))} + exitViewSuffix;
         document.getElementById('topStats').style.display = 'flex';
+
+        if (hasUnmappedNodes) { var unmGrp2 = document.getElementById('unmappedGroup'); if (unmGrp2) unmGrp2.classList.add('visible'); }
+        var relEye2 = document.getElementById('relToggleBtn'); if (relEye2) relEye2.style.display = '';
+        var gridBtn2 = document.getElementById('layoutGridBtn');
+        var forceBtn2 = document.getElementById('layoutForceBtn');
+        if (gridBtn2) { gridBtn2.disabled = false; gridBtn2.style.opacity = ''; gridBtn2.style.pointerEvents = ''; }
+        if (forceBtn2) { forceBtn2.disabled = false; forceBtn2.style.opacity = ''; forceBtn2.style.pointerEvents = ''; }
         
         if (layoutMode === 'grid') {
           renderTopLevel();
@@ -5504,9 +5527,70 @@ export function getERDV2WebviewContent(
         saveAllCachedPositions(allPos);
       } else if (currentView === 'drilldown') {
         clearCachedPositions('drilldown:' + ddCenterId);
-        renderTopLevel();
-        var dd = nodes.find(function(n) { return n.id === ddCenterId; });
-        if (dd) { enterDrillDown(dd); }
+        var drillNodes2 = [{ id: '__center__', type: 'center' }];
+        var drillEdges2 = [];
+        var entApiNames2 = {};
+        ddEntities.forEach(function(e) { entApiNames2[e.apiName] = true; });
+
+        ddEntities.forEach(function(ent) {
+          drillNodes2.push({ id: 'ent_' + ent.apiName, type: 'entity' });
+          var lookup = calcFieldsLookup[ent.apiName];
+          var directRefs = lookup ? lookup.directReferences || [] : [];
+          var refsOtherCalcs = false;
+          var addedCalcEdges2 = {};
+
+          directRefs.forEach(function(ref) {
+            if (!ref.objectApiName && ref.fieldApiName && entApiNames2[ref.fieldApiName]) {
+              var edgeKey = 'ent_' + ent.apiName + '>' + 'ent_' + ref.fieldApiName;
+              if (addedCalcEdges2[edgeKey]) return;
+              addedCalcEdges2[edgeKey] = true;
+              drillEdges2.push({ from: 'ent_' + ent.apiName, to: 'ent_' + ref.fieldApiName });
+              refsOtherCalcs = true;
+            }
+          });
+
+          var refsCenter2 = false;
+          directRefs.forEach(function(ref) {
+            if (ref.objectApiName === ddCenterId) refsCenter2 = true;
+          });
+
+          if (refsCenter2 || !refsOtherCalcs) {
+            drillEdges2.push({ from: '__center__', to: 'ent_' + ent.apiName });
+          }
+        });
+
+        Array.from(ddEdgeObjectIds).forEach(function(objId) { drillNodes2.push({ id: 'eobj_' + objId, type: 'edgeObj' }); });
+        ddEntities.forEach(function(ent) {
+          if (ent.placement === 'crossObject') {
+            (ent.referencedObjects || []).forEach(function(o) {
+              if (o !== ddCenterId && ddEdgeObjectIds.has(o)) {
+                drillEdges2.push({ from: 'ent_' + ent.apiName, to: 'eobj_' + o });
+              }
+            });
+          }
+        });
+
+        var newDdPositions = layoutDrillDown(drillNodes2, drillEdges2);
+        snapAllToGrid(newDdPositions, getGridCellSize('drilldown'));
+        Object.keys(newDdPositions).forEach(function(k) { ddPositions[k] = newDdPositions[k]; });
+        ddCenterPos = ddPositions['__center__'];
+
+        Object.keys(ddElements).forEach(function(key) {
+          var el = ddElements[key];
+          var pos = ddPositions[key];
+          if (!el || !pos) return;
+          var hs = ENTITY_SIZE / 2;
+          if (key === '__center__') hs = 60;
+          else if (key.startsWith('eobj_')) hs = EDGE_OBJ_SIZE / 2;
+          el.style.transition = 'left 0.3s ease, top 0.3s ease';
+          el.style.left = (pos.x - hs) + 'px';
+          el.style.top = (pos.y - hs) + 'px';
+        });
+        setTimeout(function() {
+          Object.keys(ddElements).forEach(function(key) { if (ddElements[key]) ddElements[key].style.transition = ''; });
+        }, 320);
+        drawDrillEdges();
+        saveAllCachedPositions(ddPositions);
       }
     }
 

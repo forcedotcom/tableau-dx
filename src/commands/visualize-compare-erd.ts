@@ -50,7 +50,7 @@ export async function visualizeCompareERDCommand(context: vscode.ExtensionContex
 
           const modelApiName = localRaw.model.apiName;
           const fullModelUrl = `/services/data/v65.0/ssot/semantic/models/${modelApiName}`;
-          const fullModelResponse = await callSalesforceApi(instanceUrl, accessToken, fullModelUrl, { allowUnmapped: 'false' }) as Record<string, any>;
+          const fullModelResponse = await callSalesforceApi(instanceUrl, accessToken, fullModelUrl, { allowUnmapped: 'true' }) as Record<string, any>;
 
           const remoteRaw = rawModelFromApiResponse(fullModelResponse);
           const mergedRaw = mergeForCompare(localRaw, remoteRaw);
