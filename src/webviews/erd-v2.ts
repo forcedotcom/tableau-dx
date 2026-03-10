@@ -222,6 +222,15 @@ export function getERDV2WebviewContent(
   const groupsConfigJson = groupsConfig ? JSON.stringify(groupsConfig) : 'null';
   const hasGroups = !!groupsConfig;
   const hasUnmappedNodes = allNodes.some((n: any) => n.unmapped);
+  const hasBaseModelNodes = allNodes.some((n: any) => n.baseModelApiName);
+
+  const countDMO = modelUI.dataObjects.filter((o: any) => !o.dataObjectType || o.dataObjectType === 'Dmo').length;
+  const countDLO = modelUI.dataObjects.filter((o: any) => o.dataObjectType === 'Dlo').length;
+  const countCI = modelUI.dataObjects.filter((o: any) => o.dataObjectType === 'Cio').length;
+  const countLV = modelUI.logicalViews.length;
+  const countRel = modelUI.relationships.length;
+  const countBaseModel = allNodes.filter((n: any) => n.baseModelApiName).length;
+  const countUnmapped = allNodes.filter((n: any) => n.unmapped).length;
 
   const totalCalcDims = modelUI.allCalculatedDimensions.length;
   const totalCalcMeas = modelUI.allCalculatedMeasurements.length;
@@ -264,16 +273,6 @@ export function getERDV2WebviewContent(
     }
     .back-btn:hover { background: #005fb2; }
 
-    .unmapped-toggle {
-      display: none; align-items: center; gap: 6px;
-      background: #f3f3f3; border: 1px solid #dddbda; border-radius: 6px;
-      padding: 5px 12px; font-size: 12px; font-weight: 600; color: #3e3e3c;
-      cursor: pointer; transition: all 0.2s; margin-left: 12px; white-space: nowrap;
-    }
-    .unmapped-toggle:hover { background: #e5e5e5; }
-    .unmapped-toggle.active { background: #0070d2; color: #fff; border-color: #0070d2; }
-    .unmapped-toggle svg { width: 16px; height: 16px; }
-    .unmapped-toggle.visible { display: flex; }
     
     #erdContainer { 
       position: absolute; top: 56px; left: 0; right: 0; bottom: 0; 
@@ -567,7 +566,24 @@ export function getERDV2WebviewContent(
 
     #controls { 
       position: absolute; top: 16px; left: 16px; 
-      display: flex; flex-direction: column; gap: 4px; z-index: 10;
+      display: flex; flex-direction: column; gap: 6px; z-index: 10;
+    }
+    .control-group {
+      background: rgba(255,255,255,0.55); border: 1px solid rgba(0,0,0,0.10);
+      border-radius: 8px; padding: 6px 8px 8px 8px;
+      display: flex; flex-direction: column; gap: 5px;
+      backdrop-filter: blur(6px);
+    }
+    .control-group.hidden-group { display: none; }
+    .control-group.hidden-group.visible { display: flex; }
+    .control-group-header {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 4px;
+    }
+    .control-group-title {
+      font-size: 10px; font-weight: 600; color: #3e3e3c;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      line-height: 1; user-select: none;
     }
     .controls-row {
       display: flex; flex-direction: row; gap: 4px;
@@ -582,6 +598,15 @@ export function getERDV2WebviewContent(
     #controls button svg { width: 14px; height: 14px; }
     #controls button:hover { background: #0070d2; border-color: #0070d2; color: #fff; }
     #controls button.route-active { background: #0070d2; border-color: #0070d2; color: #fff; }
+    .control-group-header button { 
+      width: 16px; height: 16px; min-width: 16px; min-height: 16px;
+      padding: 0; border-radius: 3px; box-shadow: none; border: none;
+      background: transparent; color: #706e6b;
+    }
+    .control-group-header button:hover { background: #0070d2; color: #fff; }
+    .control-group-header button.route-active { color: #0070d2; background: transparent; }
+    .control-group-header button.route-active:hover { background: #0070d2; color: #fff; }
+    .control-group-header button svg { width: 12px; height: 12px; }
     
     #legend { 
       position: fixed; bottom: 24px; left: 24px; 
@@ -591,32 +616,37 @@ export function getERDV2WebviewContent(
       overflow: hidden; transition: max-height 0.3s ease;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       color: #080707;
-      min-width: 200px;
+      min-width: 190px;
     }
     .legend-header {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 12px 16px; cursor: pointer; user-select: none;
+      padding: 10px 14px; cursor: pointer; user-select: none;
     }
     .legend-header:hover { background: #f3f3f3; }
     .legend-header-title {
-      font-size: 10px; color: #706e6b; text-transform: uppercase;
+      font-size: 9px; color: #706e6b; text-transform: uppercase;
       letter-spacing: 1px; font-weight: 600; margin: 0;
     }
     .legend-chevron {
-      color: #706e6b; font-size: 14px; transition: transform 0.3s ease;
+      color: #706e6b; font-size: 12px; transition: transform 0.3s ease;
     }
     .legend-chevron.collapsed { transform: rotate(-90deg); }
-    .legend-body { padding: 0 16px 14px; }
+    .legend-body { padding: 0 14px 12px; }
     .legend-body.collapsed { display: none; }
     #legend .title { 
-      font-size: 10px; color: #706e6b; text-transform: uppercase; 
-      letter-spacing: 1px; margin-bottom: 12px; font-weight: 600;
+      font-size: 9px; color: #706e6b; text-transform: uppercase; 
+      letter-spacing: 1px; margin-bottom: 10px; font-weight: 600;
     }
-    #legend .item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; color: #3e3e3c; }
+    #legend .item { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; color: #3e3e3c; }
     #legend .item:last-child { margin-bottom: 0; }
-    .legend-box { width: 16px; height: 16px; border-radius: 50%; border: none; }
-    .legend-line { width: 24px; height: 4px; border-radius: 2px; }
-    .legend-swatch { width: 16px; height: 16px; border-radius: 50%; border: none; }
+    .legend-box { width: 14px; height: 14px; border-radius: 50%; border: none; }
+    .legend-line { width: 22px; height: 3px; border-radius: 2px; }
+    .legend-swatch { width: 14px; height: 14px; border-radius: 50%; border: none; }
+    .legend-count {
+      margin-left: auto; font-size: 11px; font-weight: 600; color: #706e6b;
+      background: #f3f3f3; border-radius: 8px; padding: 1px 6px; min-width: 18px;
+      text-align: center;
+    }
     
     .edge-label {
       position: absolute;
@@ -977,21 +1007,6 @@ export function getERDV2WebviewContent(
       pointer-events: none;
     }
 
-    /* ── Highlight-changes toggle ── */
-    .diff-toggle-row {
-      display: flex; align-items: center; gap: 10px; margin-top: 4px; cursor: pointer; user-select: none;
-    }
-    .diff-toggle-track {
-      width: 36px; height: 20px; border-radius: 10px; background: #c9c7c5;
-      position: relative; transition: background 0.2s; flex-shrink: 0;
-    }
-    .diff-toggle-track.active { background: #04844b; }
-    .diff-toggle-thumb {
-      width: 16px; height: 16px; border-radius: 50%; background: #ffffff;
-      position: absolute; top: 2px; left: 2px; transition: left 0.2s, background 0.2s;
-    }
-    .diff-toggle-track.active .diff-toggle-thumb { left: 18px; background: #fff; }
-    .diff-toggle-label { color: #080707; font-size: 12px; font-weight: 600; }
 
     .diff-dimmed .node-circle {
       background: #e5e5e5 !important;
@@ -1175,10 +1190,6 @@ export function getERDV2WebviewContent(
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
 
-    .controls-row.group-row {
-      display: none;
-    }
-    .controls-row.group-row.visible { display: flex; }
 
     .list-group-header {
       position: absolute;
@@ -1302,44 +1313,70 @@ export function getERDV2WebviewContent(
       <h1 id="headerTitle">${escapeHtml(modelUI.model.label)}${isCompareModeVal ? ' - Compare (Local vs Remote)' : ' - ERD V2'}</h1>
     </div>
     <div class="stats" id="topStats" style="margin-left:auto;">
-      <span><span class="badge">${modelUI.dataObjects.length}</span> Objects</span>
-      <span><span class="badge">${modelUI.logicalViews.length}</span> Logical Views</span>
-      <span><span class="badge">${modelUI.relationships.length}</span> Relationships</span>
       ${isHistoryModeVal ? `<button class="history-btn" onclick="toggleHistoryPanel()" title="View commit history">
         <span class="badge" id="historyCommitCount">0</span> Commit History
       </button>` : ''}
     </div>
-    <button class="unmapped-toggle${hasUnmappedNodes ? ' visible' : ''}" id="unmappedToggleBtn" onclick="toggleUnmapped()" title="Hide unmapped objects">
-      <svg id="unmappedToggleIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-      <span id="unmappedToggleLabel">Unmapped</span>
-    </button>
   </div>
   
   <div id="erdContainer">
     <div id="erdLoadingOverlay"><div class="erd-spinner"></div></div>
     <div id="controls">
-      <div class="controls-row">
-        <button onclick="zoomIn()" title="Zoom In"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><path fill="currentColor" d="M31 19h-6v-6a1 1 0 00-1-1h-4a1 1 0 00-1 1v6h-6a1 1 0 00-1 1v4a1 1 0 001 1h6v6a1 1 0 001 1h4a1 1 0 001-1v-6h6a1 1 0 001-1v-4a1 1 0 00-1-1m18.6 26.2L38.1 33.8A20 20 0 0022 2C11 2 2 11 2 22a20 20 0 0031.8 16.1l11.5 11.5c.6.6 1.5.6 2.1 0l2.1-2.1c.6-.6.6-1.6.1-2.3M22 36c-7.7 0-14-6.3-14-14S14.3 8 22 8s14 6.3 14 14-6.3 14-14 14"/></svg></button>
-        <button onclick="zoomOut()" title="Zoom Out"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 520"><path fill="currentColor" d="M190 250h120c6 0 10-4 10-10v-40c0-6-4-10-10-10H190m0 0h-60c-6 0-10 4-10 10v40c0 6 4 10 10 10h60m306 203L381 338A200 200 0 00220 20C110 20 20 110 20 220a200 200 0 00318 161l115 115c6 6 15 6 21 0l21-21c6-6 6-16 1-22m-276-93c-77 0-140-63-140-140S143 80 220 80s140 63 140 140-63 140-140 140"/></svg></button>
-        <button onclick="resetView()" title="Fit to Screen"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 520"><path fill="currentColor" d="M296 240h154c10 0 13-11 5-19l-49-50 90-91c5-5 5-14 0-19l-37-37c-5-4-13-4-19 1l-90 90-51-49c-8-8-19-5-19 5v154c0 7 9 15 16 15m-72 40H70c-10 0-13 11-5 19l49 50-90 91c-5 5-5 14 0 19l37 37c5 5 13 5 19 0l91-91 51 49c7 9 18 6 18-4V297c0-7-9-17-16-17m56 16v154c0 10 11 13 19 5l50-49 91 90c5 5 14 5 19 0l37-37c5-5 5-13 0-19l-91-90 49-51c8-8 5-19-5-19H296c-7 0-16 9-16 16m-40-72V70c0-10-11-13-19-5l-50 49-91-90c-5-5-14-5-19 0l-37 37c-4 5-4 13 1 19l90 90-49 51c-8 8-5 19 5 19h154c7 0 15-9 15-16"/></svg></button>
+      <!-- Group 1: View -->
+      <div class="control-group" id="viewGroup">
+        <div class="control-group-header"><span class="control-group-title">View</span></div>
+        <div class="controls-row">
+          <button onclick="zoomIn()" title="Zoom In"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><path fill="currentColor" d="M31 19h-6v-6a1 1 0 00-1-1h-4a1 1 0 00-1 1v6h-6a1 1 0 00-1 1v4a1 1 0 001 1h6v6a1 1 0 001 1h4a1 1 0 001-1v-6h6a1 1 0 001-1v-4a1 1 0 00-1-1m18.6 26.2L38.1 33.8A20 20 0 0022 2C11 2 2 11 2 22a20 20 0 0031.8 16.1l11.5 11.5c.6.6 1.5.6 2.1 0l2.1-2.1c.6-.6.6-1.6.1-2.3M22 36c-7.7 0-14-6.3-14-14S14.3 8 22 8s14 6.3 14 14-6.3 14-14 14"/></svg></button>
+          <button onclick="zoomOut()" title="Zoom Out"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 520"><path fill="currentColor" d="M190 250h120c6 0 10-4 10-10v-40c0-6-4-10-10-10H190m0 0h-60c-6 0-10 4-10 10v40c0 6 4 10 10 10h60m306 203L381 338A200 200 0 00220 20C110 20 20 110 20 220a200 200 0 00318 161l115 115c6 6 15 6 21 0l21-21c6-6 6-16 1-22m-276-93c-77 0-140-63-140-140S143 80 220 80s140 63 140 140-63 140-140 140"/></svg></button>
+          <button onclick="resetView()" title="Fit to Screen"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 520"><path fill="currentColor" d="M296 240h154c10 0 13-11 5-19l-49-50 90-91c5-5 5-14 0-19l-37-37c-5-4-13-4-19 1l-90 90-51-49c-8-8-19-5-19 5v154c0 7 9 15 16 15m-72 40H70c-10 0-13 11-5 19l49 50-90 91c-5 5-5 14 0 19l37 37c5 5 13 5 19 0l91-91 51 49c7 9 18 6 18-4V297c0-7-9-17-16-17m56 16v154c0 10 11 13 19 5l50-49 91 90c5 5 14 5 19 0l37-37c5-5 5-13 0-19l-91-90 49-51c8-8 5-19-5-19H296c-7 0-16 9-16 16m-40-72V70c0-10-11-13-19-5l-50 49-91-90c-5-5-14-5-19 0l-37 37c-4 5-4 13 1 19l90 90-49 51c-8 8-5 19 5 19h154c7 0 15-9 15-16"/></svg></button>
+        </div>
       </div>
-      <div class="controls-row" id="layoutControls">
-        <button onclick="toggleLayoutMode()" id="layoutToggleBtn" title="Grid Layout"><svg viewBox="0 0 16 16" fill="currentColor" stroke="none"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg></button>
-        <button onclick="toggleRelationships()" id="relToggleBtn" title="Hide Relationships" class="route-active"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><circle cx="3" cy="8" r="2"/><circle cx="13" cy="8" r="2"/><line x1="5" y1="8" x2="11" y2="8"/></svg></button>
+      <!-- Group 2: Layout -->
+      <div class="control-group" id="layoutGroup">
+        <div class="control-group-header"><span class="control-group-title">Layout</span></div>
+        <div class="controls-row">
+          <button onclick="setLayoutMode('grid')" id="layoutGridBtn" title="Grid Layout"><svg viewBox="0 0 16 16" fill="currentColor" stroke="none"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg></button>
+          <button onclick="setLayoutMode('force')" id="layoutForceBtn" title="Force Layout"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"><circle cx="8" cy="8" r="2.5" fill="currentColor" stroke="none"/><circle cx="3" cy="3" r="1.5" fill="currentColor" stroke="none"/><circle cx="13" cy="3" r="1.5" fill="currentColor" stroke="none"/><circle cx="3" cy="13" r="1.5" fill="currentColor" stroke="none"/><circle cx="13" cy="13" r="1.5" fill="currentColor" stroke="none"/><line x1="5.5" y1="6" x2="4" y2="4.5"/><line x1="10.5" y1="6" x2="12" y2="4.5"/><line x1="5.5" y1="10" x2="4" y2="11.5"/><line x1="10.5" y1="10" x2="12" y2="11.5"/></svg></button>
+          <button onclick="toggleGridMode()" id="gridToggleBtn" title="Grid Snap: ON" class="route-active"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"><line x1="4" y1="1" x2="4" y2="15"/><line x1="8" y1="1" x2="8" y2="15"/><line x1="12" y1="1" x2="12" y2="15"/><line x1="1" y1="4" x2="15" y2="4"/><line x1="1" y1="8" x2="15" y2="8"/><line x1="1" y1="12" x2="15" y2="12"/></svg></button>
+          <button onclick="runAutoLayout()" id="autoLayoutBtn" title="Auto-Layout"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6 C2 2 8 2 12 2"/><polyline points="10,0.5 12,2 10,3.5"/><path d="M14 10 C14 14 8 14 4 14"/><polyline points="6,15.5 4,14 6,12.5"/></svg></button>
+        </div>
       </div>
-      <div class="controls-row group-row ${hasGroups ? 'visible' : ''}" id="groupControls">
-        <button onclick="expandAllGroups()" id="expandAllBtn" title="Expand All Groups"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="8" y1="5" x2="8" y2="1"/><line x1="8" y1="11" x2="8" y2="15"/><line x1="5" y1="8" x2="1" y2="8"/><line x1="11" y1="8" x2="15" y2="8"/><polyline points="6.5,3 8,1 9.5,3"/><polyline points="6.5,13 8,15 9.5,13"/><polyline points="3,6.5 1,8 3,9.5"/><polyline points="13,6.5 15,8 13,9.5"/></svg></button>
-        <button onclick="collapseAllGroups()" id="collapseAllBtn" title="Collapse All Groups"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="8" y1="1" x2="8" y2="5"/><line x1="8" y1="15" x2="8" y2="11"/><line x1="1" y1="8" x2="5" y2="8"/><line x1="15" y1="8" x2="11" y2="8"/><polyline points="6.5,3 8,5 9.5,3"/><polyline points="6.5,13 8,11 9.5,13"/><polyline points="3,6.5 5,8 3,9.5"/><polyline points="13,6.5 11,8 13,9.5"/></svg></button>
+      <!-- Group: Groups (hidden by default) -->
+      <div class="control-group hidden-group ${hasGroups ? 'visible' : ''}" id="groupControls">
+        <div class="control-group-header"><span class="control-group-title">Groups</span></div>
+        <div class="controls-row">
+          <button onclick="expandAllGroups()" id="expandAllBtn" title="Expand All Groups"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="8" y1="5" x2="8" y2="1"/><line x1="8" y1="11" x2="8" y2="15"/><line x1="5" y1="8" x2="1" y2="8"/><line x1="11" y1="8" x2="15" y2="8"/><polyline points="6.5,3 8,1 9.5,3"/><polyline points="6.5,13 8,15 9.5,13"/><polyline points="3,6.5 1,8 3,9.5"/><polyline points="13,6.5 15,8 13,9.5"/></svg></button>
+          <button onclick="collapseAllGroups()" id="collapseAllBtn" title="Collapse All Groups"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="8" y1="1" x2="8" y2="5"/><line x1="8" y1="15" x2="8" y2="11"/><line x1="1" y1="8" x2="5" y2="8"/><line x1="15" y1="8" x2="11" y2="8"/><polyline points="6.5,3 8,5 9.5,3"/><polyline points="6.5,13 8,11 9.5,13"/><polyline points="3,6.5 5,8 3,9.5"/><polyline points="13,6.5 11,8 13,9.5"/></svg></button>
+        </div>
       </div>
-      <div class="controls-row" id="gridControls">
-        <button onclick="toggleGridMode()" id="gridToggleBtn" title="Grid Snap: ON" class="route-active"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"><line x1="4" y1="1" x2="4" y2="15"/><line x1="8" y1="1" x2="8" y2="15"/><line x1="12" y1="1" x2="12" y2="15"/><line x1="1" y1="4" x2="15" y2="4"/><line x1="1" y1="8" x2="15" y2="8"/><line x1="1" y1="12" x2="15" y2="12"/></svg></button>
-        <button onclick="runAutoLayout()" id="autoLayoutBtn" title="Auto-Layout"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6 C2 2 8 2 12 2"/><polyline points="10,0.5 12,2 10,3.5"/><path d="M14 10 C14 14 8 14 4 14"/><polyline points="6,15.5 4,14 6,12.5"/></svg></button>
+      <!-- Group 3: Connectors -->
+      <div class="control-group" id="connectorsGroup">
+        <div class="control-group-header">
+          <span class="control-group-title">Connectors</span>
+          <button onclick="toggleRelationships()" id="relToggleBtn" title="Hide Connectors" class="route-active"><svg viewBox="0 0 52 52" fill="currentColor"><path d="M51.8 25.1C47.1 15.6 37.3 9 26 9S4.9 15.6.2 25.1a2.1 2.1 0 000 1.8C4.9 36.4 14.7 43 26 43s21.1-6.6 25.8-16.1c.3-.6.3-1.2 0-1.8zM26 37c-6.1 0-11-4.9-11-11s4.9-11 11-11 11 4.9 11 11-4.9 11-11 11zm0-16a5 5 0 100 10 5 5 0 000-10z"/></svg></button>
+        </div>
+        <div class="controls-row" id="routingControls">
+          <button onclick="setRoutingMode('classic')" id="routeClassicBtn" title="Classic Routing" class="route-active"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="2" cy="13" r="1.5" fill="currentColor" stroke="none"/><circle cx="14" cy="3" r="1.5" fill="currentColor" stroke="none"/><path d="M3.5 12 Q 8 4 12.5 3.5"/></svg></button>
+          <button onclick="setRoutingMode('orthogonal')" id="routeOrthBtn" title="Orthogonal Routing"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="2" cy="13" r="1.5" fill="currentColor" stroke="none"/><circle cx="14" cy="3" r="1.5" fill="currentColor" stroke="none"/><path d="M3.5 13 L8 13 L8 3 L12.5 3"/></svg></button>
+          <button onclick="setRoutingMode('curved')" id="routeCurvedBtn" title="Curved Routing"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="2" cy="13" r="1.5" fill="currentColor" stroke="none"/><circle cx="14" cy="3" r="1.5" fill="currentColor" stroke="none"/><path d="M3.5 12.5 C4 6 12 10 12.5 3.5"/></svg></button>
+          <button onclick="setRoutingMode('straight')" id="routeStraightBtn" title="Straight Routing"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="2" cy="13" r="1.5" fill="currentColor" stroke="none"/><circle cx="14" cy="3" r="1.5" fill="currentColor" stroke="none"/><line x1="3.5" y1="12" x2="12.5" y2="4"/></svg></button>
+        </div>
       </div>
-      <div class="controls-row" id="routingControls">
-        <button onclick="setRoutingMode('classic')" id="routeClassicBtn" title="Classic Routing" class="route-active"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="2" cy="13" r="1.5" fill="currentColor" stroke="none"/><circle cx="14" cy="3" r="1.5" fill="currentColor" stroke="none"/><path d="M3.5 12 Q 8 4 12.5 3.5"/></svg></button>
-        <button onclick="setRoutingMode('orthogonal')" id="routeOrthBtn" title="Orthogonal Routing"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="2" cy="13" r="1.5" fill="currentColor" stroke="none"/><circle cx="14" cy="3" r="1.5" fill="currentColor" stroke="none"/><path d="M3.5 13 L8 13 L8 3 L12.5 3"/></svg></button>
-        <button onclick="setRoutingMode('curved')" id="routeCurvedBtn" title="Curved Routing"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="2" cy="13" r="1.5" fill="currentColor" stroke="none"/><circle cx="14" cy="3" r="1.5" fill="currentColor" stroke="none"/><path d="M3.5 12.5 C4 6 12 10 12.5 3.5"/></svg></button>
-        <button onclick="setRoutingMode('straight')" id="routeStraightBtn" title="Straight Routing"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="2" cy="13" r="1.5" fill="currentColor" stroke="none"/><circle cx="14" cy="3" r="1.5" fill="currentColor" stroke="none"/><line x1="3.5" y1="12" x2="12.5" y2="4"/></svg></button>
+      <!-- Group: Unmapped (hidden if no unmapped objects) -->
+      <div class="control-group hidden-group ${hasUnmappedNodes ? 'visible' : ''}" id="unmappedGroup">
+        <div class="control-group-header"><span class="control-group-title">Unmapped Objects</span></div>
+        <div class="controls-row">
+          <button onclick="setUnmappedVisibility(true)" id="unmappedShowBtn" title="Show Unmapped" class="route-active"><svg viewBox="0 0 52 52" fill="currentColor"><path d="M51.8 25.1C47.1 15.6 37.3 9 26 9S4.9 15.6.2 25.1a2.1 2.1 0 000 1.8C4.9 36.4 14.7 43 26 43s21.1-6.6 25.8-16.1c.3-.6.3-1.2 0-1.8zM26 37c-6.1 0-11-4.9-11-11s4.9-11 11-11 11 4.9 11 11-4.9 11-11 11zm0-16a5 5 0 100 10 5 5 0 000-10z"/></svg></button>
+          <button onclick="setUnmappedVisibility(false)" id="unmappedHideBtn" title="Hide Unmapped"><svg viewBox="0 0 52 52" fill="currentColor"><path d="M51.8 25.1C47.1 15.6 37.3 9 26 9S4.9 15.6.2 25.1a2.1 2.1 0 000 1.8C4.9 36.4 14.7 43 26 43s21.1-6.6 25.8-16.1c.3-.6.3-1.2 0-1.8zM26 37c-6.1 0-11-4.9-11-11s4.9-11 11-11 11 4.9 11 11-4.9 11-11 11zm0-16a5 5 0 100 10 5 5 0 000-10z"/><line x1="6" y1="6" x2="46" y2="46" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg></button>
+        </div>
+      </div>
+      <!-- Group: Changes (hidden unless compare mode) -->
+      <div class="control-group hidden-group ${isCompareModeVal ? 'visible' : ''}" id="changesGroup">
+        <div class="control-group-header"><span class="control-group-title">Highlight Changes</span></div>
+        <div class="controls-row">
+          <button onclick="setHighlightChanges(true)" id="changesOnBtn" title="Highlight Changes Only"><svg viewBox="0 0 52 52" fill="currentColor"><path d="M26 2a24 24 0 100 48 24 24 0 000-48zm13.3 18.5L24.1 37.7a1.5 1.5 0 01-2.2 0l-9.2-9.2a1.5 1.5 0 010-2.2l2.2-2.2a1.5 1.5 0 012.2 0L23 30l13-13a1.5 1.5 0 012.2 0l2.2 2.2a1.5 1.5 0 01-.1 2.3z"/></svg></button>
+          <button onclick="setHighlightChanges(false)" id="changesOffBtn" title="Show All" class="route-active"><svg viewBox="0 0 52 52" fill="currentColor"><path d="M26 2a24 24 0 100 48 24 24 0 000-48zm12.4 33.6a1.5 1.5 0 010 2.1l-2.7 2.7a1.5 1.5 0 01-2.1 0L26 32.8l-7.6 7.6a1.5 1.5 0 01-2.1 0l-2.7-2.7a1.5 1.5 0 010-2.1L21.2 28l-7.6-7.6a1.5 1.5 0 010-2.1l2.7-2.7a1.5 1.5 0 012.1 0L26 23.2l7.6-7.6a1.5 1.5 0 012.1 0l2.7 2.7a1.5 1.5 0 010 2.1L30.8 28z"/></svg></button>
+        </div>
       </div>
     </div>
     <div id="viewport">
@@ -1356,11 +1393,11 @@ export function getERDV2WebviewContent(
       <span class="legend-chevron" id="legendChevron">&#9660;</span>
     </div>
     <div class="legend-body" id="legendBody">
-      <div class="item"><span class="legend-box" style="background:#FF538A;border-color:#FF538A;"></span> Data Object (DMO)</div>
-      <div class="item"><span class="legend-box" style="background:#5A1BA9;border-color:#5A1BA9;"></span> Data Lake Object (DLO)</div>
-      <div class="item"><span class="legend-box" style="background:#1B96FF;border-color:#1B96FF;"></span> Calculated Insight (CI)</div>
-      <div class="item"><span class="legend-box" style="background:#FF5D2D;border-color:#FF5D2D;"></span> Logical View</div>
-      <div class="item"><span class="legend-line" style="background:#939393;"></span> Relationship</div>
+      <div class="item" id="legendDmoItem" style="display:${countDMO > 0 ? '' : 'none'};"><span class="legend-box" style="background:#FF538A;border-color:#FF538A;"></span> Data Object (DMO)<span class="legend-count" id="legendDmoCount">${countDMO}</span></div>
+      <div class="item" id="legendDloItem" style="display:${countDLO > 0 ? '' : 'none'};"><span class="legend-box" style="background:#5A1BA9;border-color:#5A1BA9;"></span> Data Lake Object (DLO)<span class="legend-count" id="legendDloCount">${countDLO}</span></div>
+      <div class="item" id="legendCiItem" style="display:${countCI > 0 ? '' : 'none'};"><span class="legend-box" style="background:#1B96FF;border-color:#1B96FF;"></span> Calculated Insight (CI)<span class="legend-count" id="legendCiCount">${countCI}</span></div>
+      <div class="item" id="legendLvItem" style="display:${countLV > 0 ? '' : 'none'};"><span class="legend-box" style="background:#FF5D2D;border-color:#FF5D2D;"></span> Logical View<span class="legend-count" id="legendLvCount">${countLV}</span></div>
+      <div class="item"><span class="legend-line" style="background:#939393;"></span> Relationship<span class="legend-count" id="legendRelCount">${countRel}</span></div>
       <div id="drilldownLegendSection" style="display:none;">
         <div style="border-top:1px solid #dddbda;margin:8px 0;"></div>
         <div class="title" style="margin-bottom:8px;">Entities (drill-down)</div>
@@ -1370,10 +1407,12 @@ export function getERDV2WebviewContent(
         <div class="item"><span class="legend-swatch" style="border:none;background:#032d60;border-radius:50%;"></span> Metric</div>
         <div class="item"><span class="legend-swatch" style="border:none;background:#706e6b;border-radius:50%;"></span> Group / Bin</div>
       </div>
-      <div style="border-top:1px solid #dddbda;margin:8px 0;"></div>
-      <div class="title" style="margin-bottom:8px;">Indicators</div>
-      <div class="item"><span class="legend-swatch" style="border:none;border-radius:50%;background:linear-gradient(45deg,#FF538A 0%,#FF538A 100%);position:relative;overflow:hidden;"><span style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:50%;background:repeating-linear-gradient(45deg,transparent,transparent 3px,rgba(255,255,255,0.5) 3px,rgba(255,255,255,0.5) 6px);"></span></span> Base Model</div>
-      <div class="item" id="unmappedLegendItem" style="display:none;"><span class="legend-swatch" style="border:none;background:#FF538A;border-radius:50%;opacity:0.35;filter:grayscale(40%);"></span> Unmapped</div>
+      <div id="indicatorsLegendSection" style="display:${hasBaseModelNodes || hasUnmappedNodes ? 'block' : 'none'};">
+        <div style="border-top:1px solid #dddbda;margin:8px 0;"></div>
+        <div class="title" style="margin-bottom:8px;">Indicators</div>
+        <div id="baseModelLegendItem" style="display:${hasBaseModelNodes ? '' : 'none'};" class="item"><span class="legend-swatch" style="border:none;border-radius:50%;background:linear-gradient(45deg,#FF538A 0%,#FF538A 100%);position:relative;overflow:hidden;"><span style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:50%;background:repeating-linear-gradient(45deg,transparent,transparent 3px,rgba(255,255,255,0.5) 3px,rgba(255,255,255,0.5) 6px);"></span></span> Base Model<span class="legend-count" id="legendBaseCount">${countBaseModel}</span></div>
+        <div class="item" id="unmappedLegendItem" style="display:${hasUnmappedNodes ? '' : 'none'};"><span class="legend-swatch" style="border:none;background:#FF538A;border-radius:50%;opacity:0.35;filter:grayscale(40%);"></span> Unmapped<span class="legend-count" id="legendUnmappedCount">${countUnmapped}</span></div>
+      </div>
       <div id="diffLegendSection" style="display:none;">
         <div style="border-top:1px solid #dddbda;margin:10px 0;"></div>
         <div class="title" style="margin-bottom:8px;" id="diffLegendTitle">Changes (Local vs Remote)</div>
@@ -1382,11 +1421,6 @@ export function getERDV2WebviewContent(
         <div class="item"><span class="diff-legend-ring" style="border-color:#e74c3c;"></span> <span class="diff-legend-badge" style="background:#e74c3c;color:#fff;" id="diffLabelRemoved">REMOTE ONLY</span> <span id="diffDescRemoved">Exists only in remote</span></div>
         <div style="border-top:1px solid #dddbda;margin:8px 0;"></div>
         <div class="item" id="diffSummary" style="color:#080707;font-weight:600;"></div>
-        <div style="border-top:1px solid #dddbda;margin:8px 0;"></div>
-        <div class="diff-toggle-row" id="highlightToggle" onclick="event.stopPropagation(); toggleHighlightChanges()">
-          <div class="diff-toggle-track" id="highlightTrack"><div class="diff-toggle-thumb"></div></div>
-          <span class="diff-toggle-label">Highlight changes only</span>
-        </div>
       </div>
     </div>
   </div>
@@ -1528,10 +1562,18 @@ export function getERDV2WebviewContent(
       document.getElementById('diffSummary').textContent = total === 0 ? 'No differences found' : parts.join(', ') + ' (' + total + ' total)';
     }
 
-    function toggleHighlightChanges() {
+    function updateChangesButtons() {
+      var onBtn = document.getElementById('changesOnBtn');
+      var offBtn = document.getElementById('changesOffBtn');
+      if (onBtn) onBtn.classList.toggle('route-active', highlightChangesActive);
+      if (offBtn) offBtn.classList.toggle('route-active', !highlightChangesActive);
+    }
+
+    function setHighlightChanges(active) {
       if (!isCompareMode) return;
-      highlightChangesActive = !highlightChangesActive;
-      document.getElementById('highlightTrack').classList.toggle('active', highlightChangesActive);
+      if (highlightChangesActive === active) return;
+      highlightChangesActive = active;
+      updateChangesButtons();
       applyHighlightDimming();
     }
 
@@ -1540,6 +1582,33 @@ export function getERDV2WebviewContent(
       const chevron = document.getElementById('legendChevron');
       body.classList.toggle('collapsed');
       chevron.classList.toggle('collapsed');
+    }
+
+    function updateLegendCounts() {
+      var dmoCount = 0, dloCount = 0, ciCount = 0, lvCount = 0, baseCount = 0, unmappedCount = 0;
+      nodes.forEach(function(n) {
+        if (n.type === 'logicalView') lvCount++;
+        else if (n.dataObjectType === 'Cio') ciCount++;
+        else if (n.dataObjectType === 'Dlo') dloCount++;
+        else dmoCount++;
+        if (n.baseModelApiName) baseCount++;
+        if (n.unmapped) unmappedCount++;
+      });
+      var el;
+      el = document.getElementById('legendDmoCount'); if (el) el.textContent = String(dmoCount);
+      el = document.getElementById('legendDmoItem'); if (el) el.style.display = dmoCount > 0 ? '' : 'none';
+      el = document.getElementById('legendDloCount'); if (el) el.textContent = String(dloCount);
+      el = document.getElementById('legendDloItem'); if (el) el.style.display = dloCount > 0 ? '' : 'none';
+      el = document.getElementById('legendCiCount'); if (el) el.textContent = String(ciCount);
+      el = document.getElementById('legendCiItem'); if (el) el.style.display = ciCount > 0 ? '' : 'none';
+      el = document.getElementById('legendLvCount'); if (el) el.textContent = String(lvCount);
+      el = document.getElementById('legendLvItem'); if (el) el.style.display = lvCount > 0 ? '' : 'none';
+      el = document.getElementById('legendRelCount'); if (el) el.textContent = String(edges.length);
+      el = document.getElementById('legendBaseCount'); if (el) el.textContent = String(baseCount);
+      el = document.getElementById('baseModelLegendItem'); if (el) el.style.display = baseCount > 0 ? '' : 'none';
+      el = document.getElementById('legendUnmappedCount'); if (el) el.textContent = String(unmappedCount);
+      el = document.getElementById('unmappedLegendItem'); if (el) el.style.display = unmappedCount > 0 ? '' : 'none';
+      el = document.getElementById('indicatorsLegendSection'); if (el) el.style.display = (baseCount > 0 || unmappedCount > 0) ? 'block' : 'none';
     }
 
     function applyHighlightDimming() {
@@ -3402,6 +3471,8 @@ export function getERDV2WebviewContent(
             if (hasUnmappedNodes) {
               var unmLegend = document.getElementById('unmappedLegendItem');
               if (unmLegend) unmLegend.style.display = '';
+              var indSec = document.getElementById('indicatorsLegendSection');
+              if (indSec) indSec.style.display = 'block';
             }
           } else if (Object.keys(loadedPos).length > 0) {
             Object.keys(loadedPos).forEach(function(nodeId) {
@@ -3642,39 +3713,54 @@ export function getERDV2WebviewContent(
     function drawHoverEdges(relEdges) {
       if (relEdges.length === 0) return;
       createArrowMarkers(svg, { default: '#0070d2' }, 'tophover-');
-      var portMap = isClassicMode() ? null : buildPortMap(relEdges, nodePositions, NODE_SIZE);
+      var portMap = isClassicMode() ? null : buildPortMap(edges, nodePositions, NODE_SIZE);
+      var relSet = {};
+      relEdges.forEach(function(e) { relSet[e.id] = true; });
 
-      relEdges.forEach(function(edge, idx) {
-        var fp = nodePositions[edge.from];
-        var tp = nodePositions[edge.to];
-        if (!fp || !tp) return;
-        var r = NODE_SIZE / 2;
+      var pairCounts = {};
+      edges.forEach(function(e) {
+        var pk = e.from < e.to ? e.from + '||' + e.to : e.to + '||' + e.from;
+        if (!pairCounts[pk]) pairCounts[pk] = { count: 0, idx: 0 };
+        pairCounts[pk].count++;
+      });
+
+      edges.forEach(function(edge, idx) {
+        var fromPos = nodePositions[edge.from];
+        var toPos = nodePositions[edge.to];
+        if (!fromPos || !toPos) return;
+        var radius = NODE_SIZE / 2;
+        var fcx = fromPos.x + radius, fcy = fromPos.y + radius;
+        var tcx = toPos.x + radius, tcy = toPos.y + radius;
         var d;
 
         if (isClassicMode()) {
-          var fcx = fp.x + r, fcy = fp.y + r;
-          var tcx = tp.x + r, tcy = tp.y + r;
           var angle = Math.atan2(tcy - fcy, tcx - fcx);
-          var fex = fcx + Math.cos(angle) * (r + 5);
-          var fey = fcy + Math.sin(angle) * (r + 5);
-          var tex = tcx - Math.cos(angle) * (r + 10);
-          var tey = tcy - Math.sin(angle) * (r + 10);
-          var co = 20 * (idx % 2 === 0 ? 1 : -1);
+          var fex = fcx + Math.cos(angle) * (radius + 5), fey = fcy + Math.sin(angle) * (radius + 5);
+          var tex = tcx - Math.cos(angle) * (radius + 15), tey = tcy - Math.sin(angle) * (radius + 15);
+          var co = 30 * (idx % 2 === 0 ? 1 : -1);
           var cp = generateClassicPath(fex, fey, tex, tey, co);
           d = cp.d;
         } else {
-          var fcx2 = fp.x + r, fcy2 = fp.y + r;
-          var tcx2 = tp.x + r, tcy2 = tp.y + r;
-          var fSide = getSide(fcx2, fcy2, tcx2, tcy2);
-          var tSide = getSide(tcx2, tcy2, fcx2, fcy2);
-          var edgeId = edge.from + '>' + edge.to;
-          var fOff = getPortOffset(edgeId, edge.from, fSide, portMap, NODE_SIZE);
-          var tOff = getPortOffset(edgeId, edge.to, tSide, portMap, NODE_SIZE);
-          var fPt = getPortPoint(fcx2, fcy2, fSide, fOff, r + 2);
-          var tPt = getPortPoint(tcx2, tcy2, tSide, tOff, r + 8);
-          var co2 = 20 * (idx % 2 === 0 ? 1 : -1);
-          d = generateRoutedPath(fPt.x, fPt.y, tPt.x, tPt.y, co2, nodePositions, NODE_SIZE);
+          var fromSide = getSide(fcx, fcy, tcx, tcy);
+          var toSide = getSide(tcx, tcy, fcx, fcy);
+          var fromOff = getPortOffset(edge.id, edge.from, fromSide, portMap, NODE_SIZE);
+          var toOff = getPortOffset(edge.id, edge.to, toSide, portMap, NODE_SIZE);
+          var sp = getPortPoint(fcx, fcy, fromSide, fromOff, radius);
+          var tp = getPortPoint(tcx, tcy, toSide, toOff, radius);
+
+          var pk = edge.from < edge.to ? edge.from + '||' + edge.to : edge.to + '||' + edge.from;
+          var pc = pairCounts[pk];
+          var curveOffset = 0;
+          if (routingMode === 'straight') {
+            var spacing = 20;
+            curveOffset = spacing * (pc.idx - (pc.count - 1) / 2);
+          }
+          pc.idx++;
+
+          d = generateRoutedPath(sp.x, sp.y, tp.x, tp.y, curveOffset, nodePositions, NODE_SIZE);
         }
+
+        if (!relSet[edge.id]) return;
 
         var hoverStroke = isClassicMode() ? '5' : '3';
         var hoverGlow = isClassicMode() ? '12' : '8';
@@ -3751,9 +3837,10 @@ export function getERDV2WebviewContent(
       }
     }
 
-    function toggleLayoutMode() {
+    function setLayoutMode(mode) {
       if (currentView === 'drilldown') return;
-      layoutMode = layoutMode === 'grid' ? 'force' : 'grid';
+      if (layoutMode === mode) return;
+      layoutMode = mode;
       if (layoutMode === 'grid') {
         hideRelationships = true;
       }
@@ -3776,16 +3863,19 @@ export function getERDV2WebviewContent(
     }
 
     function updateLayoutControls() {
-      var layoutBtn = document.getElementById('layoutToggleBtn');
+      var gridBtn = document.getElementById('layoutGridBtn');
+      var forceBtn = document.getElementById('layoutForceBtn');
       var relBtn = document.getElementById('relToggleBtn');
 
-      if (layoutBtn) {
-        layoutBtn.classList.toggle('route-active', layoutMode === 'grid');
-        layoutBtn.title = layoutMode === 'grid' ? 'Switch to Force Layout' : 'Switch to Grid Layout';
+      if (gridBtn) {
+        gridBtn.classList.toggle('route-active', layoutMode === 'grid');
+      }
+      if (forceBtn) {
+        forceBtn.classList.toggle('route-active', layoutMode === 'force');
       }
       if (relBtn) {
         relBtn.classList.toggle('route-active', !hideRelationships);
-        relBtn.title = hideRelationships ? 'Show Relationships' : 'Hide Relationships';
+        relBtn.title = hideRelationships ? 'Show Connectors' : 'Hide Connectors';
       }
     }
 
@@ -3922,9 +4012,9 @@ export function getERDV2WebviewContent(
       closeResults();
       if (highlightChangesActive) {
         highlightChangesActive = false;
-        document.getElementById('highlightTrack').classList.remove('active');
+        updateChangesButtons();
       }
-      
+
       // Save state for exit animation
       savedTopViewState = { panX, panY, scale };
       savedDrillNodeId = nodeData.id;
@@ -4556,7 +4646,7 @@ export function getERDV2WebviewContent(
       onDrillEntityLeave();
       if (highlightChangesActive) {
         highlightChangesActive = false;
-        document.getElementById('highlightTrack').classList.remove('active');
+        updateChangesButtons();
       }
       
       // --- PHASE 1: Collapse drill-down entities back to center (400ms) ---
@@ -4599,6 +4689,8 @@ export function getERDV2WebviewContent(
         
         currentView = 'top';
         document.getElementById('backBtn').style.display = 'none';
+        var ddLegendExit = document.getElementById('drilldownLegendSection');
+        if (ddLegendExit) ddLegendExit.style.display = 'none';
         var exitViewSuffix = isCompareMode ? ' - Compare (Local vs Remote)' : (layoutMode === 'grid' ? ' - Grid View' : ' - ERD V2');
         document.getElementById('headerTitle').textContent = ${JSON.stringify(escapeHtml(modelUI.model.label))} + exitViewSuffix;
         document.getElementById('topStats').style.display = 'flex';
@@ -5432,22 +5524,13 @@ export function getERDV2WebviewContent(
       else { drawEdges(); }
     }
 
-    function toggleUnmapped() {
-      showUnmapped = !showUnmapped;
-      var btn = document.getElementById('unmappedToggleBtn');
-      var label = document.getElementById('unmappedToggleLabel');
-      var icon = document.getElementById('unmappedToggleIcon');
-      if (showUnmapped) {
-        btn.classList.remove('active');
-        btn.title = 'Hide unmapped objects';
-        label.textContent = 'Unmapped';
-        icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
-      } else {
-        btn.classList.add('active');
-        btn.title = 'Show unmapped objects';
-        label.textContent = 'Unmapped Hidden';
-        icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
-      }
+    function setUnmappedVisibility(visible) {
+      if (showUnmapped === visible) return;
+      showUnmapped = visible;
+      var showBtn = document.getElementById('unmappedShowBtn');
+      var hideBtn = document.getElementById('unmappedHideBtn');
+      if (showBtn) showBtn.classList.toggle('route-active', showUnmapped);
+      if (hideBtn) hideBtn.classList.toggle('route-active', !showUnmapped);
       if (currentView === 'top') { renderTopLevel(true); }
       else if (currentView === 'grouped') { renderGroupedView(); }
       else if (currentView === 'listGrouped') { renderListGroupedView(); }
@@ -5499,6 +5582,8 @@ export function getERDV2WebviewContent(
       if (hasUnmappedNodes) {
         var unmLegend = document.getElementById('unmappedLegendItem');
         if (unmLegend) unmLegend.style.display = '';
+        var indSec2 = document.getElementById('indicatorsLegendSection');
+        if (indSec2) indSec2.style.display = 'block';
       }
     }, 500);
     
@@ -5821,8 +5906,10 @@ export function getERDV2WebviewContent(
       isCompareMode = compareMode;
       highlightChangesActive = false;
 
+      var changesGrp = document.getElementById('changesGroup');
       if (compareMode) {
         document.getElementById('diffLegendSection').style.display = 'block';
+        if (changesGrp) changesGrp.classList.add('visible');
         var addedCount = 0, modifiedCount = 0, removedCount = 0;
         var allItems = nodes.concat(edges);
         allItems.forEach(function(item) {
@@ -5832,24 +5919,13 @@ export function getERDV2WebviewContent(
         });
         var summaryEl = document.getElementById('diffSummary');
         if (summaryEl) summaryEl.textContent = addedCount + ' added, ' + modifiedCount + ' modified, ' + removedCount + ' removed';
-        var trackEl = document.getElementById('highlightTrack');
-        if (trackEl) trackEl.classList.remove('active');
+        updateChangesButtons();
       } else {
         document.getElementById('diffLegendSection').style.display = 'none';
+        if (changesGrp) changesGrp.classList.remove('visible');
       }
 
-      var topStats = document.getElementById('topStats');
-      if (topStats) {
-        var badges = topStats.querySelectorAll('.badge');
-        var objCount = 0, viewCount = 0;
-        nodes.forEach(function(n) {
-          if (n.type === 'dataObject') objCount++;
-          else if (n.type === 'logicalView') viewCount++;
-        });
-        if (badges[0]) badges[0].textContent = String(objCount);
-        if (badges[1]) badges[1].textContent = String(viewCount);
-        if (badges[2]) badges[2].textContent = String(edges.length);
-      }
+      updateLegendCounts();
 
       closeSidebar();
 
