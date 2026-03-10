@@ -1,0 +1,56 @@
+# Node modules
+node_modules/
+
+# Compiled output
+out/
+dist/
+*.vsix
+vsix/*
+!vsix/CHANGELOG.md
+
+# TypeScript cache
+*.tsbuildinfo
+
+# VS Code
+.vscode-test/
+.vscode/settings.json
+.vscode/launch.json
+
+# Salesforce local tooling
+.sfdx/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.cursor/*
+!.cursor/rules/
+*.swp
+*.swo
+*~
+
+# Testing
+coverage/
+.nyc_output/
+
+# Internal dev notes
+docs/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/

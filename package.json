@@ -1,0 +1,155 @@
+{
+  "name": "Salesforce-Semantic-DX",
+  "displayName": "Salesforce Semantic DX",
+  "description": "Retrieve, deploy, visualize, and test Tableau Semantic Layer models from within VS Code",
+  "version": "0.0.5",
+  "publisher": "salesforce",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/forcedotcom/tableau-dx.git"
+  },
+  "license": "BSD-3-Clause",
+  "preview": true,
+  "o11yUploadEndpoint": "https://794testsite.my.site.com/byolwr/webruntime/log/metrics",
+  "enableO11y": "true",
+  "productFeatureId": "aJCEE0000009zAj4AI",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "extensionDependencies": [
+    "salesforce.salesforcedx-vscode-core"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "Salesforce Semantic DX",
+      "properties": {
+        "semanticLayer.defaultModelFilter": {
+          "type": "string",
+          "default": "",
+          "description": "Default search term to filter models (e.g., 'sales'). Leave empty to show all models."
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "semanticLayer.showOrgInfo",
+        "title": "Tableau Semantic: Show Org Info"
+      },
+      {
+        "command": "semanticLayer.listModels",
+        "title": "Tableau Semantic: List Models"
+      },
+      {
+        "command": "semanticLayer.exportToFolder",
+        "title": "Tableau Semantic: Retrieve Model to Folder"
+      },
+      {
+        "command": "semanticLayer.updateModel",
+        "title": "Tableau Semantic: Deploy Model"
+      },
+      {
+        "command": "semanticLayer.visualizeCompareERD",
+        "title": "Tableau Semantic: Visualize and Compare Local to Remote"
+      },
+      {
+        "command": "semanticLayer.viewModelHistory",
+        "title": "Tableau Semantic: View Model History"
+      },
+      {
+        "command": "semanticLayer.visualizeLocalERDV2",
+        "title": "Tableau Semantic: Visualize Local ERD"
+      },
+      {
+        "command": "semanticLayer.clearPositionCache",
+        "title": "Tableau Semantic: Clear Position Cache"
+      },
+      {
+        "command": "semanticLayer.showPositionCacheStats",
+        "title": "Tableau Semantic: Show Position Cache Stats"
+      },
+      {
+        "command": "semanticLayer.testModel",
+        "title": "Tableau Semantic: Test Model"
+      },
+      {
+        "command": "semanticLayer.autoGenerateGroups",
+        "title": "Tableau Semantic: Auto-Generate Groups"
+      },
+      {
+        "command": "semanticLayer.restartMcp",
+        "title": "Tableau Semantic: Restart MCP Server"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "semanticLayer.exportToFolder",
+          "when": "explorerResourceIsFolder",
+          "group": "semantic@1"
+        },
+        {
+          "command": "semanticLayer.updateModel",
+          "when": "resourceExtname == .json",
+          "group": "semantic@3"
+        },
+        {
+          "command": "semanticLayer.visualizeLocalERDV2",
+          "when": "resourceFilename == model.json",
+          "group": "semantic@4"
+        },
+        {
+          "command": "semanticLayer.visualizeCompareERD",
+          "when": "resourceFilename == model.json",
+          "group": "semantic@5"
+        },
+        {
+          "command": "semanticLayer.viewModelHistory",
+          "when": "resourceFilename == model.json",
+          "group": "semantic@6"
+        },
+        {
+          "command": "semanticLayer.testModel",
+          "when": "resourceFilename == model.json",
+          "group": "semantic@7"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run build",
+    "build": "npm run build:ext && npm run build:erd",
+    "build:ext": "node esbuild.config.js",
+    "build:erd": "esbuild src/webviews/erd-v2-split/index.ts --bundle --format=esm --outfile=dist/erd-v2.js",
+    "compile": "tsc -p ./ && npm run copy:mcp-assets",
+    "copy:mcp-assets": "npm run copy:mcp-server && npm run copy:mcp-rule",
+    "copy:mcp-rule": "node -e \"const fs=require('fs'),p=require('path');const src=p.join(__dirname,'src','mcp','tableau-mcp-rule.md'),dest=p.join(__dirname,'out','mcp');fs.mkdirSync(dest,{recursive:true});fs.copyFileSync(src,p.join(dest,'tableau-mcp-rule.md'));console.log('Copied MCP rule template to out/mcp/')\"",
+    "build:mcp-server": "cd ../tableau-next-mcp && npm run mcp:build:stdio",
+    "copy:mcp-server": "node -e \"const fs=require('fs'),p=require('path');const src=p.resolve(__dirname,'../tableau-next-mcp/packages/tableau-next-mcp/dist/stdio-server.mjs'),dest=p.resolve(__dirname,'out/mcp-server');fs.mkdirSync(dest,{recursive:true});fs.copyFileSync(src,p.join(dest,'stdio-server.mjs'));console.log('Copied MCP server bundle to out/mcp-server/')\"",
+    "watch": "tsc -watch -p ./ & npm run watch:erd",
+    "watch:erd": "esbuild src/webviews/erd-v2-split/index.ts --bundle --format=esm --outfile=dist/erd-v2.js --watch",
+    "lint": "eslint src --ext ts",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@salesforce-ux/design-system": "^2.29.0",
+    "@types/node": "^20.10.0",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^8.57.1",
+    "@typescript-eslint/parser": "^8.57.1",
+    "@vscode/vsce": "^3.7.1",
+    "esbuild": "^0.27.4",
+    "eslint": "^10.0.3",
+    "typescript": "^5.3.0"
+  },
+  "dependencies": {
+    "@salesforce/core": "^8.8.0",
+    "@salesforce/vscode-service-provider": "^1.5.0"
+  }
+}
