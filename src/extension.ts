@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as path from 'path';
 import {
   showOrgInfoCommand,
   listModelsCommand,
@@ -17,6 +18,18 @@ import { clearPositionCacheCommand, showPositionCacheStatsCommand } from './comm
 
 export function activate(context: vscode.ExtensionContext) {
   console.log('Salesforce Semantic Layer extension is now active!');
+
+  const currentVersion: string = context.extension.packageJSON.version ?? '0.0.0';
+  const welcomeKey = `semanticLayer.welcomed_${currentVersion}`;
+
+  if (!context.globalState.get<boolean>(welcomeKey)) {
+    context.globalState.update(welcomeKey, true);
+    const readmePath = path.join(context.extensionPath, 'README.md');
+    const readmeUri = vscode.Uri.file(readmePath);
+    vscode.commands.executeCommand('markdown.showPreview', readmeUri).then(undefined, () => {
+      vscode.commands.executeCommand('vscode.open', readmeUri);
+    });
+  }
 
   const showOrgInfoDisposable = vscode.commands.registerCommand(
     'semanticLayer.showOrgInfo',
