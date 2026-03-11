@@ -100,11 +100,6 @@
           "command": "semanticLayer.testModel",
           "when": "resourceFilename == model.json",
           "group": "semantic@7"
-        },
-        {
-          "command": "semanticLayer.autoGenerateGroups",
-          "when": "resourceFilename == model.json",
-          "group": "semantic@8"
         }
       ]
     }
