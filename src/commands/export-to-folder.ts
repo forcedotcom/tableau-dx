@@ -100,12 +100,6 @@ export async function exportToFolderCommand(uri: vscode.Uri) {
           fs.mkdirSync(modelFolderPath, { recursive: true });
         }
 
-        const rawApiFolder = path.join(modelFolderPath, '_raw_api_response');
-        if (!fs.existsSync(rawApiFolder)) {
-          fs.mkdirSync(rawApiFolder, { recursive: true });
-        }
-        fs.writeFileSync(path.join(rawApiFolder, 'fullModel.json'), JSON.stringify(decoded, null, 2), 'utf8');
-
         // Build model.json with full metadata (not just the list item)
         const modelMeta: Record<string, unknown> = {};
         const entityKeys = new Set([

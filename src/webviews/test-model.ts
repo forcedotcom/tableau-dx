@@ -166,7 +166,7 @@ export function getTestModelWebviewContent(modelUI: SemanticModelUI, sldsUri: st
       transition: all 0.15s; font-size: 10px; color: transparent;
     }
     .field-item.selected .field-cb { background: #0070d2; border-color: #0070d2; color: #fff; }
-    .field-label { font-size: 12px; flex: 1; }
+    .field-label { font-size: 12px; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
     .field-type-tag { font-size: 9px; padding: 1px 6px; border-radius: 3px; color: var(--slds-g-color-neutral-base-50, #747474); background: var(--slds-g-color-neutral-base-95, #f3f3f3); }
     .field-placement-tag { font-size: 8px; padding: 1px 5px; border-radius: 3px; font-weight: 600; text-transform: uppercase; }
     .field-placement-tag.exclusive { background: #d1fae5; color: #065f46; }
@@ -282,8 +282,8 @@ export function getTestModelWebviewContent(modelUI: SemanticModelUI, sldsUri: st
                   <h1><span class="slds-page-header__title slds-truncate">Test Model: ${modelLabel}</span></h1>
                 </div>
               </div>
-              <p class="slds-page-header__name-meta">${modelApiName}
-                <span class="slds-badge slds-m-left_small" id="selectedCount">0 fields selected</span>
+              <p class="slds-page-header__name-meta">
+                <span class="slds-badge" id="selectedCount">0 fields selected</span>
               </p>
             </div>
           </div>
@@ -377,12 +377,12 @@ export function getTestModelWebviewContent(modelUI: SemanticModelUI, sldsUri: st
             const key = f.tableApiName + '.' + f.apiName;
             const sel = selectedFields.has(key) ? ' selected' : '';
             let tags = '<span class="field-type-tag">' + f.dataType + '</span>';
-            if (f.placement) {
-              tags = '<span class="field-placement-tag ' + f.placement + '">' + (f.placement === 'crossObject' ? 'cross' : f.placement) + '</span>' + tags;
+            if (f.placement === 'crossObject') {
+              tags = '<span class="field-placement-tag crossObject">cross</span>' + tags;
             }
             fieldsHtml += '<div class="field-item' + sel + '" data-key="' + key + '" onclick="toggleField(this, ' + oi + ', ' + "'" + key + "'" + ')">';
             fieldsHtml += '<span class="field-cb">' + (sel ? '\\u2713' : '') + '</span>';
-            fieldsHtml += '<span class="field-label">' + (f.label || f.apiName) + '</span>';
+            fieldsHtml += '<span class="field-label" title="' + (f.label || f.apiName) + '">' + (f.label || f.apiName) + '</span>';
             fieldsHtml += tags;
             fieldsHtml += '</div>';
           });

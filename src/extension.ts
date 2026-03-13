@@ -40,6 +40,7 @@ export function activate(context: vscode.ExtensionContext) {
     }
   }
 
+
   const showOrgInfoDisposable = vscode.commands.registerCommand(
     'semanticLayer.showOrgInfo',
     async () => {

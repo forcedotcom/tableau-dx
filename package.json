@@ -93,7 +93,7 @@
         },
         {
           "command": "semanticLayer.viewModelHistory",
-          "when": "resourceFilename == model.json || explorerResourceIsFolder",
+          "when": "resourceFilename == model.json",
           "group": "semantic@6"
         },
         {
