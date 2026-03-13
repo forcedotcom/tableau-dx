@@ -918,9 +918,9 @@ export function getERDV2WebviewContent(
       box-shadow: 0 0 0 4px #f4f6f9, 0 0 0 8px rgba(46, 204, 113, 0.8), 0 0 20px rgba(46, 204, 113, 0.3) !important;
     }
     :root {
-      --diff-label-added: 'NEW';
-      --diff-label-modified: 'MODIFIED';
-      --diff-label-removed: 'REMOTE ONLY';
+      --diff-label-added: 'New';
+      --diff-label-modified: 'Modified';
+      --diff-label-removed: 'Remote Only';
     }
     .diff-added .node-label::after,
     .diff-added .entity-label-wrap::after,
@@ -983,8 +983,9 @@ export function getERDV2WebviewContent(
       width: 14px; height: 14px; min-width: 14px; border-radius: 50%; border: 3px solid; display: inline-block; flex-shrink: 0;
     }
     .diff-legend-badge {
-      display: inline-block; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 3px;
-      text-align: center; opacity: 0; width: 0; overflow: hidden;
+      display: inline-block; font-size: 12px; font-weight: 400; padding: 0;
+      text-align: left; color: #3e3e3c !important; background: none !important;
+      opacity: 0; width: 0; overflow: hidden;
       transition: opacity 0.15s, width 0.15s;
     }
     #leftPanel.expanded .diff-legend-badge { opacity: 1; width: auto; }
@@ -1457,9 +1458,9 @@ export function getERDV2WebviewContent(
         <div id="diffLegendSection" style="display:none;">
           <div class="lp-legend-sub">
             <div class="lp-legend-sub-title" id="diffLegendTitle">Changes (Local vs Remote)</div>
-            <div class="diff-legend-item"><span class="diff-legend-ring" style="border-color:#2ecc71;" title="New" id="diffRingAdded"></span><span class="diff-legend-badge" style="background:#2ecc71;color:#fff;" id="diffLabelAdded">NEW</span></div>
-            <div class="diff-legend-item"><span class="diff-legend-ring" style="border-color:#f1c40f;" title="Modified" id="diffRingModified"></span><span class="diff-legend-badge" style="background:#f1c40f;color:#080707;" id="diffLabelModified">MODIFIED</span></div>
-            <div class="diff-legend-item"><span class="diff-legend-ring" style="border-color:#e74c3c;" title="Remote Only" id="diffRingRemoved"></span><span class="diff-legend-badge" style="background:#e74c3c;color:#fff;" id="diffLabelRemoved">REMOTE ONLY</span></div>
+            <div class="diff-legend-item"><span class="diff-legend-ring" style="border-color:#2ecc71;" title="New" id="diffRingAdded"></span><span class="diff-legend-badge" id="diffLabelAdded">New</span></div>
+            <div class="diff-legend-item"><span class="diff-legend-ring" style="border-color:#f1c40f;" title="Modified" id="diffRingModified"></span><span class="diff-legend-badge" id="diffLabelModified">Modified</span></div>
+            <div class="diff-legend-item"><span class="diff-legend-ring" style="border-color:#e74c3c;" title="Remote Only" id="diffRingRemoved"></span><span class="diff-legend-badge" id="diffLabelRemoved">Remote Only</span></div>
             <div class="diff-legend-item lp-legend-label" id="diffSummary" style="color:#080707;font-weight:600;font-size:11px;"></div>
           </div>
         </div>
@@ -4250,11 +4251,12 @@ export function getERDV2WebviewContent(
           const mnX = Math.min(...allX) - 150, mxX = Math.max(...allX) + 200;
           const mnY = Math.min(...allY) - 100, mxY = Math.max(...allY) + 100;
           const w = mxX - mnX, h = mxY - mnY;
+          const lpw = getLeftPanelWidth();
           const availW = getAvailableWidth();
           const sw = availW / (w + 50);
           const sh = erdContainer.clientHeight / (h + 50);
           scale = Math.min(sw, sh, 1);
-          panX = (availW - w * scale) / 2 - mnX * scale;
+          panX = lpw + (availW - w * scale) / 2 - mnX * scale;
           panY = (erdContainer.clientHeight - h * scale) / 2 - mnY * scale;
         } else {
           panX = 0; panY = 0; scale = 1;
@@ -4646,10 +4648,12 @@ export function getERDV2WebviewContent(
       const repulsion = 8000;
       const springLength = 120;
       const springStiffness = 0.08;
-      const gravity = 0.02;
+      const baseGravity = 0.02;
+      const gravity = baseGravity * Math.max(1, drillNodes.length / 10);
+      const maxDisplacement = 50;
       const padding = 80;
-      const canvasW = Math.max(800, drillNodes.length * 100);
-      const canvasH = Math.max(600, drillNodes.length * 70);
+      const canvasW = Math.max(800, Math.min(drillNodes.length * 100, 2000));
+      const canvasH = Math.max(600, Math.min(drillNodes.length * 70, 1500));
       const centerX = canvasW / 2, centerY = canvasH / 2;
       
       const degree = {};
@@ -4706,9 +4710,14 @@ export function getERDV2WebviewContent(
         });
         
         drillNodes.forEach(n => {
-          if (n.id === '__center__') return; // pin center
+          if (n.id === '__center__') return;
           velocities[n.id].x = (velocities[n.id].x + forces[n.id].x) * 0.85;
           velocities[n.id].y = (velocities[n.id].y + forces[n.id].y) * 0.85;
+          var speed = Math.sqrt(velocities[n.id].x * velocities[n.id].x + velocities[n.id].y * velocities[n.id].y);
+          if (speed > maxDisplacement) {
+            velocities[n.id].x *= maxDisplacement / speed;
+            velocities[n.id].y *= maxDisplacement / speed;
+          }
           positions[n.id].x += velocities[n.id].x;
           positions[n.id].y += velocities[n.id].y;
         });
@@ -6060,26 +6069,26 @@ export function getERDV2WebviewContent(
       var ringRemoved = document.getElementById('diffRingRemoved');
       var root = document.documentElement;
       if (isGitCompare) {
-        diffLabels = { added: 'ADDED', modified: 'MODIFIED', removed: 'REMOVED' };
-        root.style.setProperty('--diff-label-added', "'ADDED'");
-        root.style.setProperty('--diff-label-modified', "'MODIFIED'");
-        root.style.setProperty('--diff-label-removed', "'REMOVED'");
+        diffLabels = { added: 'Added', modified: 'Modified', removed: 'Removed' };
+        root.style.setProperty('--diff-label-added', "'Added'");
+        root.style.setProperty('--diff-label-modified', "'Modified'");
+        root.style.setProperty('--diff-label-removed', "'Removed'");
         if (title) title.textContent = 'Changes (Between Commits)';
-        if (labelAdded) labelAdded.textContent = 'ADDED';
-        if (labelModified) labelModified.textContent = 'MODIFIED';
-        if (labelRemoved) labelRemoved.textContent = 'REMOVED';
+        if (labelAdded) labelAdded.textContent = 'Added';
+        if (labelModified) labelModified.textContent = 'Modified';
+        if (labelRemoved) labelRemoved.textContent = 'Removed';
         if (ringAdded) ringAdded.title = 'Added';
         if (ringModified) ringModified.title = 'Modified';
         if (ringRemoved) ringRemoved.title = 'Removed';
       } else {
-        diffLabels = { added: 'NEW', modified: 'MODIFIED', removed: 'REMOTE ONLY' };
-        root.style.setProperty('--diff-label-added', "'NEW'");
-        root.style.setProperty('--diff-label-modified', "'MODIFIED'");
-        root.style.setProperty('--diff-label-removed', "'REMOTE ONLY'");
+        diffLabels = { added: 'New', modified: 'Modified', removed: 'Remote Only' };
+        root.style.setProperty('--diff-label-added', "'New'");
+        root.style.setProperty('--diff-label-modified', "'Modified'");
+        root.style.setProperty('--diff-label-removed', "'Remote Only'");
         if (title) title.textContent = 'Changes (Local vs Remote)';
-        if (labelAdded) labelAdded.textContent = 'NEW';
-        if (labelModified) labelModified.textContent = 'MODIFIED';
-        if (labelRemoved) labelRemoved.textContent = 'REMOTE ONLY';
+        if (labelAdded) labelAdded.textContent = 'New';
+        if (labelModified) labelModified.textContent = 'Modified';
+        if (labelRemoved) labelRemoved.textContent = 'Remote Only';
         if (ringAdded) ringAdded.title = 'New';
         if (ringModified) ringModified.title = 'Modified';
         if (ringRemoved) ringRemoved.title = 'Remote Only';
