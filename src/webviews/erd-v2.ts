@@ -201,6 +201,8 @@ export function getERDV2WebviewContent(
       apiName: c.apiName, label: c.label, expression: c.expression,
       placement: c.placement, referencedObjects: c.referencedObjects,
       directReferences: c.directReferences, entityType: 'calculatedDimension',
+      baseModelApiName: (c as any).baseModelApiName || null,
+      diffStatus: (c as any).diffStatus || null,
     };
   }
   for (const c of modelUI.allCalculatedMeasurements) {
@@ -208,6 +210,8 @@ export function getERDV2WebviewContent(
       apiName: c.apiName, label: c.label, expression: c.expression,
       placement: c.placement, referencedObjects: c.referencedObjects,
       directReferences: c.directReferences, entityType: 'calculatedMeasurement',
+      baseModelApiName: (c as any).baseModelApiName || null,
+      diffStatus: (c as any).diffStatus || null,
     };
   }
 
@@ -818,20 +822,29 @@ export function getERDV2WebviewContent(
     .entity-ref-icon.calc { background: #fef3c7; color: #92400e; }
     .entity-ref-icon.field { background: #dbeafe; color: #1e40af; }
     .entity-chain {
-      position: relative; padding-left: 16px;
+      position: relative; padding-left: 0;
     }
-    .entity-chain::before {
-      content: ''; position: absolute; left: 6px; top: 0; bottom: 0;
-      width: 2px; background: linear-gradient(to bottom, #0070d2, #dddbda);
+    .entity-chain-node {
+      position: relative; padding-left: 20px;
     }
+    .entity-chain-node::before {
+      content: ''; position: absolute; left: 5px; top: 0; bottom: 0;
+      width: 2px; background: #d8d8d8;
+    }
+    .entity-chain-node:last-child::before { bottom: auto; height: 16px; }
     .entity-chain-step {
-      position: relative; padding: 8px 0 8px 12px; font-size: 12px;
+      position: relative; padding: 6px 0 6px 0; font-size: 12px;
     }
     .entity-chain-step::before {
-      content: ''; position: absolute; left: -12px; top: 14px;
+      content: ''; position: absolute; left: -15px; top: 13px;
       width: 8px; height: 8px; border-radius: 50%; border: 2px solid #0070d2; background: #ffffff;
     }
     .entity-chain-step.current::before { background: #0070d2; }
+    .entity-chain-node > .entity-chain-step::after {
+      content: ''; position: absolute; left: -11px; top: 17px;
+      width: 8px; height: 0; border-top: 2px solid #d8d8d8;
+    }
+    .entity-chain-root > .entity-chain-step::after { display: none; }
     .entity-chain-step-name { color: #080707; font-weight: 500; }
     .entity-chain-step-api { color: #706e6b; font-size: 10px; font-family: monospace; margin-top: 1px; }
     .entity-chain-step-type { color: #706e6b; font-size: 10px; }
@@ -1547,10 +1560,10 @@ export function getERDV2WebviewContent(
       return 'data-object';
     }
     function getNodeIcon(n) {
-      if (n.type === 'logicalView') return dataModelSvg;
+      if (n.type === 'logicalView') return tableSvg;
       if (n.dataObjectType === 'Cio') return calcInsightSvg;
       if (n.dataObjectType === 'Dlo') return dataLakeSvg;
-      return tableSvg;
+      return dataModelSvg;
     }
 
     function getDiffClassFromStatus(ds) {
@@ -4113,6 +4126,38 @@ export function getERDV2WebviewContent(
       (nodeData.relatedHierarchies || []).forEach(e => allEntities.push({ ...e, cssClass: 'dim-hier', typeLabel: 'Dim Hierarchy' }));
       (nodeData.relatedMetrics || []).forEach(e => allEntities.push({ ...e, cssClass: 'metric', typeLabel: 'Metric' }));
       (nodeData.relatedGroupings || []).forEach(e => allEntities.push({ ...e, cssClass: 'grouping', typeLabel: 'Grouping' }));
+
+      // Pull in missing intermediate calcs (1 level only — from original entities)
+      var knownApiNames = new Set(allEntities.map(e => e.apiName));
+      var originalCount = allEntities.length;
+      for (var oi = 0; oi < originalCount; oi++) {
+        var ent = allEntities[oi];
+        var info = calcFieldsLookup[ent.apiName];
+        if (!info || !info.directReferences) continue;
+        info.directReferences.forEach(function(ref) {
+          if (!ref.objectApiName && ref.fieldApiName && !knownApiNames.has(ref.fieldApiName)) {
+            var missingCalc = calcFieldsLookup[ref.fieldApiName];
+            if (missingCalc) {
+              var cssClass = missingCalc.entityType === 'calculatedDimension' ? 'calc-dim' : 'calc-meas';
+              var typeLabel = missingCalc.entityType === 'calculatedDimension' ? 'Calc Dimension' : 'Calc Measurement';
+              allEntities.push({
+                apiName: missingCalc.apiName,
+                label: missingCalc.label,
+                expression: missingCalc.expression,
+                placement: missingCalc.placement,
+                referencedObjects: missingCalc.referencedObjects || [],
+                directReferences: missingCalc.directReferences,
+                cssClass: cssClass,
+                typeLabel: typeLabel,
+                type: cssClass,
+                baseModelApiName: missingCalc.baseModelApiName || null,
+                diffStatus: missingCalc.diffStatus || null,
+              });
+              knownApiNames.add(ref.fieldApiName);
+            }
+          }
+        });
+      }
       
       ddEntities = allEntities;
       ddCenterId = nodeData.id;
@@ -4121,8 +4166,13 @@ export function getERDV2WebviewContent(
       ddEdgeObjectIds = new Set();
       
       allEntities.forEach(ent => {
-        if (ent.placement === 'crossObject') {
-          (ent.referencedObjects || []).forEach(o => {
+        var cl0 = calcFieldsLookup[ent.apiName];
+        if (cl0 && cl0.directReferences) {
+          cl0.directReferences.forEach(function(r) {
+            if (r.objectApiName && r.objectApiName !== nodeData.id) ddEdgeObjectIds.add(r.objectApiName);
+          });
+        } else {
+          (ent.referencedObjects || []).forEach(function(o) {
             if (o !== nodeData.id) ddEdgeObjectIds.add(o);
           });
         }
@@ -4136,7 +4186,6 @@ export function getERDV2WebviewContent(
       allEntities.forEach(ent => {
         drillNodes.push({ id: 'ent_' + ent.apiName, type: 'entity' });
         
-        // For calc entities, check if they reference other calcs in this drill-down
         const lookup = calcFieldsLookup[ent.apiName];
         const directRefs = lookup ? lookup.directReferences || [] : [];
         let refsOtherCalcs = false;
@@ -4152,27 +4201,31 @@ export function getERDV2WebviewContent(
           }
         });
         
-        // Also check [Object].[Field] direct refs to the center object
         let refsCenter = false;
         directRefs.forEach(ref => {
           if (ref.objectApiName === nodeData.id) refsCenter = true;
         });
         
-        // Connect to center if: it directly references the center object, OR it has no calc-to-calc refs
-        if (refsCenter || !refsOtherCalcs) {
+        const referencesCenter = (ent.referencedObjects || []).indexOf(nodeData.id) >= 0;
+        if (refsCenter || (!refsOtherCalcs && referencesCenter)) {
           drillEdges.push({ from: '__center__', to: 'ent_' + ent.apiName });
         }
       });
       
       edgeObjArr.forEach(objId => { drillNodes.push({ id: 'eobj_' + objId, type: 'edgeObj' }); });
       allEntities.forEach(ent => {
-        if (ent.placement === 'crossObject') {
-          (ent.referencedObjects || []).forEach(o => {
-            if (o !== nodeData.id && ddEdgeObjectIds.has(o)) {
-              drillEdges.push({ from: 'ent_' + ent.apiName, to: 'eobj_' + o });
-            }
-          });
+        var directObjSet = new Set();
+        var cl = calcFieldsLookup[ent.apiName];
+        if (cl && cl.directReferences) {
+          cl.directReferences.forEach(function(r) { if (r.objectApiName) directObjSet.add(r.objectApiName); });
+        } else {
+          (ent.referencedObjects || []).forEach(function(o) { directObjSet.add(o); });
         }
+        directObjSet.forEach(function(o) {
+          if (o !== nodeData.id && ddEdgeObjectIds.has(o)) {
+            drillEdges.push({ from: 'ent_' + ent.apiName, to: 'eobj_' + o });
+          }
+        });
       });
       // Pre-compute layout as fallback; cached positions from file may override in phase 2
       const algorithmPositions = layoutDrillDown(drillNodes, drillEdges);
@@ -4458,7 +4511,8 @@ export function getERDV2WebviewContent(
         });
         const calcTargets = Array.from(calcTargetSet);
         
-        if (directRefs.length === 0) {
+        const referencesCenter = (ent.referencedObjects || []).indexOf(ddCenterId) >= 0;
+        if (directRefs.length === 0 && referencesCenter) {
           const color = isCross ? '#b45309' : '#706e6b';
           const markerName = isCross ? 'cross' : 'exclusive';
           drawDrillArrow(pos.x, pos.y, cp.x, cp.y, ENTITY_SIZE / 2, 60, color, markerName, isCross, arrowIdx++, entDimmed, entKey, '__center__');
@@ -4478,7 +4532,7 @@ export function getERDV2WebviewContent(
             }
           });
           
-          if (!refsCenter && calcTargets.length === 0) {
+          if (!refsCenter && calcTargets.length === 0 && referencesCenter) {
             const color = isCross ? '#b45309' : '#706e6b';
             const markerName = isCross ? 'cross' : 'exclusive';
             drawDrillArrow(pos.x, pos.y, cp.x, cp.y, ENTITY_SIZE / 2, 60, color, markerName, isCross, arrowIdx++, entDimmed, entKey, '__center__');
@@ -4487,20 +4541,25 @@ export function getERDV2WebviewContent(
       });
       
       ddEntities.forEach(ent => {
-        if (ent.placement === 'crossObject') {
-          const entKey = 'ent_' + ent.apiName;
-          const ep = ddPositions[entKey];
-          if (!ep) return;
-          const entDimmed = highlightChangesActive && (!ent.diffStatus || ent.diffStatus === 'unchanged');
-          (ent.referencedObjects || []).forEach(o => {
-            if (o !== ddCenterId && ddEdgeObjectIds.has(o)) {
-              const op = ddPositions['eobj_' + o];
-              if (op) {
-                drawDrillArrow(ep.x, ep.y, op.x, op.y, ENTITY_SIZE / 2, EDGE_OBJ_SIZE / 2, '#b45309', 'cross', true, arrowIdx++, entDimmed, entKey, 'eobj_' + o);
-              }
-            }
-          });
+        const entKey = 'ent_' + ent.apiName;
+        const ep = ddPositions[entKey];
+        if (!ep) return;
+        const entDimmed = highlightChangesActive && (!ent.diffStatus || ent.diffStatus === 'unchanged');
+        var directObjSet2 = new Set();
+        var cl2 = calcFieldsLookup[ent.apiName];
+        if (cl2 && cl2.directReferences) {
+          cl2.directReferences.forEach(function(r) { if (r.objectApiName) directObjSet2.add(r.objectApiName); });
+        } else {
+          (ent.referencedObjects || []).forEach(function(o) { directObjSet2.add(o); });
         }
+        directObjSet2.forEach(function(o) {
+          if (o !== ddCenterId && ddEdgeObjectIds.has(o)) {
+            const op = ddPositions['eobj_' + o];
+            if (op) {
+              drawDrillArrow(ep.x, ep.y, op.x, op.y, ENTITY_SIZE / 2, EDGE_OBJ_SIZE / 2, '#b45309', 'cross', true, arrowIdx++, entDimmed, entKey, 'eobj_' + o);
+            }
+          }
+        });
       });
     }
     
@@ -4554,48 +4613,45 @@ export function getERDV2WebviewContent(
       var relatedKeys = new Set();
       var visited = new Set();
       var entNames = new Set(ddEntities.map(function(e) { return e.apiName; }));
-      
+
       function walk(apiName) {
         if (visited.has(apiName)) return;
         visited.add(apiName);
         relatedKeys.add('ent_' + apiName);
-        
+
         var ent = ddEntities.find(function(e) { return e.apiName === apiName; });
         var lookup = calcFieldsLookup[apiName];
         var directRefs = lookup ? lookup.directReferences || [] : [];
-        
+        var referencesCenter = ent && (ent.referencedObjects || []).indexOf(ddCenterId) >= 0;
+
         if (directRefs.length === 0) {
-          relatedKeys.add('__center__');
+          if (referencesCenter) relatedKeys.add('__center__');
         } else {
-          var refsCenter = false;
-          var hasCalcTarget = false;
           directRefs.forEach(function(ref) {
             if (ref.objectApiName) {
               if (ref.objectApiName === ddCenterId) {
                 relatedKeys.add('__center__');
-                refsCenter = true;
               } else if (ddEdgeObjectIds.has(ref.objectApiName)) {
                 relatedKeys.add('eobj_' + ref.objectApiName);
               }
             } else if (ref.fieldApiName && entNames.has(ref.fieldApiName)) {
-              hasCalcTarget = true;
               walk(ref.fieldApiName);
             }
           });
-          if (!refsCenter && !hasCalcTarget) {
-            relatedKeys.add('__center__');
-          }
         }
-        
-        if (ent && ent.placement === 'crossObject') {
-          (ent.referencedObjects || []).forEach(function(o) {
-            if (o !== ddCenterId && ddEdgeObjectIds.has(o)) {
+
+        // For non-calc entities (hierarchies, metrics, groupings), use referencedObjects
+        if (!lookup) {
+          (ent && ent.referencedObjects || []).forEach(function(o) {
+            if (o === ddCenterId) {
+              relatedKeys.add('__center__');
+            } else if (ddEdgeObjectIds.has(o)) {
               relatedKeys.add('eobj_' + o);
             }
           });
         }
       }
-      
+
       walk(startApiName);
       return relatedKeys;
     }
@@ -5064,38 +5120,57 @@ export function getERDV2WebviewContent(
           html += '</ul></div>';
         }
         
-        // Dependency Chain
+        // Dependency Chain (tree)
         if (calcInfo && calcInfo.directReferences && calcInfo.directReferences.length > 0) {
           html += '<div class="entity-detail-section">';
           html += '<div class="entity-detail-section-title">Dependency Chain</div>';
           html += '<div class="entity-chain">';
-          html += '<div class="entity-chain-step current"><div class="entity-chain-step-name">' + (ent.label || ent.apiName) + '</div><div class="entity-chain-step-type">' + (typeLabelMap[ent.type] || 'Calc') + '</div></div>';
-          
+
           var visited = {};
           visited[ent.apiName] = true;
-          function walkChain(apiName, depth) {
-            if (depth > 10) return;
+          function buildChainTree(apiName) {
+            var children = [];
+            var seen = {};
             var info = calcFieldsLookup[apiName];
-            if (!info || !info.directReferences) return;
+            if (!info || !info.directReferences) return children;
             info.directReferences.forEach(function(ref) {
               if (ref.objectApiName) {
+                var key = ref.objectApiName + '.' + ref.fieldApiName;
+                if (seen[key]) return;
+                seen[key] = true;
                 var nd2 = nodes.find(function(n) { return n.id === ref.objectApiName; });
                 var objLbl = nd2 ? nd2.label : ref.objectApiName.replace(/_/g, ' ');
-                html += '<div class="entity-chain-step"><div class="entity-chain-step-name">' + objLbl + '.' + ref.fieldApiName + '</div><div class="entity-chain-step-type">Object Field</div></div>';
+                children.push({ name: objLbl + '.' + ref.fieldApiName, type: 'Object Field', children: [] });
               } else {
                 var refName = ref.fieldApiName;
+                if (seen[refName]) return;
+                seen[refName] = true;
                 var refCalc = calcFieldsLookup[refName];
                 if (refCalc && !visited[refName]) {
                   visited[refName] = true;
-                  html += '<div class="entity-chain-step"><div class="entity-chain-step-name">' + (refCalc.label || refName) + '</div><div class="entity-chain-step-api">' + refName + '</div><div class="entity-chain-step-type">' + (refCalc.entityType === 'calculatedDimension' ? 'Calc Dimension' : 'Calc Measurement') + '</div></div>';
-                  walkChain(refName, depth + 1);
+                  var subChildren = buildChainTree(refName);
+                  children.push({ name: refCalc.label || refName, api: refName, type: refCalc.entityType === 'calculatedDimension' ? 'Calc Dimension' : 'Calc Measurement', children: subChildren });
                 } else if (!refCalc) {
-                  html += '<div class="entity-chain-step"><div class="entity-chain-step-name">' + refName + '</div><div class="entity-chain-step-type">Parameter / Other</div></div>';
+                  children.push({ name: refName, type: 'Parameter / Other', children: [] });
                 }
               }
             });
+            return children;
           }
-          walkChain(ent.apiName, 0);
+          var rootChildren = buildChainTree(ent.apiName);
+          function renderChainNode(node, isRoot) {
+            html += '<div class="entity-chain-node' + (isRoot ? ' entity-chain-root' : '') + '">';
+            html += '<div class="entity-chain-step' + (isRoot ? ' current' : '') + '"><div class="entity-chain-step-name">' + node.name + '</div>';
+            if (node.api) html += '<div class="entity-chain-step-api">' + node.api + '</div>';
+            html += '<div class="entity-chain-step-type">' + node.type + '</div></div>';
+            if (node.children && node.children.length > 0) {
+              node.children.forEach(function(child) { renderChainNode(child, false); });
+            }
+            html += '</div>';
+          }
+          var rootNode = { name: ent.label || ent.apiName, type: typeLabelMap[ent.type] || 'Calc', children: rootChildren };
+          renderChainNode(rootNode, true);
+
           html += '</div></div>';
         }
       }
@@ -5659,20 +5734,26 @@ export function getERDV2WebviewContent(
             if (ref.objectApiName === ddCenterId) refsCenter2 = true;
           });
 
-          if (refsCenter2 || !refsOtherCalcs) {
+          var referencesCenter2 = (ent.referencedObjects || []).indexOf(ddCenterId) >= 0;
+          if (refsCenter2 || (!refsOtherCalcs && referencesCenter2)) {
             drillEdges2.push({ from: '__center__', to: 'ent_' + ent.apiName });
           }
         });
 
         Array.from(ddEdgeObjectIds).forEach(function(objId) { drillNodes2.push({ id: 'eobj_' + objId, type: 'edgeObj' }); });
         ddEntities.forEach(function(ent) {
-          if (ent.placement === 'crossObject') {
-            (ent.referencedObjects || []).forEach(function(o) {
-              if (o !== ddCenterId && ddEdgeObjectIds.has(o)) {
-                drillEdges2.push({ from: 'ent_' + ent.apiName, to: 'eobj_' + o });
-              }
-            });
+          var directObjSet3 = new Set();
+          var cl3 = calcFieldsLookup[ent.apiName];
+          if (cl3 && cl3.directReferences) {
+            cl3.directReferences.forEach(function(r) { if (r.objectApiName) directObjSet3.add(r.objectApiName); });
+          } else {
+            (ent.referencedObjects || []).forEach(function(o) { directObjSet3.add(o); });
           }
+          directObjSet3.forEach(function(o) {
+            if (o !== ddCenterId && ddEdgeObjectIds.has(o)) {
+              drillEdges2.push({ from: 'ent_' + ent.apiName, to: 'eobj_' + o });
+            }
+          });
         });
 
         var newDdPositions = layoutDrillDown(drillNodes2, drillEdges2);
