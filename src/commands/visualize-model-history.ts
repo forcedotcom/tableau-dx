@@ -13,6 +13,7 @@ import { getERDV2WebviewContent } from '../webviews/erd-v2';
 import { getCommitsForFolder, isGitRepository } from '../utils/git';
 import { mergeForCompare } from '../utils/compare-models';
 import { getOrgInfo, postSalesforceApi } from '../api';
+import { checkOrgMatch } from '../utils/org-info-storage';
 import { FilePositionStorage } from '../utils/position-storage';
 import { createWebviewPanel } from '../utils/webview-utils';
 
@@ -167,7 +168,18 @@ function showHistoryPanel(
           if (!message.fields || message.fields.length === 0) {
             throw new Error('No fields to query.');
           }
-          const orgInfo = await getOrgInfo();
+
+          let orgInfo = await getOrgInfo();
+
+          const orgCheckResult = await checkOrgMatch(folderPath, orgInfo.result);
+          if (orgCheckResult === 'cancel') {
+            panel.webview.postMessage({ command: 'queryResult', success: false, error: 'Query cancelled — org mismatch.' });
+            return;
+          }
+          if (orgCheckResult === 'switched') {
+            orgInfo = await getOrgInfo();
+          }
+
           const { instanceUrl, accessToken } = orgInfo.result;
 
           const fieldLabels: { [key: string]: string } = {};

@@ -4,6 +4,7 @@ import { buildModelRepresentation } from '../v2';
 import { loadSemanticModelFiles } from '../v2/model-loader';
 import { getTestModelWebviewContent } from '../webviews/test-model';
 import { getOrgInfo, postSalesforceApi } from '../api';
+import { checkOrgMatch } from '../utils/org-info-storage';
 import { createWebviewPanel } from '../utils/webview-utils';
 
 export async function testModelCommand(context: vscode.ExtensionContext, uri: vscode.Uri) {
@@ -31,7 +32,7 @@ export async function testModelCommand(context: vscode.ExtensionContext, uri: vs
       async () => {
         const modelUI = buildModelRepresentation(folderPath);
         const rawModel = loadSemanticModelFiles(folderPath);
-        showTestModelPanel(context, modelUI, rawModel);
+        showTestModelPanel(context, modelUI, rawModel, folderPath);
       }
     );
   } catch (error) {
@@ -68,7 +69,8 @@ function buildFullSemanticModel(rawModel: ReturnType<typeof loadSemanticModelFil
 function showTestModelPanel(
   context: vscode.ExtensionContext,
   modelUI: ReturnType<typeof buildModelRepresentation>,
-  rawModel: ReturnType<typeof loadSemanticModelFiles>
+  rawModel: ReturnType<typeof loadSemanticModelFiles>,
+  folderPath: string
 ) {
   const { panel, resources } = createWebviewPanel(
     context, 'semanticTestModel', `Test: ${modelUI.model.label}`, vscode.ViewColumn.One
@@ -82,7 +84,17 @@ function showTestModelPanel(
     async (message) => {
       if (message.command === 'runQuery') {
         try {
-          const orgInfo = await getOrgInfo();
+          let orgInfo = await getOrgInfo();
+
+          const orgCheckResult = await checkOrgMatch(folderPath, orgInfo.result);
+          if (orgCheckResult === 'cancel') {
+            panel.webview.postMessage({ command: 'queryResult', success: false, error: 'Query cancelled — org mismatch.' });
+            return;
+          }
+          if (orgCheckResult === 'switched') {
+            orgInfo = await getOrgInfo();
+          }
+
           const { instanceUrl, accessToken } = orgInfo.result;
 
           interface FieldMsg {

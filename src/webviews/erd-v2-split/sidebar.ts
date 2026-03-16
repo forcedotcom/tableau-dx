@@ -333,23 +333,47 @@ export function createSidebarModule(ctx: ErdContext): SidebarModule {
     const btn = ctx.root.querySelector('#queryBtn') as HTMLButtonElement;
     btn.disabled = false; btn.textContent = 'Query Sample Data';
     const body = ctx.root.querySelector('#resultsBody') as HTMLElement;
+    const rowCountEl = ctx.root.querySelector('#rowCount') as HTMLElement | null;
+
     if (!message.success) {
-      body.innerHTML = '<div class="results-error">Error: ' + escapeHtmlStr(message.error || 'Unknown error') + '</div>';
+      body.innerHTML = '<div class="results-error">' + escapeHtmlStr(message.error || 'Unknown error') + '</div>';
+      if (rowCountEl) rowCountEl.textContent = 'Error';
       return;
     }
-    const rows = message.rows || [];
-    const fields = message.fields || [];
-    if (rows.length === 0) { body.innerHTML = '<div class="empty-state">No results returned</div>'; return; }
+
+    const data = message.data;
+    if (data.status !== 'SUCCESS' || !data.queryResults) {
+      body.innerHTML = '<div class="results-error">Query failed: ' + escapeHtmlStr(data.message || 'Unknown') + '</div>';
+      return;
+    }
+
+    const metadata = data.queryResults.queryMetadata?.fields || {};
+    const rows = data.queryResults.queryData?.rows || [];
+    const fieldLabels = message.fieldLabels || {};
+
+    const columns = Object.entries(metadata)
+      .sort((a: any, b: any) => a[1].placeInOrder - b[1].placeInOrder)
+      .map(([name, info]: [string, any]) => ({ name, type: info.type, label: fieldLabels[name] || name }));
+
+    if (columns.length === 0 || rows.length === 0) {
+      body.innerHTML = '<div class="results-loading">No data returned</div>';
+      if (rowCountEl) rowCountEl.textContent = '0 rows';
+      return;
+    }
+
     let html = '<table class="results-table"><thead><tr>';
-    fields.forEach((f: any) => { html += '<th>' + escapeHtmlStr(f.label || f.apiName) + '</th>'; });
+    columns.forEach(c => { html += '<th>' + escapeHtmlStr(c.label) + '</th>'; });
     html += '</tr></thead><tbody>';
-    rows.forEach((row: any[]) => {
+    rows.forEach((r: any) => {
       html += '<tr>';
-      row.forEach(val => { html += '<td>' + escapeHtmlStr(val == null ? '' : String(val)) + '</td>'; });
+      r.values.forEach((v: any) => {
+        html += '<td>' + (v === null ? '<em style="color:#706e6b">null</em>' : escapeHtmlStr(String(v))) + '</td>';
+      });
       html += '</tr>';
     });
     html += '</tbody></table>';
     body.innerHTML = html;
+    if (rowCountEl) rowCountEl.textContent = rows.length + ' rows';
   }
 
   function closeResults(): void {

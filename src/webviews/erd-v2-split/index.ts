@@ -271,6 +271,9 @@ export function initErd(root: HTMLElement, data: ErdData, embeddedMode: boolean 
     }, 0);
   }
 
+  // ── Request saved positions from extension host ─────────────────────────
+  positionCacheModule.requestPositionsForContext('topLevel');
+
   // ── Initial render (wait for cached positions, fallback 500ms) ────────────
   let initialRenderDone = false;
   const triggerInitialRender = (): void => {
@@ -281,8 +284,14 @@ export function initErd(root: HTMLElement, data: ErdData, embeddedMode: boolean 
     } else if (ctx.initialViewMode === 'grouped' && ctx.hasGroups) {
       groupsModule.renderGroupedView();
     } else {
+      if (layoutModule.isComplexModel()) {
+        ctx.layoutMode = 'grid';
+        ctx.hideRelationships = true;
+      }
       ctx.renderTopLevel();
-      positionCacheModule.saveAllCachedPositions(ctx.nodePositions);
+      if (Object.keys(ctx.cachedPositions).length === 0 && ctx.layoutMode !== 'grid') {
+        positionCacheModule.saveAllCachedPositions(ctx.nodePositions);
+      }
     }
     if (ctx.hasUnmappedNodes) {
       const unmLegend = root.querySelector('#unmappedLegendItem') as HTMLElement | null;
@@ -297,7 +306,7 @@ export function initErd(root: HTMLElement, data: ErdData, embeddedMode: boolean 
   // ── Window message listener (VSCode messages) ────────────────────────────
   window.addEventListener('message', (event) => {
     const msg = event.data;
-    if (msg.command === 'cachedPositions') {
+    if (msg.command === 'positionsLoaded') {
       positionCacheModule.loadCachedPositions(msg);
       if (!initialRenderDone) { triggerInitialRender(); }
     } else if (msg.command === 'commitLoaded') {
