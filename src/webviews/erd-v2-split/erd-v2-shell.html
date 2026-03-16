@@ -1,0 +1,141 @@
+<body>
+  <div id="header">
+    <div style="display:flex;align-items:center;gap:16px;">
+      <button class="back-btn" id="backBtn" data-action="exitDrillDown">← Back to ERD</button>
+      <h1 id="headerTitle">Loading...</h1>
+    </div>
+    <div class="stats" id="topStats" style="margin-left:auto;">
+      <button class="history-btn" id="historyBtn" data-action="toggleHistoryPanel" title="View commit history" style="display:none;"><span class="badge" id="historyCommitCount">0</span> Commit History</button>
+    </div>
+  </div>
+  
+  <div id="erdContainer">
+    <div id="erdLoadingOverlay"><div class="erd-spinner"></div></div>
+
+    <div id="leftPanel">
+      <div class="lp-actions">
+        <!-- View -->
+        <div class="lp-section" id="viewGroup">
+          <div class="lp-section-title">View</div>
+          <button class="lp-btn" data-action="zoomIn" title="Zoom In"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="9" cy="9" r="6.5"/><line x1="13.5" y1="13.5" x2="18" y2="18"/><line x1="6.5" y1="9" x2="11.5" y2="9"/><line x1="9" y1="6.5" x2="9" y2="11.5"/></svg><span class="lp-btn-label">Zoom In</span></button>
+          <button class="lp-btn" data-action="zoomOut" title="Zoom Out"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="9" cy="9" r="6.5"/><line x1="13.5" y1="13.5" x2="18" y2="18"/><line x1="6.5" y1="9" x2="11.5" y2="9"/></svg><span class="lp-btn-label">Zoom Out</span></button>
+          <button class="lp-btn" data-action="resetView" title="Fit to Screen"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="1,7 1,1 7,1"/><polyline points="13,1 19,1 19,7"/><polyline points="19,13 19,19 13,19"/><polyline points="7,19 1,19 1,13"/><polyline points="1,1 7,7"/><polyline points="19,1 13,7"/><polyline points="19,19 13,13"/><polyline points="1,19 7,13"/></svg><span class="lp-btn-label">Fit to Screen</span></button>
+        </div>
+
+        <!-- Layout -->
+        <div class="lp-section" id="layoutGroup">
+          <div class="lp-section-title">Layout</div>
+          <button class="lp-btn" data-action="setLayoutMode" data-arg="grid" id="layoutGridBtn" title="Grid Layout"><svg viewBox="0 0 20 20" fill="currentColor" stroke="none"><rect x="2" y="2" width="7" height="7" rx="1.5"/><rect x="11" y="2" width="7" height="7" rx="1.5"/><rect x="2" y="11" width="7" height="7" rx="1.5"/><rect x="11" y="11" width="7" height="7" rx="1.5"/></svg><span class="lp-btn-label">Grid Layout</span></button>
+          <button class="lp-btn" data-action="setLayoutMode" data-arg="force" id="layoutForceBtn" title="Free Form"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="10" cy="10" r="3" fill="currentColor" stroke="none"/><circle cx="4" cy="4" r="2" fill="currentColor" stroke="none"/><circle cx="16" cy="4" r="2" fill="currentColor" stroke="none"/><circle cx="4" cy="16" r="2" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="2" fill="currentColor" stroke="none"/><line x1="7.5" y1="8" x2="5.5" y2="5.5"/><line x1="12.5" y1="8" x2="14.5" y2="5.5"/><line x1="7.5" y1="12" x2="5.5" y2="14.5"/><line x1="12.5" y1="12" x2="14.5" y2="14.5"/></svg><span class="lp-btn-label">Free Form</span></button>
+          <button class="lp-btn route-active" data-action="toggleGridMode" id="gridToggleBtn" title="Snap to Grid" style="display:none;"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"><line x1="5" y1="1" x2="5" y2="19"/><line x1="10" y1="1" x2="10" y2="19"/><line x1="15" y1="1" x2="15" y2="19"/><line x1="1" y1="5" x2="19" y2="5"/><line x1="1" y1="10" x2="19" y2="10"/><line x1="1" y1="15" x2="19" y2="15"/></svg><span class="lp-btn-label">Snap to Grid</span></button>
+          <button class="lp-btn" data-action="runAutoLayout" id="autoLayoutBtn" title="Auto Arrange"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5C3 3 10 3 15 3"/><polyline points="13,1 15,3 13,5"/><path d="M17 12.5C17 17 10 17 5 17"/><polyline points="7,19 5,17 7,15"/></svg><span class="lp-btn-label">Auto Arrange</span></button>
+        </div>
+
+        <!-- Groups (conditional) -->
+        <div class="lp-section hidden-section" id="groupControls">
+          <div class="lp-section-title">Groups</div>
+          <button class="lp-btn" data-action="expandAllGroups" id="expandAllBtn" title="Expand All Groups"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="10" y1="6" x2="10" y2="1"/><line x1="10" y1="14" x2="10" y2="19"/><line x1="6" y1="10" x2="1" y2="10"/><line x1="14" y1="10" x2="19" y2="10"/><polyline points="8,3 10,1 12,3"/><polyline points="8,17 10,19 12,17"/><polyline points="3,8 1,10 3,12"/><polyline points="17,8 19,10 17,12"/></svg><span class="lp-btn-label">Expand All</span></button>
+          <button class="lp-btn" data-action="collapseAllGroups" id="collapseAllBtn" title="Collapse All Groups"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="10" y1="1" x2="10" y2="6"/><line x1="10" y1="19" x2="10" y2="14"/><line x1="1" y1="10" x2="6" y2="10"/><line x1="19" y1="10" x2="14" y2="10"/><polyline points="8,3 10,6 12,3"/><polyline points="8,17 10,14 12,17"/><polyline points="3,8 6,10 3,12"/><polyline points="17,8 14,10 17,12"/></svg><span class="lp-btn-label">Collapse All</span></button>
+        </div>
+
+        <!-- Connectors -->
+        <div class="lp-section" id="connectorsGroup">
+          <div class="lp-section-title">Connectors</div>
+          <button class="lp-btn route-active" data-action="toggleRelationships" id="relToggleBtn" title="Show Connectors"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="4" cy="10" r="2.5"/><circle cx="16" cy="10" r="2.5"/><line x1="6.5" y1="10" x2="13.5" y2="10"/></svg><span class="lp-btn-label">Show Connectors</span></button>
+          <div id="routingControls">
+          <button class="lp-btn route-active" data-action="setRoutingMode" data-arg="classic" id="routeClassicBtn" title="Classic Routing"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="3" cy="16" r="2" fill="currentColor" stroke="none"/><circle cx="17" cy="4" r="2" fill="currentColor" stroke="none"/><path d="M5 15 Q 10 5 15 4.5"/></svg><span class="lp-btn-label">Classic</span></button>
+          <button class="lp-btn" data-action="setRoutingMode" data-arg="orthogonal" id="routeOrthBtn" title="Orthogonal Routing"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="3" cy="16" r="2" fill="currentColor" stroke="none"/><circle cx="17" cy="4" r="2" fill="currentColor" stroke="none"/><path d="M5 16 L10 16 L10 4 L15 4"/></svg><span class="lp-btn-label">Orthogonal</span></button>
+          <button class="lp-btn" data-action="setRoutingMode" data-arg="curved" id="routeCurvedBtn" title="Curved Routing"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="3" cy="16" r="2" fill="currentColor" stroke="none"/><circle cx="17" cy="4" r="2" fill="currentColor" stroke="none"/><path d="M5 15.5 C5.5 8 15 12 15.5 4.5"/></svg><span class="lp-btn-label">Curved</span></button>
+          <button class="lp-btn" data-action="setRoutingMode" data-arg="straight" id="routeStraightBtn" title="Straight Routing"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="3" cy="16" r="2" fill="currentColor" stroke="none"/><circle cx="17" cy="4" r="2" fill="currentColor" stroke="none"/><line x1="5" y1="15" x2="15" y2="5"/></svg><span class="lp-btn-label">Straight</span></button>
+          </div>
+        </div>
+
+        <!-- Unmapped (conditional) -->
+        <div class="lp-section hidden-section" id="unmappedGroup">
+          <div class="lp-section-title">Unmapped</div>
+          <button class="lp-btn route-active" data-action="toggleUnmapped" id="unmappedToggleBtn" title="Unmapped: Visible"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="5" width="16" height="10" rx="2"/><circle cx="10" cy="10" r="3"/><line x1="3" y1="5" x2="17" y2="15" class="lp-slash" style="display:none;"/></svg><span class="lp-btn-label">Unmapped: Visible</span></button>
+        </div>
+
+        <!-- Changes (conditional - compare mode) -->
+        <div class="lp-section hidden-section" id="changesGroup">
+          <div class="lp-section-title">Changes</div>
+          <button class="lp-btn" data-action="toggleHighlightChanges" id="changesToggleBtn" title="Highlight Changes"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2 L12.5 7.5 L18 8.5 L14 12.5 L15 18 L10 15.5 L5 18 L6 12.5 L2 8.5 L7.5 7.5 Z"/></svg><span class="lp-btn-label">Highlight Changes</span></button>
+        </div>
+      </div>
+
+      <!-- Legend -->
+      <div class="lp-legend">
+        <div class="lp-legend-title">Legend</div>
+        <div class="lp-legend-item" id="legendDmoItem" style="display:none;"><span class="lp-legend-swatch" style="background:#FF538A;" title="Data Model Object"></span><span class="lp-legend-label">Data Model Object</span><span class="lp-legend-count" id="legendDmoCount">0</span></div>
+        <div class="lp-legend-item" id="legendDloItem" style="display:none;"><span class="lp-legend-swatch" style="background:#5A1BA9;" title="Data Lake Object"></span><span class="lp-legend-label">Data Lake Object</span><span class="lp-legend-count" id="legendDloCount">0</span></div>
+        <div class="lp-legend-item" id="legendCiItem" style="display:none;"><span class="lp-legend-swatch" style="background:#1B96FF;" title="Calculated Insight"></span><span class="lp-legend-label">Calculated Insight</span><span class="lp-legend-count" id="legendCiCount">0</span></div>
+        <div class="lp-legend-item" id="legendLvItem" style="display:none;"><span class="lp-legend-swatch" style="background:#FF5D2D;" title="Logical View"></span><span class="lp-legend-label">Logical View</span><span class="lp-legend-count" id="legendLvCount">0</span></div>
+        <div class="lp-legend-item"><span class="lp-legend-line" style="background:#939393;" title="Relationship"></span><span class="lp-legend-label">Relationship</span><span class="lp-legend-count" id="legendRelCount">0</span></div>
+
+        <div id="drilldownLegendSection" style="display:none;">
+          <div class="lp-legend-sub">
+            <div class="lp-legend-sub-title">Entities (drill-down)</div>
+            <div class="lp-legend-item"><span class="lp-legend-swatch" style="background:#0b5cab;" title="Calc Dimension"></span><span class="lp-legend-label">Calc Dimension</span></div>
+            <div class="lp-legend-item"><span class="lp-legend-swatch" style="background:#06a59a;" title="Calc Measurement"></span><span class="lp-legend-label">Calc Measurement</span></div>
+            <div class="lp-legend-item"><span class="lp-legend-swatch" style="background:#481a54;" title="Dim Hierarchy"></span><span class="lp-legend-label">Dim Hierarchy</span></div>
+            <div class="lp-legend-item"><span class="lp-legend-swatch" style="background:#032d60;" title="Metric"></span><span class="lp-legend-label">Metric</span></div>
+            <div class="lp-legend-item"><span class="lp-legend-swatch" style="background:#706e6b;" title="Group / Bin"></span><span class="lp-legend-label">Group / Bin</span></div>
+          </div>
+        </div>
+
+        <div id="indicatorsLegendSection" style="display:none;">
+          <div class="lp-legend-sub">
+            <div class="lp-legend-sub-title">Indicators</div>
+            <div class="lp-legend-item" id="baseModelLegendItem" style="display:none;"><span class="lp-legend-swatch" style="background:linear-gradient(45deg,#FF538A 0%,#FF538A 100%);position:relative;overflow:hidden;" title="Base Model"><span style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:50%;background:repeating-linear-gradient(45deg,transparent,transparent 3px,rgba(255,255,255,0.5) 3px,rgba(255,255,255,0.5) 6px);"></span></span><span class="lp-legend-label">Base Model</span><span class="lp-legend-count" id="legendBaseCount">0</span></div>
+            <div class="lp-legend-item" id="unmappedLegendItem" style="display:none;"><span class="lp-legend-swatch" style="background:#FF538A;opacity:0.35;filter:grayscale(40%);" title="Unmapped"></span><span class="lp-legend-label">Unmapped</span><span class="lp-legend-count" id="legendUnmappedCount">0</span></div>
+          </div>
+        </div>
+
+        <div id="diffLegendSection" style="display:none;">
+          <div class="lp-legend-sub">
+            <div class="lp-legend-sub-title" id="diffLegendTitle">Changes (Local vs Remote)</div>
+            <div class="diff-legend-item"><span class="diff-legend-ring" style="border-color:#2ecc71;" title="New" id="diffRingAdded"></span><span class="diff-legend-badge" id="diffLabelAdded">New</span></div>
+            <div class="diff-legend-item"><span class="diff-legend-ring" style="border-color:#f1c40f;" title="Modified" id="diffRingModified"></span><span class="diff-legend-badge" id="diffLabelModified">Modified</span></div>
+            <div class="diff-legend-item"><span class="diff-legend-ring" style="border-color:#e74c3c;" title="Remote Only" id="diffRingRemoved"></span><span class="diff-legend-badge" id="diffLabelRemoved">Remote Only</span></div>
+            <div class="diff-legend-item lp-legend-label" id="diffSummary" style="color:#080707;font-weight:600;font-size:11px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toggle button -->
+      <div class="lp-toggle" data-action="toggleLeftPanel" title="Expand panel">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8,4 14,10 8,16"/></svg>
+      </div>
+    </div>
+
+    <div id="viewport">
+      <svg id="linesSvg"></svg>
+      <div id="groupContainersLayer"></div>
+      <div id="nodesLayer"></div>
+    </div>
+  </div>
+  
+  <div id="sidebar">
+    <div class="sidebar-header">
+      <div>
+        <h2><span id="sidebar-title">Object Name</span></h2>
+        <div class="sidebar-type" id="sidebar-type">Data Object</div>
+        <div class="sidebar-api" id="sidebar-api">api_name</div>
+      </div>
+      <button class="close-btn" data-action="closeSidebar">×</button>
+    </div>
+    <div class="sidebar-actions" id="sidebar-actions" style="display:none;">
+      <button class="query-btn" id="queryBtn" data-action="runQuery">Query Sample Data</button>
+    </div>
+    <div class="sidebar-content" id="sidebar-content"></div>
+  </div>
+  
+  <div id="resultsPanel">
+    <div class="results-header">
+      <h3>Query Results <span class="row-count" id="rowCount">0 rows</span></h3>
+      <button class="close-btn" data-action="closeResults">×</button>
+    </div>
+    <div class="results-body" id="resultsBody"></div>
+  </div>
+  
+  <div class="drill-hint" id="drillHint">Double-click an object to drill down</div>

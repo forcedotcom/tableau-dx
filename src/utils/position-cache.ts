@@ -2,35 +2,37 @@
  * Position Cache Utility for ERD Node Positions
  * Generates JavaScript code to be injected into webviews for position caching via extension storage.
  * Supports topLevel and drilldown:{entityId} contexts.
+ *
+ * @param adapterVarName - Name of the adapter variable to use for messaging (default: 'vscode' for backward compatibility)
  */
 
-export function getPositionCacheJS(): string {
+export function getPositionCacheJS(adapterVarName: string = 'vscode'): string {
   return `
     let cachedPositionsForModel = {};
     let currentPositionContext = 'topLevel';
-    
+
     function getPositionContext() {
       if (currentView === 'drilldown' && drilldownTarget) {
         return 'drilldown:' + drilldownTarget.id;
       }
       return 'topLevel';
     }
-    
+
     function loadCachedPositions() {
       return cachedPositionsForModel;
     }
-    
+
     function requestPositionsForContext(ctx) {
       currentPositionContext = ctx;
-      vscode.postMessage({
+      ${adapterVarName}.postMessage({
         command: 'requestPositions',
         positionContext: ctx
       });
     }
-    
+
     function saveCachedPosition(nodeId, x, y) {
       cachedPositionsForModel[nodeId] = {x: x, y: y};
-      vscode.postMessage({
+      ${adapterVarName}.postMessage({
         command: 'savePosition',
         positionContext: getPositionContext(),
         nodeId: nodeId,
@@ -38,24 +40,24 @@ export function getPositionCacheJS(): string {
         y: y
       });
     }
-    
+
     function saveAllCachedPositions(positions) {
       cachedPositionsForModel = positions;
-      vscode.postMessage({
+      ${adapterVarName}.postMessage({
         command: 'saveAllPositions',
         positionContext: getPositionContext(),
         positions: positions
       });
     }
-    
+
     function clearCachedPositions(ctx) {
       cachedPositionsForModel = {};
-      vscode.postMessage({
+      ${adapterVarName}.postMessage({
         command: 'clearPositions',
         positionContext: ctx || getPositionContext()
       });
     }
-    
+
     // Request top-level positions on load
     requestPositionsForContext('topLevel');
   `;

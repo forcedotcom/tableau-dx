@@ -241,6 +241,85 @@ The **View Model History** command uses Git to show a timeline of changes:
 
 ---
 
+---
+
+## Developer Guide
+
+### Project Structure
+
+```
+src/
+├── extension.ts                      # Extension entry point
+├── types.ts                          # Shared API/model types
+├── v2/
+│   ├── types.ts                      # UI-layer types (SemanticModelUI, DataObjectUI, etc.)
+│   ├── model-loader.ts
+│   └── ui-representation-builder.ts
+├── webviews/
+│   ├── erd-v2.ts                     # ERD assembler — reads split files and builds the webview HTML
+│   └── erd-v2-split/                 # ERD source files (single source of truth)
+│       ├── index.ts                  # Entry point — exports initErd()
+│       ├── types.ts                  # ERD-specific data types
+│       ├── render.ts                 # Node/edge SVG rendering
+│       ├── sidebar.ts                # Sidebar open/close/content
+│       ├── interaction.ts            # Drag, pan, zoom, click handlers
+│       ├── history.ts                # History panel
+│       ├── legend.ts                 # Legend counts and filtering
+│       └── utils.ts                  # escapeHtml and other helpers
+dist/
+└── erd-v2.js                         # Built ERD bundle (generated — do not edit directly)
+```
+
+> **Important:** `dist/erd-v2.js` is a generated file. Always edit the source files in `src/webviews/erd-v2-split/`, never the bundle directly.
+
+---
+
+### ERD Development Workflow
+
+The ERD logic lives in `src/webviews/erd-v2-split/` and is shared between two environments:
+
+| Environment | How it's used |
+|-------------|--------------|
+| **VSIX webview** | `erd-v2.ts` reads `dist/erd-v2.js` and injects it as a `<script>` string |
+| **Salesforce core (LWC)** | `sync-vsix-erd.js` copies `dist/erd-v2.js` to the core project |
+
+**To develop the ERD locally:**
+
+1. Open two terminals in this project root.
+
+2. **Terminal 1** — watch and rebuild the ERD on every save:
+   ```bash
+   npm run watch:erd
+   ```
+   esbuild rebuilds in ~10ms on each file change. Leave this running throughout your session.
+
+3. **Terminal 2** — run the extension in VS Code as usual (press `F5` or use the Run & Debug panel).
+
+4. Edit files in `src/webviews/erd-v2-split/` → the bundle in `dist/erd-v2.js` updates automatically → reload the webview in VS Code to see changes.
+
+**To do a one-time build** (e.g. before syncing to core):
+```bash
+npm run build:erd
+```
+
+**To sync to the Salesforce core project** (run from the core project root):
+```bash
+node scripts/sync-vsix-erd.js
+```
+This runs `build:erd` automatically before copying.
+
+---
+
+### Adding a New Feature to the ERD
+
+1. Edit the relevant file in `src/webviews/erd-v2-split/`
+2. Make sure `npm run watch:erd` is running
+3. Test in the VSIX webview (F5)
+4. Run `node scripts/sync-vsix-erd.js` from the core project to propagate the change
+5. Test in Salesforce core
+
+---
+
 ## License
 
 MIT
