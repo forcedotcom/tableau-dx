@@ -1,9 +1,12 @@
 {
-  "name": "salesforce-semantic-layer",
-  "displayName": "Salesforce Semantic Layer",
-  "description": "Retrieve and deploy Salesforce Semantic Layer JSON",
+  "name": "Salesforce-Semantic-DX",
+  "displayName": "Salesforce Semantic DX",
+  "description": "Retrieve, deploy, visualize, and test Tableau Semantic Layer models from within VS Code",
   "version": "0.0.2",
-  "publisher": "your-publisher",
+  "publisher": "salesforce",
+  "o11yUploadEndpoint": "https://794testsite.my.site.com/byolwr/webruntime/log/metrics",
+  "enableO11y": "true",
+  "productFeatureId": "",
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -19,7 +22,7 @@
   "main": "./out/extension.js",
   "contributes": {
     "configuration": {
-      "title": "Salesforce Semantic Layer",
+      "title": "Salesforce Semantic DX",
       "properties": {
         "semanticLayer.defaultModelFilter": {
           "type": "string",
@@ -127,7 +130,8 @@
     "typescript": "^5.3.0"
   },
   "dependencies": {
+    "@salesforce-ux/design-system": "^2.29.0",
     "@salesforce/core": "^8.8.0",
-    "@salesforce-ux/design-system": "^2.29.0"
+    "@salesforce/vscode-service-provider": "^1.5.0"
   }
 }

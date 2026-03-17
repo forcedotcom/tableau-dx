@@ -16,8 +16,17 @@ import {
   autoGenerateGroupsCommand
 } from './commands';
 import { clearPositionCacheCommand, showPositionCacheStatsCommand } from './commands/clear-position-cache';
+import {
+  initTelemetry,
+  sendActivationEvent,
+  sendDeactivationEvent,
+  sendCommandEvent,
+  sendException,
+  disposeTelemetry,
+} from './telemetry';
 
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
+  const activationStart = performance.now();
   console.log('Salesforce Semantic Layer extension is now active!');
 
   const currentVersion: string = context.extension.packageJSON.version ?? '0.0.0';
@@ -40,82 +49,79 @@ export function activate(context: vscode.ExtensionContext) {
     }
   }
 
+  await initTelemetry(context);
+  sendActivationEvent(activationStart);
 
-  const showOrgInfoDisposable = vscode.commands.registerCommand(
+  function trackedCommand(
+    commandId: string,
+    handler: (...args: unknown[]) => Promise<void>
+  ): vscode.Disposable {
+    return vscode.commands.registerCommand(commandId, async (...args: unknown[]) => {
+      const cmdStart = performance.now();
+      try {
+        await handler(...args);
+        sendCommandEvent(commandId, cmdStart);
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : 'Unknown error';
+        sendException(commandId, msg);
+        throw e;
+      }
+    });
+  }
+
+  const showOrgInfoDisposable = trackedCommand(
     'semanticLayer.showOrgInfo',
-    async () => {
-      await showOrgInfoCommand(context);
-    }
+    async () => { await showOrgInfoCommand(context); }
   );
 
-  const listModelsDisposable = vscode.commands.registerCommand(
+  const listModelsDisposable = trackedCommand(
     'semanticLayer.listModels',
-    async () => {
-      await listModelsCommand(context);
-    }
+    async () => { await listModelsCommand(context); }
   );
 
-  const exportToFolderDisposable = vscode.commands.registerCommand(
+  const exportToFolderDisposable = trackedCommand(
     'semanticLayer.exportToFolder',
-    async (uri: vscode.Uri) => {
-      await exportToFolderCommand(uri);
-    }
+    async (...args: unknown[]) => { await exportToFolderCommand(args[0] as vscode.Uri); }
   );
 
-  const updateModelDisposable = vscode.commands.registerCommand(
+  const updateModelDisposable = trackedCommand(
     'semanticLayer.updateModel',
-    async (uri: vscode.Uri) => {
-      await updateModelCommand(uri);
-    }
+    async (...args: unknown[]) => { await updateModelCommand(args[0] as vscode.Uri); }
   );
 
-  const visualizeCompareERDDisposable = vscode.commands.registerCommand(
+  const visualizeCompareERDDisposable = trackedCommand(
     'semanticLayer.visualizeCompareERD',
-    async (uri: vscode.Uri) => {
-      await visualizeCompareERDCommand(context, uri);
-    }
+    async (...args: unknown[]) => { await visualizeCompareERDCommand(context, args[0] as vscode.Uri); }
   );
 
-  const visualizeModelHistoryDisposable = vscode.commands.registerCommand(
+  const visualizeModelHistoryDisposable = trackedCommand(
     'semanticLayer.viewModelHistory',
-    async (uri: vscode.Uri) => {
-      await visualizeModelHistoryCommand(context, uri);
-    }
+    async (...args: unknown[]) => { await visualizeModelHistoryCommand(context, args[0] as vscode.Uri); }
   );
 
-  const visualizeLocalERDV2Disposable = vscode.commands.registerCommand(
+  const visualizeLocalERDV2Disposable = trackedCommand(
     'semanticLayer.visualizeLocalERDV2',
-    async (uri: vscode.Uri) => {
-      await visualizeLocalERDV2Command(context, uri);
-    }
+    async (...args: unknown[]) => { await visualizeLocalERDV2Command(context, args[0] as vscode.Uri); }
   );
 
-  const testModelDisposable = vscode.commands.registerCommand(
+  const testModelDisposable = trackedCommand(
     'semanticLayer.testModel',
-    async (uri: vscode.Uri) => {
-      await testModelCommand(context, uri);
-    }
+    async (...args: unknown[]) => { await testModelCommand(context, args[0] as vscode.Uri); }
   );
 
-  const clearPositionCacheDisposable = vscode.commands.registerCommand(
+  const clearPositionCacheDisposable = trackedCommand(
     'semanticLayer.clearPositionCache',
-    async () => {
-      await clearPositionCacheCommand();
-    }
+    async () => { await clearPositionCacheCommand(); }
   );
 
-  const showPositionCacheStatsDisposable = vscode.commands.registerCommand(
+  const showPositionCacheStatsDisposable = trackedCommand(
     'semanticLayer.showPositionCacheStats',
-    async () => {
-      await showPositionCacheStatsCommand();
-    }
+    async () => { await showPositionCacheStatsCommand(); }
   );
 
-  const autoGenerateGroupsDisposable = vscode.commands.registerCommand(
+  const autoGenerateGroupsDisposable = trackedCommand(
     'semanticLayer.autoGenerateGroups',
-    async (uri: vscode.Uri) => {
-      await autoGenerateGroupsCommand(uri);
-    }
+    async (...args: unknown[]) => { await autoGenerateGroupsCommand(args[0] as vscode.Uri); }
   );
 
   // TODO: Re-enable grouped ERD commands when grouping feature is ready
@@ -148,4 +154,7 @@ export function activate(context: vscode.ExtensionContext) {
   );
 }
 
-export function deactivate() {}
+export function deactivate() {
+  sendDeactivationEvent();
+  disposeTelemetry();
+}
