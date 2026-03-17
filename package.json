@@ -4,6 +4,11 @@
   "description": "Retrieve, deploy, visualize, and test Tableau Semantic Layer models from within VS Code",
   "version": "0.0.2",
   "publisher": "salesforce",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/forcedotcom/tableau-dx.git"
+  },
+  "license": "BSD-3-Clause",
   "o11yUploadEndpoint": "https://794testsite.my.site.com/byolwr/webruntime/log/metrics",
   "enableO11y": "true",
   "productFeatureId": "",
@@ -118,13 +123,15 @@
     "watch": "tsc -watch -p ./",
     "build:erd": "esbuild src/webviews/erd-v2-split/index.ts --bundle --format=esm --outfile=dist/erd-v2.js",
     "watch:erd": "esbuild src/webviews/erd-v2-split/index.ts --bundle --format=esm --outfile=dist/erd-v2.js --watch",
-    "lint": "eslint src --ext ts"
+    "lint": "eslint src --ext ts",
+    "package": "vsce package"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",
     "@types/vscode": "^1.85.0",
     "@typescript-eslint/eslint-plugin": "^8.57.1",
     "@typescript-eslint/parser": "^8.57.1",
+    "@vscode/vsce": "^3.7.1",
     "esbuild": "^0.27.4",
     "eslint": "^10.0.3",
     "typescript": "^5.3.0"
