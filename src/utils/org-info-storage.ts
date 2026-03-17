@@ -1,10 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { exec } from 'child_process';
-import { promisify } from 'util';
-
-const execAsync = promisify(exec);
+import { Config, OrgConfigProperties } from '@salesforce/core';
 
 export interface StoredOrgInfo {
   orgId: string;
@@ -81,7 +78,9 @@ export async function checkOrgMatch(
       const targetOrg = stored.alias || stored.username;
       await vscode.window.withProgress(
         { location: vscode.ProgressLocation.Notification, title: `Switching to org "${targetOrg}"...` },
-        async () => { await execAsync(`sf config set target-org=${targetOrg}`); }
+        async () => {
+          await Config.update(false, OrgConfigProperties.TARGET_ORG, targetOrg);
+        }
       );
       vscode.window.showInformationMessage(`Switched default org to "${targetOrg}".`);
       return 'switched';

@@ -10,6 +10,9 @@
   "categories": [
     "Other"
   ],
+  "extensionDependencies": [
+    "salesforce.salesforcedx-vscode-core"
+  ],
   "activationEvents": [
     "onStartupFinished"
   ],
@@ -124,6 +127,7 @@
     "typescript": "^5.3.0"
   },
   "dependencies": {
+    "@salesforce/core": "^8.8.0",
     "@salesforce-ux/design-system": "^2.29.0"
   }
 }
