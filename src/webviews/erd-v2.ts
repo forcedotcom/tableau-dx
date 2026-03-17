@@ -5,7 +5,9 @@ import { escapeHtml } from '../utils/formatting';
 import { sldsHead } from '../utils/webview-utils';
 import { GroupsConfig } from '../utils/auto-group';
 
-const SPLIT_DIR = path.join(__dirname, '..', '..', 'src', 'webviews', 'erd-v2-split');
+const SPLIT_DIR_BUNDLED = path.join(__dirname, 'webview-static');
+const SPLIT_DIR_DEV = path.join(__dirname, '..', '..', 'src', 'webviews', 'erd-v2-split');
+const SPLIT_DIR = fs.existsSync(SPLIT_DIR_BUNDLED) ? SPLIT_DIR_BUNDLED : SPLIT_DIR_DEV;
 
 function readSplitFile(name: string): string {
   return fs.readFileSync(path.join(SPLIT_DIR, name), 'utf8');
@@ -255,9 +257,12 @@ export function getERDV2WebviewContent(
 
   // Read the bundled ERD script (compiled from src/webviews/erd-v2-split/index.ts by esbuild).
   // Falls back to the monolithic erd-v2.js during development before the first build.
-  const DIST_ERD_JS = path.join(__dirname, '..', '..', 'dist', 'erd-v2.js');
+  const DIST_ERD_JS = path.join(__dirname, 'erd-v2.js');
+  const DIST_ERD_JS_ALT = path.join(__dirname, '..', '..', 'dist', 'erd-v2.js');
   const LEGACY_ERD_JS = path.join(SPLIT_DIR, 'erd-v2.js');
-  const jsPath = fs.existsSync(DIST_ERD_JS) ? DIST_ERD_JS : LEGACY_ERD_JS;
+  const jsPath = fs.existsSync(DIST_ERD_JS) ? DIST_ERD_JS
+    : fs.existsSync(DIST_ERD_JS_ALT) ? DIST_ERD_JS_ALT
+    : LEGACY_ERD_JS;
   // ESM build exports "export { initErd };" at the end — strip it so the script
   // runs as plain inline JS in the webview (initErd stays as a regular function in scope).
   const js = fs.readFileSync(jsPath, 'utf8').replace(/^export\s*\{[^}]*\};?\s*$/m, '');

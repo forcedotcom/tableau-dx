@@ -24,7 +24,7 @@
   "activationEvents": [
     "onStartupFinished"
   ],
-  "main": "./out/extension.js",
+  "main": "./dist/extension.js",
   "contributes": {
     "configuration": {
       "title": "Salesforce Semantic DX",
@@ -118,15 +118,18 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile && npm run build:erd",
+    "vscode:prepublish": "npm run build",
+    "build": "npm run build:ext && npm run build:erd",
+    "build:ext": "node esbuild.config.js",
+    "build:erd": "esbuild src/webviews/erd-v2-split/index.ts --bundle --format=esm --outfile=dist/erd-v2.js",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "build:erd": "esbuild src/webviews/erd-v2-split/index.ts --bundle --format=esm --outfile=dist/erd-v2.js",
     "watch:erd": "esbuild src/webviews/erd-v2-split/index.ts --bundle --format=esm --outfile=dist/erd-v2.js --watch",
     "lint": "eslint src --ext ts",
     "package": "vsce package"
   },
   "devDependencies": {
+    "@salesforce-ux/design-system": "^2.29.0",
     "@types/node": "^20.10.0",
     "@types/vscode": "^1.85.0",
     "@typescript-eslint/eslint-plugin": "^8.57.1",
@@ -137,7 +140,6 @@
     "typescript": "^5.3.0"
   },
   "dependencies": {
-    "@salesforce-ux/design-system": "^2.29.0",
     "@salesforce/core": "^8.8.0",
     "@salesforce/vscode-service-provider": "^1.5.0"
   }

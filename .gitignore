@@ -14,6 +14,9 @@ dist/
 .vscode/settings.json
 .vscode/launch.json
 
+# Salesforce local tooling
+.sfdx/
+
 # OS files
 .DS_Store
 Thumbs.db
