@@ -12,7 +12,7 @@
   "preview": true,
   "o11yUploadEndpoint": "https://794testsite.my.site.com/byolwr/webruntime/log/metrics",
   "enableO11y": "true",
-  "productFeatureId": "",
+  "productFeatureId": "aJCEE0000009zAj4AI",
   "engines": {
     "vscode": "^1.85.0"
   },
