@@ -2,7 +2,7 @@
   "name": "Salesforce-Semantic-DX",
   "displayName": "Salesforce Semantic DX",
   "description": "Retrieve, deploy, visualize, and test Tableau Semantic Layer models from within VS Code",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "publisher": "salesforce",
   "repository": {
     "type": "git",
