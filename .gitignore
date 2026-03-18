@@ -5,6 +5,8 @@ node_modules/
 out/
 dist/
 *.vsix
+vsix/*
+!vsix/CHANGELOG.md
 
 # TypeScript cache
 *.tsbuildinfo

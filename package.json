@@ -81,6 +81,10 @@
       {
         "command": "semanticLayer.autoGenerateGroups",
         "title": "Tableau Semantic: Auto-Generate Groups"
+      },
+      {
+        "command": "semanticLayer.restartMcp",
+        "title": "Tableau Semantic: Restart MCP Server"
       }
     ],
     "menus": {
@@ -123,7 +127,9 @@
     "build": "npm run build:ext && npm run build:erd",
     "build:ext": "node esbuild.config.js",
     "build:erd": "esbuild src/webviews/erd-v2-split/index.ts --bundle --format=esm --outfile=dist/erd-v2.js",
-    "compile": "tsc -p ./",
+    "compile": "tsc -p ./ && npm run copy:mcp-server",
+    "build:mcp-server": "cd ../tableau-next-mcp && npm run mcp:build:stdio",
+    "copy:mcp-server": "node -e \"const fs=require('fs'),p=require('path');const src=p.resolve(__dirname,'../tableau-next-mcp/packages/tableau-next-mcp/dist/stdio-server.mjs'),dest=p.resolve(__dirname,'out/mcp-server');fs.mkdirSync(dest,{recursive:true});fs.copyFileSync(src,p.join(dest,'stdio-server.mjs'));console.log('Copied MCP server bundle to out/mcp-server/')\"",
     "watch": "tsc -watch -p ./",
     "watch:erd": "esbuild src/webviews/erd-v2-split/index.ts --bundle --format=esm --outfile=dist/erd-v2.js --watch",
     "lint": "eslint src --ext ts",
