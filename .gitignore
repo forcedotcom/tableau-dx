@@ -37,6 +37,8 @@ lerna-debug.log*
 
 # IDE
 .idea/
+.cursor/*
+!.cursor/rules/
 *.swp
 *.swo
 *~

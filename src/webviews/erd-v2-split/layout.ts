@@ -320,8 +320,17 @@ export function createLayoutModule(ctx: ErdContext): LayoutModule {
       });
     }
 
-    Object.keys(positions).forEach(id => {
-      ctx.ddPositions[id] = { x: positions[id].x, y: positions[id].y };
+    const xs = Object.values(positions).map(p => p.x);
+    const ys = Object.values(positions).map(p => p.y);
+    const minX = Math.min(...xs), maxX = Math.max(...xs);
+    const minY = Math.min(...ys), maxY = Math.max(...ys);
+    const rangeX = maxX - minX || 1, rangeY = maxY - minY || 1;
+
+    drillNodes.forEach(n => {
+      ctx.ddPositions[n.id] = {
+        x: padding + ((positions[n.id].x - minX) / rangeX) * (canvasW - 2 * padding),
+        y: padding + ((positions[n.id].y - minY) / rangeY) * (canvasH - 2 * padding),
+      };
     });
   }
 

@@ -22,6 +22,29 @@ const STATIC_DIR = join(DIST, 'webview-static');
     );
   }
 
+  // Copy MCP agent rule template to dist/mcp/
+  const mcpDir = join(DIST, 'mcp');
+  if (!existsSync(mcpDir)) {
+    mkdirSync(mcpDir, { recursive: true });
+  }
+  copyFileSync(
+    join(__dirname, 'src', 'mcp', 'tableau-mcp-rule.md'),
+    join(mcpDir, 'tableau-mcp-rule.md')
+  );
+
+  // Copy MCP server bundle to dist/mcp-server/
+  const mcpServerSrc = join(__dirname, '..', 'tableau-next-mcp', 'packages', 'tableau-next-mcp', 'dist', 'stdio-server.mjs');
+  const mcpServerDir = join(DIST, 'mcp-server');
+  if (!existsSync(mcpServerDir)) {
+    mkdirSync(mcpServerDir, { recursive: true });
+  }
+  if (existsSync(mcpServerSrc)) {
+    copyFileSync(mcpServerSrc, join(mcpServerDir, 'stdio-server.mjs'));
+  } else {
+    console.warn('WARNING: MCP server bundle not found at', mcpServerSrc);
+    console.warn('Run "npm run build:mcp-server" first, then rebuild.');
+  }
+
   // Copy pino's own worker/file transports (they have minimal deps)
   copyFileSync(
     join(__dirname, 'node_modules/pino/lib/worker.js'),

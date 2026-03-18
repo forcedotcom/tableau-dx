@@ -219,12 +219,9 @@ export function createInteractionModule(ctx: ErdContext): InteractionModule {
         });
       });
 
-      const newDdPositions = layoutMod.layoutDrillDown(drillNodes2, drillEdges2);
-      if (newDdPositions) {
-        layoutMod.snapAllToGrid(newDdPositions, layoutMod.getGridCellSize('drilldown'));
-        Object.keys(newDdPositions).forEach(k => { ctx.ddPositions[k] = newDdPositions[k]; });
-        ctx.ddCenterPos = ctx.ddPositions['__center__'];
-      }
+      layoutMod.layoutDrillDown(drillNodes2, drillEdges2);
+      layoutMod.snapAllToGrid(ctx.ddPositions, layoutMod.getGridCellSize('drilldown'));
+      ctx.ddCenterPos = ctx.ddPositions['__center__'];
 
       Object.keys(ctx.ddElements).forEach(key => {
         const el = ctx.ddElements[key];
@@ -241,6 +238,23 @@ export function createInteractionModule(ctx: ErdContext): InteractionModule {
         Object.keys(ctx.ddElements).forEach(key => { if (ctx.ddElements[key]) ctx.ddElements[key].style.transition = ''; });
       }, 320);
       ctx.drawDrillEdges();
+
+      const allX: number[] = [], allY: number[] = [];
+      Object.values(ctx.ddPositions).forEach(p => { allX.push(p.x); allY.push(p.y); });
+      if (allX.length > 0) {
+        const mnX = Math.min(...allX) - 150, mxX = Math.max(...allX) + 200;
+        const mnY = Math.min(...allY) - 100, mxY = Math.max(...allY) + 100;
+        const w = mxX - mnX, h = mxY - mnY;
+        const lpEl = ctx.root.querySelector('#leftPanel') as HTMLElement | null;
+        const lpw = lpEl ? lpEl.offsetWidth : 48;
+        const availW = ctx.erdContainer.clientWidth - lpw;
+        const sw = availW / (w + 50), sh = ctx.erdContainer.clientHeight / (h + 50);
+        ctx.scale = Math.min(sw, sh, 1);
+        ctx.panX = lpw + (availW - w * ctx.scale) / 2 - mnX * ctx.scale;
+        ctx.panY = (ctx.erdContainer.clientHeight - h * ctx.scale) / 2 - mnY * ctx.scale;
+        updateView();
+      }
+
       if (posMod) posMod.saveAllCachedPositions(ctx.ddPositions);
     }
   }

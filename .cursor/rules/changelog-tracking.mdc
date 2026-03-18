@@ -1,0 +1,41 @@
+---
+description: Track all changes in vsix/CHANGELOG.md and mark releases when building VSIX
+alwaysApply: true
+---
+
+# Changelog Tracking
+
+Maintain a changelog at `vsix/CHANGELOG.md` to track all changes between VSIX releases.
+
+## After every fix or change
+
+Append a single-line description to the **Unreleased** section at the top of `vsix/CHANGELOG.md`:
+
+```markdown
+## Unreleased
+- Fixed hover connector alignment in ERD
+- Added unmapped badge to sidebar
+```
+
+Keep descriptions short and user-facing (what changed, not how).
+
+## When building a VSIX
+
+Before packaging, move all **Unreleased** items under a new version heading with today's date:
+
+```markdown
+## Unreleased
+
+## 0.0.2 - 2026-03-11
+- Fixed hover connector alignment in ERD
+- Added unmapped badge to sidebar
+
+## 0.0.1 - 2026-03-10
+- Initial release
+```
+
+Then bump the version in `package.json` to match.
+
+## File location
+
+The changelog lives at `vsix/CHANGELOG.md`. Create it if it doesn't exist.
