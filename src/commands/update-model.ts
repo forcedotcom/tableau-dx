@@ -8,7 +8,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
-import { getOrgInfo, putSalesforceApi } from '../api';
+import { getOrgInfo, putSalesforceApi, SF_API_VERSION } from '../api';
 import { UpdatePayload } from '../types';
 import { checkOrgMatch } from '../utils/org-info-storage';
 
@@ -132,7 +132,7 @@ export async function updateModelCommand(uri: vscode.Uri) {
       },
       async () => {
 
-        const endpoint = `/services/data/v65.0/ssot/semantic/models/${modelApiName}`;
+        const endpoint = `/services/data/${SF_API_VERSION}/ssot/semantic/models/${modelApiName}`;
         outputChannel.appendLine(`\n--- API Endpoint ---`);
         outputChannel.appendLine(`PUT ${instanceUrl}${endpoint}`);
         

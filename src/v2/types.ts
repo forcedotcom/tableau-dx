@@ -219,6 +219,8 @@ export interface LogicalView {
   isQueryable?: string;
   semanticViewTypeEnum?: string;
   tableType?: string;
+  customSQLV2?: string;
+  overriddenProperties?: unknown[];
   filters?: unknown[];
   semanticDataObjects: LogicalViewDataObject[];
   semanticRelationships: Relationship[];

@@ -10,7 +10,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { buildModelRepresentation, SemanticModelUI, loadSemanticModelFiles } from '../v2';
 import { getERDV2WebviewContent } from '../webviews/erd-v2';
-import { getOrgInfo, postSalesforceApi } from '../api';
+import { getOrgInfo, postSalesforceApi, SF_API_VERSION } from '../api';
 import { checkOrgMatch } from '../utils/org-info-storage';
 import { FilePositionStorage } from '../utils/position-storage';
 import { createWebviewPanel } from '../utils/webview-utils';
@@ -228,7 +228,7 @@ function showERDV2Panel(
 
           const result = await postSalesforceApi(
             instanceUrl, accessToken,
-            '/services/data/v65.0/semantic-engine/gateway',
+            `/services/data/${SF_API_VERSION}/semantic-engine/gateway`,
             payload
           );
 

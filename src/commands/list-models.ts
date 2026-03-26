@@ -6,7 +6,7 @@
  */
 
 import * as vscode from 'vscode';
-import { getOrgInfo, callSalesforceApi } from '../api';
+import { getOrgInfo, callSalesforceApi, SF_API_VERSION } from '../api';
 import { SemanticModelsResponse } from '../types';
 import { getModelsWebviewContent } from '../webviews/models-list';
 import { createWebviewPanel } from '../utils/webview-utils';
@@ -33,7 +33,7 @@ export async function listModelsCommand(context: vscode.ExtensionContext) {
         const modelsResponse = await callSalesforceApi(
           orgInfo.result.instanceUrl,
           orgInfo.result.accessToken,
-          '/services/data/v65.0/ssot/semantic/models',
+          `/services/data/${SF_API_VERSION}/ssot/semantic/models`,
           queryParams
         ) as SemanticModelsResponse;
 

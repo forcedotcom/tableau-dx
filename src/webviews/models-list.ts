@@ -6,6 +6,7 @@
  */
 
 import { OrgInfo, SemanticModelsResponse } from '../types';
+import { SF_API_VERSION } from '../api';
 import { escapeHtml, formatJsonWithSyntaxHighlighting } from '../utils/formatting';
 import { sldsHead } from '../utils/webview-utils';
 
@@ -146,7 +147,7 @@ export function getModelsWebviewContent(
                   </div>
                 </div>
                 <p class="slds-page-header__name-meta">
-                  Data Cloud Semantic Layer &bull; API v65.0
+                  Data Cloud Semantic Layer &bull; API ${SF_API_VERSION}
                   ${searchIndicator}
                 </p>
               </div>

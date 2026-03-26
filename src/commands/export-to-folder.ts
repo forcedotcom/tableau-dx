@@ -8,7 +8,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
-import { getOrgInfo, callSalesforceApi } from '../api';
+import { getOrgInfo, callSalesforceApi, SF_API_VERSION } from '../api';
 import { SemanticModelsResponse } from '../types';
 import { saveOrgInfo } from '../utils/org-info-storage';
 
@@ -36,7 +36,7 @@ export async function exportToFolderCommand(uri: vscode.Uri) {
     const modelsResponse = await callSalesforceApi(
       instanceUrl,
       accessToken,
-      '/services/data/v65.0/ssot/semantic/models',
+      `/services/data/${SF_API_VERSION}/ssot/semantic/models`,
       queryParams
     ) as SemanticModelsResponse;
 
@@ -93,7 +93,7 @@ export async function exportToFolderCommand(uri: vscode.Uri) {
       async (progress) => {
         progress.report({ message: 'Fetching model data...' });
 
-        const fullModelUrl = `/services/data/v65.0/ssot/semantic/models/${model.apiName}`;
+        const fullModelUrl = `/services/data/${SF_API_VERSION}/ssot/semantic/models/${model.apiName}`;
 
         const unmapped = { allowUnmapped: 'true' };
         const fullModel = await callSalesforceApi(instanceUrl, accessToken, fullModelUrl, unmapped);

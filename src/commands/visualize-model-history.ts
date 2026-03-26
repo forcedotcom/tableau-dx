@@ -19,7 +19,7 @@ import {
 import { getERDV2WebviewContent } from '../webviews/erd-v2';
 import { getCommitsForFolder, isGitRepository } from '../utils/git';
 import { mergeForCompare } from '../utils/compare-models';
-import { getOrgInfo, postSalesforceApi } from '../api';
+import { getOrgInfo, postSalesforceApi, SF_API_VERSION } from '../api';
 import { checkOrgMatch } from '../utils/org-info-storage';
 import { FilePositionStorage } from '../utils/position-storage';
 import { createWebviewPanel } from '../utils/webview-utils';
@@ -210,7 +210,7 @@ function showHistoryPanel(
           };
 
           outputChannel.appendLine(`Query: ${JSON.stringify(payload, null, 2)}`);
-          const result = await postSalesforceApi(instanceUrl, accessToken, '/services/data/v65.0/semantic-engine/gateway', payload);
+          const result = await postSalesforceApi(instanceUrl, accessToken, `/services/data/${SF_API_VERSION}/semantic-engine/gateway`, payload);
 
           panel.webview.postMessage({ command: 'queryResult', success: true, data: result, fieldLabels, nodeLabel: message.nodeLabel });
         } catch (error) {

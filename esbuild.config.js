@@ -5,9 +5,11 @@
  * For full license text, see the LICENSE file in the repo root
  */
 
-const { build } = require('esbuild');
+const { build, context } = require('esbuild');
 const { copyFileSync, mkdirSync, existsSync } = require('fs');
 const { join } = require('path');
+
+const isWatch = process.argv.includes('--watch');
 
 const DIST = join(__dirname, 'dist');
 const STATIC_DIR = join(DIST, 'webview-static');
@@ -74,13 +76,17 @@ const STATIC_DIR = join(DIST, 'webview-static');
     outfile: 'dist/sf-transform-stream.js',
   });
 
-  // The transport target from @salesforce/core Logger is:
-  //   path.join('..', '..', 'lib', 'logger', 'transformStream')
-  // which produces "../../lib/logger/transformStream"
-  const sfTransportTarget = join('..', '..', 'lib', 'logger', 'transformStream');
-
-  // Bundle the main extension
+  // Bundle pino-pretty for when DEBUG env var is set
+  // (@salesforce/core Logger switches to pino-pretty transport in debug mode)
   await build({
+    entryPoints: ['node_modules/pino-pretty/index.js'],
+    bundle: true,
+    platform: 'node',
+    format: 'cjs',
+    outfile: 'dist/pino-pretty.js',
+  });
+
+  const extensionOptions = {
     entryPoints: ['src/extension.ts'],
     bundle: true,
     platform: 'node',
@@ -89,12 +95,24 @@ const STATIC_DIR = join(DIST, 'webview-static');
     external: ['vscode'],
     banner: {
       js: [
-        `globalThis.__bundlerPathsOverrides = {`,
-        `  'pino-worker': require('path').join(__dirname, 'pino-worker.js'),`,
-        `  'pino/file': require('path').join(__dirname, 'pino-file.js'),`,
-        `  '${sfTransportTarget}': require('path').join(__dirname, 'sf-transform-stream.js'),`,
-        `};`,
+        `(function() {`,
+        `  var __p = require('path');`,
+        `  globalThis.__bundlerPathsOverrides = {`,
+        `    'pino-worker': __p.join(__dirname, 'pino-worker.js'),`,
+        `    'pino/file': __p.join(__dirname, 'pino-file.js'),`,
+        `    'pino-pretty': __p.join(__dirname, 'pino-pretty.js'),`,
+        `  };`,
+        `  globalThis.__bundlerPathsOverrides[__p.join('..', '..', 'lib', 'logger', 'transformStream')] = __p.join(__dirname, 'sf-transform-stream.js');`,
+        `})();`,
       ].join('\n'),
     },
-  });
+  };
+
+  if (isWatch) {
+    const ctx = await context(extensionOptions);
+    await ctx.watch();
+    console.log('[esbuild] watching for changes to dist/extension.js...');
+  } else {
+    await build(extensionOptions);
+  }
 })();

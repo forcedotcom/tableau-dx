@@ -5,5 +5,7 @@
  * For full license text, see the LICENSE file in the repo root
  */
 
+export const SF_API_VERSION = 'v66.0';
+
 export { getOrgInfo } from './org';
 export { callSalesforceApi, putSalesforceApi, postSalesforceApi } from './http';

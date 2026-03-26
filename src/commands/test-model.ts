@@ -10,7 +10,7 @@ import * as path from 'path';
 import { buildModelRepresentation } from '../v2';
 import { loadSemanticModelFiles } from '../v2/model-loader';
 import { getTestModelWebviewContent } from '../webviews/test-model';
-import { getOrgInfo, postSalesforceApi } from '../api';
+import { getOrgInfo, postSalesforceApi, SF_API_VERSION } from '../api';
 import { checkOrgMatch } from '../utils/org-info-storage';
 import { createWebviewPanel } from '../utils/webview-utils';
 
@@ -188,7 +188,7 @@ function showTestModelPanel(
 
           const result = await postSalesforceApi(
             instanceUrl, accessToken,
-            '/services/data/v65.0/semantic-engine/gateway',
+            `/services/data/${SF_API_VERSION}/semantic-engine/gateway`,
             payload
           );
 

@@ -24,6 +24,12 @@ import {
 } from './commands';
 import { clearPositionCacheCommand, showPositionCacheStatsCommand } from './commands/clear-position-cache';
 import {
+  CustomSQLCodeLensProvider,
+  editCustomSQLCommand,
+  registerCustomSQLSaveHandler,
+  registerCustomSQLCleanup,
+} from './providers/custom-sql-codelens';
+import {
   initTelemetry,
   sendActivationEvent,
   sendDeactivationEvent,
@@ -148,6 +154,21 @@ export async function activate(context: vscode.ExtensionContext) {
     async (...args: unknown[]) => { await autoGenerateGroupsCommand(args[0] as vscode.Uri); }
   );
 
+  const editCustomSQLDisposable = vscode.commands.registerCommand(
+    'semanticLayer.editCustomSQL',
+    async (sourceUri: vscode.Uri, apiName: string, label: string) => {
+      await editCustomSQLCommand(sourceUri, apiName, label);
+    }
+  );
+
+  const codeLensProvider = vscode.languages.registerCodeLensProvider(
+    { pattern: '**/logicalViews.json' },
+    new CustomSQLCodeLensProvider()
+  );
+
+  const sqlSaveHandler = registerCustomSQLSaveHandler();
+  const sqlCleanup = registerCustomSQLCleanup();
+
   // TODO: Re-enable grouped ERD commands when grouping feature is ready
   // const visualizeGroupedERDDisposable = vscode.commands.registerCommand(
   //   'semanticLayer.visualizeGroupedERD',
@@ -175,7 +196,11 @@ export async function activate(context: vscode.ExtensionContext) {
     testModelDisposable,
     clearPositionCacheDisposable,
     showPositionCacheStatsDisposable,
-    autoGenerateGroupsDisposable
+    autoGenerateGroupsDisposable,
+    editCustomSQLDisposable,
+    codeLensProvider,
+    sqlSaveHandler,
+    sqlCleanup
   );
 }
 

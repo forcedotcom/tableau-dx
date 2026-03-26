@@ -10,7 +10,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { SemanticModelUI, loadSemanticModelFiles, buildDependencyGraph, buildSemanticModelUI } from '../v2';
 import { getERDV2WebviewContent } from '../webviews/erd-v2';
-import { getOrgInfo, callSalesforceApi, postSalesforceApi } from '../api';
+import { getOrgInfo, callSalesforceApi, postSalesforceApi, SF_API_VERSION } from '../api';
 import { mergeForCompare, rawModelFromApiResponse } from '../utils/compare-models';
 import { checkOrgMatch } from '../utils/org-info-storage';
 import { FilePositionStorage } from '../utils/position-storage';
@@ -56,7 +56,7 @@ export async function visualizeCompareERDCommand(context: vscode.ExtensionContex
           const { instanceUrl, accessToken } = orgInfo.result;
 
           const modelApiName = localRaw.model.apiName;
-          const fullModelUrl = `/services/data/v65.0/ssot/semantic/models/${modelApiName}`;
+          const fullModelUrl = `/services/data/${SF_API_VERSION}/ssot/semantic/models/${modelApiName}`;
           const fullModelResponse = await callSalesforceApi(instanceUrl, accessToken, fullModelUrl, { allowUnmapped: 'true' }) as Record<string, any>;
 
           const remoteRaw = rawModelFromApiResponse(fullModelResponse);
@@ -135,7 +135,7 @@ function showCompareERDPanel(
           };
 
           outputChannel.appendLine(`Query: ${JSON.stringify(payload, null, 2)}`);
-          const result = await postSalesforceApi(instanceUrl, accessToken, '/services/data/v65.0/semantic-engine/gateway', payload);
+          const result = await postSalesforceApi(instanceUrl, accessToken, `/services/data/${SF_API_VERSION}/semantic-engine/gateway`, payload);
 
           panel.webview.postMessage({ command: 'queryResult', success: true, data: result, fieldLabels, nodeLabel: message.nodeLabel });
         } catch (error) {
