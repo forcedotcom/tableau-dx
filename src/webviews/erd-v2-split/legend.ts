@@ -77,7 +77,7 @@ export function createLegendModule(ctx: ErdContext): LegendModule {
         let hasChange = false;
         if (key === '__center__') {
           const cn = ctx.nodes.find(n => n.id === ctx.ddCenterId);
-          hasChange = !!(cn && cn.diffStatus && cn.diffStatus !== 'unchanged');
+          hasChange = !!(cn && cn.diffStatus && cn.diffStatus !== 'unchanged' && cn.diffStatus !== 'modified-children');
         } else if (key.startsWith('ent_')) {
           const entApi = key.substring(4);
           const ent = ctx.ddEntities.find((e: any) => e.apiName === entApi);
@@ -125,6 +125,7 @@ export function createLegendModule(ctx: ErdContext): LegendModule {
       if (item.diffStatus === 'added') addedCount++;
       else if (item.diffStatus === 'modified') modifiedCount++;
       else if (item.diffStatus === 'removed') removedCount++;
+      // 'modified-children' is intentionally excluded — only the children count
     });
     const total = addedCount + modifiedCount + removedCount;
     const parts: string[] = [];

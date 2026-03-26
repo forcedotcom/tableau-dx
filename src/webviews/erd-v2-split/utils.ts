@@ -18,7 +18,7 @@ export function escapeHtmlStr(str: string): string {
 export function getDiffClassFromStatus(ds: DiffStatus | null | undefined): string {
   if (!ds || ds === 'unchanged') return '';
   if (ds === 'added') return ' diff-added';
-  if (ds === 'modified') return ' diff-modified';
+  if (ds === 'modified' || ds === 'modified-children') return ' diff-modified';
   if (ds === 'removed') return ' diff-removed';
   return '';
 }
@@ -50,7 +50,7 @@ export function diffBadgeHtml(ctx: ErdContext, nodeOrApiNameOrDs: ErdNode | stri
   } else {
     s = getDiffStatus(ctx, nodeOrApiNameOrDs);
   }
-  if (!s || s === 'unchanged') return '';
+  if (!s || s === 'unchanged' || s === 'modified-children') return '';
   return '<span class="sidebar-diff-badge ' + s + '">' + ctx.diffLabels[s as 'added' | 'modified' | 'removed'] + '</span>';
 }
 

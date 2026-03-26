@@ -244,6 +244,7 @@ export function initErd(root: HTMLElement, data: ErdData, embeddedMode: boolean 
       if (item.diffStatus === 'added') addedCount++;
       else if (item.diffStatus === 'modified') modifiedCount++;
       else if (item.diffStatus === 'removed') removedCount++;
+      // 'modified-children' is intentionally excluded — only the children count
     });
     const total = addedCount + modifiedCount + removedCount;
     const parts: string[] = [];

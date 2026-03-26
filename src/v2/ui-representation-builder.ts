@@ -140,7 +140,7 @@ export function buildSemanticModelUI(
         ...related.relatedGroupings,
       ];
       if (allChildren.some(c => c.diffStatus && c.diffStatus !== 'unchanged')) {
-        effectiveDiff = 'modified';
+        effectiveDiff = 'modified-children';
       }
     }
     return { ...obj, ...related, diffStatus: effectiveDiff };
@@ -159,7 +159,7 @@ export function buildSemanticModelUI(
         ...related.relatedGroupings,
       ];
       if (allChildren.some(c => c.diffStatus && c.diffStatus !== 'unchanged')) {
-        effectiveDiff = 'modified';
+        effectiveDiff = 'modified-children';
       }
     }
     return { ...lv, ...related, diffStatus: effectiveDiff };

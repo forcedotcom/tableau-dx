@@ -7,7 +7,7 @@
 
 // ─── Field types ─────────────────────────────────────────────────────────────
 
-export type DiffStatus = 'added' | 'modified' | 'removed' | 'unchanged';
+export type DiffStatus = 'added' | 'modified' | 'removed' | 'unchanged' | 'modified-children';
 export type NodeType = 'dataObject' | 'logicalView';
 export type DataObjectType = 'Dmo' | 'Dlo' | 'Cio';
 export type ViewMode = 'top' | 'grouped' | 'listGrouped' | 'drilldown';

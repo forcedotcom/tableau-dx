@@ -7,6 +7,8 @@
 - Added per-model viewConfig.json for persisting display preferences
 - Added extensionVersion property to all telemetry events
 - Improved text contrast for data object names and field labels in Test Model panel
+- Fixed compare ERD: parent objects with only child changes no longer counted as modified in legend
+- Fixed compare ERD: drill-down center node no longer shows modified badge when only children changed
 
 ## 0.0.7 - 2026-03-25
 - Fixed Windows/VSCode: "unable to determine transport target for pino-pretty" when DEBUG env var is set

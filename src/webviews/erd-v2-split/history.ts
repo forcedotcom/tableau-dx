@@ -289,6 +289,7 @@ export function createHistoryModule(ctx: ErdContext): HistoryModule {
         if (item.diffStatus === 'added') addedCount++;
         else if (item.diffStatus === 'modified') modifiedCount++;
         else if (item.diffStatus === 'removed') removedCount++;
+        // 'modified-children' is intentionally excluded — only the children count
       });
       const summaryEl = ctx.root.querySelector('#diffSummary') as HTMLElement | null;
       if (summaryEl) summaryEl.textContent = addedCount + ' added, ' + modifiedCount + ' modified, ' + removedCount + ' removed';

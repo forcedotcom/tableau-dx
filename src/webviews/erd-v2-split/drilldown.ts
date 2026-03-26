@@ -585,7 +585,7 @@ export function createDrilldownModule(ctx: ErdContext): DrilldownModule {
       const centerIcon = getNodeIcon(ctx, nodeData);
 
       const centerDiv = document.createElement('div');
-      centerDiv.className = 'center-node' + (isLV ? ' lv' : '') + (isDLO ? ' dlo' : '') + getDiffClassFromStatus(nodeData.diffStatus) + (nodeData.baseModelApiName ? ' pattern-base' : '');
+      centerDiv.className = 'center-node' + (isLV ? ' lv' : '') + (isDLO ? ' dlo' : '') + getDiffClassFromStatus(nodeData.diffStatus === 'modified-children' ? undefined : nodeData.diffStatus) + (nodeData.baseModelApiName ? ' pattern-base' : '');
       centerDiv.setAttribute('data-dd-key', '__center__');
       centerDiv.style.left = (cp.x - CENTER_RADIUS) + 'px';
       centerDiv.style.top = (cp.y - CENTER_RADIUS) + 'px';
