@@ -144,7 +144,7 @@ export function getTestModelWebviewContent(modelUI: SemanticModelUI, sldsUri: st
       background: repeating-linear-gradient(45deg, transparent, transparent 3px, rgba(255,255,255,0.25) 3px, rgba(255,255,255,0.25) 6px);
       border-radius: 4px; pointer-events: none;
     }
-    .object-name { font-size: 13px; font-weight: 500; flex: 1; }
+    .object-name { font-size: 13px; font-weight: 600; flex: 1; color: #080707; }
     .object-count { font-size: 10px; color: var(--slds-g-color-neutral-base-50, #747474); background: var(--slds-g-color-neutral-base-95, #f3f3f3); padding: 1px 6px; border-radius: 8px; }
     .object-body { display: none; padding-bottom: 0.25rem; }
     .object-body.open { display: block; }
@@ -173,7 +173,7 @@ export function getTestModelWebviewContent(modelUI: SemanticModelUI, sldsUri: st
       transition: all 0.15s; font-size: 10px; color: transparent;
     }
     .field-item.selected .field-cb { background: #0070d2; border-color: #0070d2; color: #fff; }
-    .field-label { font-size: 12px; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .field-label { font-size: 12.5px; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; color: #181818; }
     .field-type-tag { font-size: 9px; padding: 1px 6px; border-radius: 3px; color: var(--slds-g-color-neutral-base-50, #747474); background: var(--slds-g-color-neutral-base-95, #f3f3f3); }
     .field-placement-tag { font-size: 8px; padding: 1px 5px; border-radius: 3px; font-weight: 600; text-transform: uppercase; }
     .field-placement-tag.exclusive { background: #d1fae5; color: #065f46; }
