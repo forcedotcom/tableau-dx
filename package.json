@@ -92,7 +92,7 @@
       },
       {
         "command": "semanticLayer.toggleFieldVisibility",
-        "title": "Tableau Semantic: Toggle Server Fields"
+        "title": "Tableau Semantic: Toggle Optional Fields"
       },
       {
         "command": "semanticLayer.editCustomSQL",

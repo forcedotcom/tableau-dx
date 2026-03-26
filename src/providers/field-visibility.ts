@@ -100,8 +100,8 @@ export class FieldVisibilityCodeLensProvider implements vscode.CodeLensProvider 
     const hidden = config.hideServerFields;
 
     const title = hidden
-      ? '$(eye) Show Server Fields'
-      : '$(eye-closed) Hide Server Fields';
+      ? '$(eye) Show Optional Fields'
+      : '$(eye-closed) Hide Optional Fields';
 
     return [
       new vscode.CodeLens(new vscode.Range(0, 0, 0, 0), {
