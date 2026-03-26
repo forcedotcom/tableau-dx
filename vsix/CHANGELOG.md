@@ -3,6 +3,10 @@
 ## Unreleased
 - Added "Duplicate Local Model" command to create a server-side copy with a new label and API name
 - Added safe folder naming to prevent collisions when models share the same label but have different API names
+- Added "Hide Server Fields" CodeLens toggle to dim createdBy/createdDate/lastModifiedBy/lastModifiedDate in entity JSON files
+- Added per-model viewConfig.json for persisting display preferences
+- Added extensionVersion property to all telemetry events
+- Improved text contrast for data object names and field labels in Test Model panel
 
 ## 0.0.7 - 2026-03-25
 - Fixed Windows/VSCode: "unable to determine transport target for pino-pretty" when DEBUG env var is set

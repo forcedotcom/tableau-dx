@@ -31,6 +31,11 @@ import {
   registerCustomSQLCleanup,
 } from './providers/custom-sql-codelens';
 import {
+  FieldVisibilityCodeLensProvider,
+  toggleFieldVisibilityCommand,
+  registerFieldVisibilityListeners,
+} from './providers/field-visibility';
+import {
   initTelemetry,
   sendActivationEvent,
   sendDeactivationEvent,
@@ -172,6 +177,18 @@ export async function activate(context: vscode.ExtensionContext) {
     new CustomSQLCodeLensProvider()
   );
 
+  const fieldVisibilityCodeLens = vscode.languages.registerCodeLensProvider(
+    { pattern: '**/Semantic Models/**/*.json' },
+    new FieldVisibilityCodeLensProvider()
+  );
+
+  const toggleFieldVisibilityDisposable = vscode.commands.registerCommand(
+    'semanticLayer.toggleFieldVisibility',
+    async (uri?: vscode.Uri) => { await toggleFieldVisibilityCommand(uri); }
+  );
+
+  const fieldVisibilityListeners = registerFieldVisibilityListeners();
+
   const sqlSaveHandler = registerCustomSQLSaveHandler();
   const sqlCleanup = registerCustomSQLCleanup();
 
@@ -206,6 +223,9 @@ export async function activate(context: vscode.ExtensionContext) {
     duplicateModelDisposable,
     editCustomSQLDisposable,
     codeLensProvider,
+    fieldVisibilityCodeLens,
+    toggleFieldVisibilityDisposable,
+    ...fieldVisibilityListeners,
     sqlSaveHandler,
     sqlCleanup
   );

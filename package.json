@@ -91,6 +91,10 @@
         "title": "Tableau Semantic: Duplicate Local Model"
       },
       {
+        "command": "semanticLayer.toggleFieldVisibility",
+        "title": "Tableau Semantic: Toggle Server Fields"
+      },
+      {
         "command": "semanticLayer.editCustomSQL",
         "title": "Edit Custom SQL"
       }
