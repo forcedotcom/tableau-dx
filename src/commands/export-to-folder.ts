@@ -11,6 +11,7 @@ import * as path from 'path';
 import { getOrgInfo, callSalesforceApi, SF_API_VERSION } from '../api';
 import { SemanticModelsResponse } from '../types';
 import { saveOrgInfo } from '../utils/org-info-storage';
+import { resolveModelFolder } from '../utils/model-folder';
 
 export async function exportToFolderCommand(uri: vscode.Uri) {
   try {
@@ -82,7 +83,7 @@ export async function exportToFolderCommand(uri: vscode.Uri) {
       folderPath = selectedFolder[0].fsPath;
     }
 
-    const modelFolderPath = path.join(folderPath, model.label);
+    const modelFolderPath = resolveModelFolder(folderPath, model.label, model.apiName);
     
     await vscode.window.withProgress(
       {

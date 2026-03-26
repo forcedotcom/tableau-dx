@@ -20,7 +20,8 @@ import {
   // visualizeGroupedERDCommand,
   // visualizeListGroupedERDCommand,
   testModelCommand,
-  autoGenerateGroupsCommand
+  autoGenerateGroupsCommand,
+  duplicateModelCommand
 } from './commands';
 import { clearPositionCacheCommand, showPositionCacheStatsCommand } from './commands/clear-position-cache';
 import {
@@ -154,6 +155,11 @@ export async function activate(context: vscode.ExtensionContext) {
     async (...args: unknown[]) => { await autoGenerateGroupsCommand(args[0] as vscode.Uri); }
   );
 
+  const duplicateModelDisposable = trackedCommand(
+    'semanticLayer.duplicateModel',
+    async (...args: unknown[]) => { await duplicateModelCommand(args[0] as vscode.Uri); }
+  );
+
   const editCustomSQLDisposable = vscode.commands.registerCommand(
     'semanticLayer.editCustomSQL',
     async (sourceUri: vscode.Uri, apiName: string, label: string) => {
@@ -197,6 +203,7 @@ export async function activate(context: vscode.ExtensionContext) {
     clearPositionCacheDisposable,
     showPositionCacheStatsDisposable,
     autoGenerateGroupsDisposable,
+    duplicateModelDisposable,
     editCustomSQLDisposable,
     codeLensProvider,
     sqlSaveHandler,

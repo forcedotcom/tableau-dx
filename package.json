@@ -87,6 +87,10 @@
         "title": "Tableau Semantic: Restart MCP Server"
       },
       {
+        "command": "semanticLayer.duplicateModel",
+        "title": "Tableau Semantic: Duplicate Local Model"
+      },
+      {
         "command": "semanticLayer.editCustomSQL",
         "title": "Edit Custom SQL"
       }
@@ -122,6 +126,11 @@
           "command": "semanticLayer.testModel",
           "when": "resourceFilename == model.json",
           "group": "semantic@7"
+        },
+        {
+          "command": "semanticLayer.duplicateModel",
+          "when": "resourceFilename == model.json",
+          "group": "semantic@8"
         }
       ]
     }
