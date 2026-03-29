@@ -88,7 +88,7 @@
       },
       {
         "command": "semanticLayer.duplicateModel",
-        "title": "Tableau Semantic: Duplicate Local Model"
+        "title": "Tableau Semantic: Clone and Deploy Local Model"
       },
       {
         "command": "semanticLayer.toggleFieldVisibility",
