@@ -11,6 +11,7 @@
 - Added "Extend and Retrieve Remote Model" command to create a new model extending a remote base model
 - Fixed compare ERD: parent objects with only child changes no longer counted as modified in legend
 - Fixed compare ERD: drill-down center node no longer shows modified badge when only children changed
+- Fixed system-defined calculated fields now appear as regular dimensions/measurements in sidebar and Test Model picker
 
 ## 0.0.7 - 2026-03-25
 - Fixed Windows/VSCode: "unable to determine transport target for pino-pretty" when DEBUG env var is set

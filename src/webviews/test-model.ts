@@ -14,15 +14,30 @@ export function getTestModelWebviewContent(modelUI: SemanticModelUI, sldsUri: st
   const objectTree: any[] = [];
 
   for (const obj of modelUI.dataObjects.filter((o: any) => !o.unmapped)) {
-    const dims = (obj.semanticDimensions ?? []).map(d => ({
-      apiName: d.apiName, label: d.label, dataType: d.dataType ?? 'Text',
+    const sysDims = obj.relatedCalculatedDimensions.filter(c => c.isSystemDefinition).map(c => ({
+      apiName: c.apiName, label: c.label, dataType: c.dataType ?? 'Text',
       tableApiName: obj.apiName, fieldType: 'dimension', category: 'Dimensions',
     }));
-    const meas = (obj.semanticMeasurements ?? []).map(m => ({
-      apiName: m.apiName, label: m.label, dataType: m.dataType ?? 'Number',
+    const sysMeas = obj.relatedCalculatedMeasurements.filter(c => c.isSystemDefinition).map(c => ({
+      apiName: c.apiName, label: c.label, dataType: c.dataType ?? 'Number',
       tableApiName: obj.apiName, fieldType: 'measurement', category: 'Measurements',
-      aggregationType: m.aggregationType ?? 'Sum',
+      aggregationType: c.aggregationType ?? 'Sum',
     }));
+    const dims = [
+      ...(obj.semanticDimensions ?? []).map(d => ({
+        apiName: d.apiName, label: d.label, dataType: d.dataType ?? 'Text',
+        tableApiName: obj.apiName, fieldType: 'dimension', category: 'Dimensions',
+      })),
+      ...sysDims,
+    ];
+    const meas = [
+      ...(obj.semanticMeasurements ?? []).map(m => ({
+        apiName: m.apiName, label: m.label, dataType: m.dataType ?? 'Number',
+        tableApiName: obj.apiName, fieldType: 'measurement', category: 'Measurements',
+        aggregationType: m.aggregationType ?? 'Sum',
+      })),
+      ...sysMeas,
+    ];
     const calcDims = obj.relatedCalculatedDimensions
       .filter(c => !c.isSystemDefinition)
       .map(c => ({
@@ -74,6 +89,15 @@ export function getTestModelWebviewContent(modelUI: SemanticModelUI, sldsUri: st
       });
     });
 
+    lv.relatedCalculatedDimensions.filter(c => c.isSystemDefinition).forEach(c => {
+      lvDims.push({ apiName: c.apiName, label: c.label, dataType: c.dataType ?? 'Text',
+        tableApiName: lv.apiName, fieldType: 'dimension', category: 'Dimensions' });
+    });
+    lv.relatedCalculatedMeasurements.filter(c => c.isSystemDefinition).forEach(c => {
+      lvMeas.push({ apiName: c.apiName, label: c.label, dataType: c.dataType ?? 'Number',
+        tableApiName: lv.apiName, fieldType: 'measurement', category: 'Measurements',
+        aggregationType: c.aggregationType ?? 'Sum' });
+    });
     const calcDims = lv.relatedCalculatedDimensions
       .filter(c => !c.isSystemDefinition)
       .map(c => ({

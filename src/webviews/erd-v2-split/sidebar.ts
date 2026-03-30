@@ -56,8 +56,10 @@ export function createSidebarModule(ctx: ErdContext): SidebarModule {
     (ctx.root.querySelector('#sidebar-api') as HTMLElement).textContent = nodeData.id;
 
     const content = ctx.root.querySelector('#sidebar-content') as HTMLElement;
-    const dims = nodeData.dimensions || [];
-    const meas = nodeData.measurements || [];
+    const systemCalcDims = (nodeData.relatedCalcDims || []).filter((c: any) => c.isSystemDefinition);
+    const systemCalcMeas = (nodeData.relatedCalcMeas || []).filter((c: any) => c.isSystemDefinition);
+    const dims = [...(nodeData.dimensions || []), ...systemCalcDims.map((c: any) => ({ apiName: c.apiName, label: c.label, dataType: c.dataType || 'Calculated', diffStatus: c.diffStatus }))];
+    const meas = [...(nodeData.measurements || []), ...systemCalcMeas.map((c: any) => ({ apiName: c.apiName, label: c.label, dataType: c.dataType || 'Calculated', diffStatus: c.diffStatus }))];
     const calcDims = (nodeData.relatedCalcDims || []).filter((c: any) => !c.isSystemDefinition);
     const calcMeas = (nodeData.relatedCalcMeas || []).filter((c: any) => !c.isSystemDefinition);
     const hiers = nodeData.relatedHierarchies || [];
