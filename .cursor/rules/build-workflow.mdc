@@ -1,0 +1,43 @@
+---
+description: Build workflow for the extension - what to run after changing different file types
+alwaysApply: true
+---
+
+# Build Workflow
+
+The extension has three separate build targets. Which ones you need depends on what files changed.
+
+## After changing webview TypeScript (`src/webviews/erd-v2-split/*.ts`)
+
+Run **both**:
+
+```bash
+npm run build:erd     # compiles TS → dist/erd-v2.js
+npm run build:ext     # copies CSS/HTML → dist/webview-static/
+```
+
+Or just: `npm run build`
+
+## After changing webview CSS or HTML (`src/webviews/erd-v2-split/*.css`, `*.html`)
+
+```bash
+npm run build:ext     # copies static files to dist/webview-static/
+```
+
+`build:erd` alone does NOT copy CSS/HTML — only `build:ext` does (via `esbuild.config.js` lines 26-32).
+
+## After changing extension TypeScript (`src/**/*.ts` excluding `erd-v2-split/`)
+
+```bash
+npm run build:ext     # bundles extension → dist/extension.js
+```
+
+## Full build (before VSIX packaging or when unsure)
+
+```bash
+npm run build         # runs build:ext + build:erd
+```
+
+## Key detail
+
+The webview reads CSS/HTML from `dist/webview-static/` (not from `src/`). If that directory exists, it takes priority over the source files. Always ensure it's up to date after CSS/HTML changes.

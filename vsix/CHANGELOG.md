@@ -12,6 +12,7 @@
 - Fixed compare ERD: parent objects with only child changes no longer counted as modified in legend
 - Fixed compare ERD: drill-down center node no longer shows modified badge when only children changed
 - Fixed system-defined calculated fields now appear as regular dimensions/measurements in sidebar and Test Model picker
+- Added field-level unmapped handling: ERD sidebar/drilldown respect show/hide unmapped toggle with badge, preview query excludes unmapped fields, Test Model hides unmapped fields
 
 ## 0.0.7 - 2026-03-25
 - Fixed Windows/VSCode: "unable to determine transport target for pino-pretty" when DEBUG env var is set

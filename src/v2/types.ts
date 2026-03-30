@@ -262,7 +262,7 @@ export interface RawSemanticModel {
   modelFilters: ModelFilter[];
 }
 
-export type DiffStatus = 'added' | 'modified' | 'removed' | 'unchanged';
+export type DiffStatus = 'added' | 'modified' | 'removed' | 'unchanged' | 'modified-children';
 
 // ─── Expression parsing types ───
 

@@ -24,14 +24,14 @@ export function getTestModelWebviewContent(modelUI: SemanticModelUI, sldsUri: st
       aggregationType: c.aggregationType ?? 'Sum',
     }));
     const dims = [
-      ...(obj.semanticDimensions ?? []).map(d => ({
+      ...(obj.semanticDimensions ?? []).filter((d: any) => !d.unmapped).map(d => ({
         apiName: d.apiName, label: d.label, dataType: d.dataType ?? 'Text',
         tableApiName: obj.apiName, fieldType: 'dimension', category: 'Dimensions',
       })),
       ...sysDims,
     ];
     const meas = [
-      ...(obj.semanticMeasurements ?? []).map(m => ({
+      ...(obj.semanticMeasurements ?? []).filter((m: any) => !m.unmapped).map(m => ({
         apiName: m.apiName, label: m.label, dataType: m.dataType ?? 'Number',
         tableApiName: obj.apiName, fieldType: 'measurement', category: 'Measurements',
         aggregationType: m.aggregationType ?? 'Sum',

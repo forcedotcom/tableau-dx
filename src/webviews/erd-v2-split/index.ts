@@ -105,6 +105,7 @@ export function initErd(root: HTMLElement, data: ErdData, embeddedMode: boolean 
 
     drilldownTarget: null,
     currentQueryNode: null,
+    currentSidebarNode: null,
     ddPositions: {},
     ddElements: {},
     ddCenterPos: null,

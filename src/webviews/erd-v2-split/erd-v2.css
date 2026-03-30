@@ -787,6 +787,18 @@
       color: #fff;
       opacity: 0.7;
     }
+    .field-unmapped-badge {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 600;
+      padding: 1px 5px;
+      border-radius: 4px;
+      margin-left: 6px;
+      vertical-align: middle;
+      background: #999;
+      color: #fff;
+      opacity: 0.7;
+    }
     .sidebar-base-badge {
       display: inline-block;
       font-size: 10px;

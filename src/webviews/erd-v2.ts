@@ -56,11 +56,13 @@ export function getERDV2WebviewContent(
     measCount: obj.semanticMeasurements?.length ?? 0,
     dimensions: (obj.semanticDimensions ?? []).map(d => ({
       apiName: d.apiName, label: d.label, dataType: d.dataType ?? 'Text',
-      dataObjectFieldName: d.dataObjectFieldName ?? d.apiName
+      dataObjectFieldName: d.dataObjectFieldName ?? d.apiName,
+      unmapped: !!(d as any).unmapped,
     })),
     measurements: (obj.semanticMeasurements ?? []).map(m => ({
       apiName: m.apiName, label: m.label, dataType: m.dataType ?? 'Number',
-      dataObjectFieldName: m.dataObjectFieldName ?? m.apiName
+      dataObjectFieldName: m.dataObjectFieldName ?? m.apiName,
+      unmapped: !!(m as any).unmapped,
     })),
     relatedCalcDims: obj.relatedCalculatedDimensions.map(c => ({
       apiName: c.apiName, label: c.label, expression: c.expression,
@@ -111,14 +113,10 @@ export function getERDV2WebviewContent(
     const lvMeas: any[] = [];
     (lv.semanticDataObjects ?? []).forEach(sdo => {
       (sdo.semanticDimensions ?? []).forEach(d => {
-        if (!(d as any).unmapped) {
-          lvDims.push({ apiName: d.apiName, label: d.label, dataType: d.dataType ?? 'Text', dataObjectFieldName: d.dataObjectFieldName ?? d.apiName, sourceObject: sdo.label || sdo.apiName });
-        }
+        lvDims.push({ apiName: d.apiName, label: d.label, dataType: d.dataType ?? 'Text', dataObjectFieldName: d.dataObjectFieldName ?? d.apiName, sourceObject: sdo.label || sdo.apiName, unmapped: !!(d as any).unmapped });
       });
       (sdo.semanticMeasurements ?? []).forEach(m => {
-        if (!(m as any).unmapped) {
-          lvMeas.push({ apiName: m.apiName, label: m.label, dataType: m.dataType ?? 'Number', dataObjectFieldName: m.dataObjectFieldName ?? m.apiName, sourceObject: sdo.label || sdo.apiName });
-        }
+        lvMeas.push({ apiName: m.apiName, label: m.label, dataType: m.dataType ?? 'Number', dataObjectFieldName: m.dataObjectFieldName ?? m.apiName, sourceObject: sdo.label || sdo.apiName, unmapped: !!(m as any).unmapped });
       });
     });
     return {

@@ -225,7 +225,7 @@ function assembleModelPayload(
   // Strip server-generated fields from all entity items
   stripServerFields(payload);
 
-  return payload as UpdatePayload & { apiName: string };
+  return payload as unknown as UpdatePayload & { apiName: string };
 }
 
 function stripServerFields(obj: unknown): void {

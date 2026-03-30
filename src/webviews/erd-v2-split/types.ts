@@ -22,6 +22,7 @@ export interface DimField {
   dataObjectFieldName: string;
   diffStatus?: DiffStatus | null;
   sourceObject?: string;
+  unmapped?: boolean;
 }
 
 export interface MeasField {
@@ -31,6 +32,7 @@ export interface MeasField {
   aggregationType: string;
   diffStatus?: DiffStatus | null;
   sourceObject?: string;
+  unmapped?: boolean;
 }
 
 export interface CalcField {
@@ -279,6 +281,7 @@ export interface ErdContext {
   // ── Drill-down state ──
   drilldownTarget: ErdNode | null;
   currentQueryNode: ErdNode | null;
+  currentSidebarNode: any | null;
   ddPositions: Record<string, Position>;
   ddElements: Record<string, HTMLElement>;
   ddCenterPos: Position | null;

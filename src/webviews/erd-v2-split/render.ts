@@ -440,6 +440,7 @@ export function createRenderModule(ctx: ErdContext): RenderModule {
     }
     if (ctx.currentView === 'top') renderTopLevel(true);
     else if (ctx.currentView === 'grouped') ctx.renderTopLevel(); // fallback
+    if (ctx.currentSidebarNode) ctx.openSidebar(ctx.currentSidebarNode);
   }
 
   function toggleUnmapped(): void { setUnmappedVisibility(!ctx.showUnmapped); }

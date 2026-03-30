@@ -38,6 +38,7 @@ export function createSidebarModule(ctx: ErdContext): SidebarModule {
   }
 
   function openSidebar(nodeData: any): void {
+    ctx.currentSidebarNode = nodeData;
     ctx.updateEmbeddedBackBtnPosition();
     if (nodeData.type in entityTypes) {
       openEntitySidebar(nodeData);
@@ -58,8 +59,10 @@ export function createSidebarModule(ctx: ErdContext): SidebarModule {
     const content = ctx.root.querySelector('#sidebar-content') as HTMLElement;
     const systemCalcDims = (nodeData.relatedCalcDims || []).filter((c: any) => c.isSystemDefinition);
     const systemCalcMeas = (nodeData.relatedCalcMeas || []).filter((c: any) => c.isSystemDefinition);
-    const dims = [...(nodeData.dimensions || []), ...systemCalcDims.map((c: any) => ({ apiName: c.apiName, label: c.label, dataType: c.dataType || 'Calculated', diffStatus: c.diffStatus }))];
-    const meas = [...(nodeData.measurements || []), ...systemCalcMeas.map((c: any) => ({ apiName: c.apiName, label: c.label, dataType: c.dataType || 'Calculated', diffStatus: c.diffStatus }))];
+    const filterUnmapped = (arr: any[]) => ctx.showUnmapped ? arr : arr.filter((f: any) => !f.unmapped);
+    const unmappedBadge = (f: any) => f.unmapped ? ' <span class="field-unmapped-badge">Unmapped</span>' : '';
+    const dims = filterUnmapped([...(nodeData.dimensions || []), ...systemCalcDims.map((c: any) => ({ apiName: c.apiName, label: c.label, dataType: c.dataType || 'Calculated', diffStatus: c.diffStatus }))]);
+    const meas = filterUnmapped([...(nodeData.measurements || []), ...systemCalcMeas.map((c: any) => ({ apiName: c.apiName, label: c.label, dataType: c.dataType || 'Calculated', diffStatus: c.diffStatus }))]);
     const calcDims = (nodeData.relatedCalcDims || []).filter((c: any) => !c.isSystemDefinition);
     const calcMeas = (nodeData.relatedCalcMeas || []).filter((c: any) => !c.isSystemDefinition);
     const hiers = nodeData.relatedHierarchies || [];
@@ -70,12 +73,12 @@ export function createSidebarModule(ctx: ErdContext): SidebarModule {
     const isLV = nodeData.type === 'logicalView';
 
     html += buildSidebarSection('dim', 'Dimensions', dims, (d: any) =>
-      '<div><div class="field-name">' + (d.label || d.apiName) + '</div><div class="field-api">' + d.apiName + '</div>' +
+      '<div><div class="field-name">' + (d.label || d.apiName) + unmappedBadge(d) + '</div><div class="field-api">' + d.apiName + '</div>' +
       (isLV && d.sourceObject ? '<div class="field-source">from ' + d.sourceObject + '</div>' : '') +
       '</div><span class="field-type">' + (d.dataType || 'Text') + '</span>'
     );
     html += buildSidebarSection('meas', 'Measurements', meas, (m: any) =>
-      '<div><div class="field-name">' + (m.label || m.apiName) + '</div><div class="field-api">' + m.apiName + '</div>' +
+      '<div><div class="field-name">' + (m.label || m.apiName) + unmappedBadge(m) + '</div><div class="field-api">' + m.apiName + '</div>' +
       (isLV && m.sourceObject ? '<div class="field-source">from ' + m.sourceObject + '</div>' : '') +
       '</div><span class="field-type">' + (m.dataType || 'Number') + '</span>'
     );
@@ -294,6 +297,7 @@ export function createSidebarModule(ctx: ErdContext): SidebarModule {
   function closeSidebar(): void {
     ctx.sidebar.classList.remove('open');
     ctx.currentQueryNode = null;
+    ctx.currentSidebarNode = null;
     ctx.updateEmbeddedBackBtnPosition();
   }
 
@@ -327,8 +331,8 @@ export function createSidebarModule(ctx: ErdContext): SidebarModule {
     if (!ctx.currentQueryNode) return;
     const btn = ctx.root.querySelector('#queryBtn') as HTMLButtonElement;
     btn.disabled = true; btn.textContent = 'Querying...';
-    const dims = ctx.currentQueryNode.dimensions || [];
-    const meas = ctx.currentQueryNode.measurements || [];
+    const dims = (ctx.currentQueryNode.dimensions || []).filter(d => !(d as any).unmapped);
+    const meas = (ctx.currentQueryNode.measurements || []).filter(m => !(m as any).unmapped);
     const fields = [
       ...dims.map(d => ({ apiName: d.apiName, label: d.label, dataType: d.dataType, dataObjectFieldName: d.dataObjectFieldName, tableApiName: ctx.currentQueryNode!.id, fieldType: 'dimension' })),
       ...meas.map(m => ({ apiName: m.apiName, label: m.label, dataType: m.dataType, dataObjectFieldName: (m as any).dataObjectFieldName, tableApiName: ctx.currentQueryNode!.id, fieldType: 'measurement' })),

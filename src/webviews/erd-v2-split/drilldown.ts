@@ -578,8 +578,8 @@ export function createDrilldownModule(ctx: ErdContext): DrilldownModule {
 
       const cp = ctx.ddCenterPos!;
       const CENTER_RADIUS = 60;
-      const dims = nodeData.dimensions || [];
-      const meas = nodeData.measurements || [];
+      const dims = ctx.showUnmapped ? (nodeData.dimensions || []) : (nodeData.dimensions || []).filter((d: any) => !d.unmapped);
+      const meas = ctx.showUnmapped ? (nodeData.measurements || []) : (nodeData.measurements || []).filter((m: any) => !m.unmapped);
       const isLV = nodeData.type === 'logicalView';
       const isDLO = (nodeData as any).dataObjectType === 'Dlo';
       const centerIcon = getNodeIcon(ctx, nodeData);

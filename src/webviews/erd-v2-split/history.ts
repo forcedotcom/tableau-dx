@@ -171,10 +171,10 @@ export function createHistoryModule(ctx: ErdContext): HistoryModule {
     const result: any[] = [];
     (data.dataObjects || []).forEach(function (obj: any) {
       const dims = (obj.semanticDimensions || []).map(function (d: any) {
-        return { apiName: d.apiName, label: d.label, dataType: d.dataType || 'Text', dataObjectFieldName: d.dataObjectFieldName || d.apiName };
+        return { apiName: d.apiName, label: d.label, dataType: d.dataType || 'Text', dataObjectFieldName: d.dataObjectFieldName || d.apiName, unmapped: !!d.unmapped };
       });
       const meas = (obj.semanticMeasurements || []).map(function (m: any) {
-        return { apiName: m.apiName, label: m.label, dataType: m.dataType || 'Number', aggregationType: m.aggregationType || 'Sum' };
+        return { apiName: m.apiName, label: m.label, dataType: m.dataType || 'Number', aggregationType: m.aggregationType || 'Sum', unmapped: !!m.unmapped };
       });
       const relCalcDims = (obj.relatedCalculatedDimensions || []).map(function (c: any) {
         return { apiName: c.apiName, label: c.label, expression: c.expression, placement: c.placement, isSystemDefinition: c.isSystemDefinition || false, referencedObjects: c.referencedObjects || [], diffStatus: c.diffStatus || null };
