@@ -16,3 +16,4 @@ export { testModelCommand } from './test-model';
 export { autoGenerateGroupsCommand } from './auto-generate-groups';
 export { duplicateModelCommand } from './duplicate-model';
 export { cloneRemoteModelCommand } from './clone-remote-model';
+export { extendRemoteModelCommand } from './extend-remote-model';
