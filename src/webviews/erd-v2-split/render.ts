@@ -302,9 +302,17 @@ export function createRenderModule(ctx: ErdContext): RenderModule {
     const topStats = ctx.root.querySelector('#topStats') as HTMLElement | null;
     if (topStats) topStats.style.display = 'flex';
 
-    if (ctx.hasUnmappedNodes) {
-      const unmGrpR = ctx.root.querySelector('#unmappedGroup') as HTMLElement | null;
-      if (unmGrpR) unmGrpR.classList.add('visible');
+    if (ctx.hasUnmappedNodes || ctx.hasBaseModelNodes) {
+      const shGrp = ctx.root.querySelector('#showHideGroup') as HTMLElement | null;
+      if (shGrp) shGrp.classList.add('visible');
+      if (ctx.hasUnmappedNodes) {
+        const unmBtn = ctx.root.querySelector('#unmappedToggleBtn') as HTMLElement | null;
+        if (unmBtn) unmBtn.style.display = '';
+      }
+      if (ctx.hasBaseModelNodes) {
+        const bmBtn = ctx.root.querySelector('#baseModelToggleBtn') as HTMLElement | null;
+        if (bmBtn) bmBtn.style.display = '';
+      }
     }
     const relEyeR = ctx.root.querySelector('#relToggleBtn') as HTMLElement | null;
     if (relEyeR) relEyeR.style.display = '';
@@ -314,7 +322,9 @@ export function createRenderModule(ctx: ErdContext): RenderModule {
     if (forceBtnR) forceBtnR.style.display = '';
     updateLayoutControls();
 
-    const visibleNodes = ctx.showUnmapped ? ctx.nodes : ctx.nodes.filter(n => !n.unmapped);
+    const visibleNodes = ctx.nodes.filter(n =>
+      (ctx.showUnmapped || !n.unmapped) && (ctx.showBaseModel || !n.baseModelApiName)
+    );
     const visibleEdges = ctx.edges.filter(e => {
       const fromVisible = visibleNodes.some(n => n.id === e.from);
       const toVisible = visibleNodes.some(n => n.id === e.to);
@@ -445,6 +455,25 @@ export function createRenderModule(ctx: ErdContext): RenderModule {
 
   function toggleUnmapped(): void { setUnmappedVisibility(!ctx.showUnmapped); }
 
+  function setBaseModelVisibility(visible: boolean): void {
+    if (ctx.showBaseModel === visible) return;
+    ctx.showBaseModel = visible;
+    const btn = ctx.root.querySelector('#baseModelToggleBtn') as HTMLElement | null;
+    if (btn) {
+      btn.classList.toggle('route-active', ctx.showBaseModel);
+      btn.title = ctx.showBaseModel ? 'Base Model: Visible' : 'Base Model: Hidden';
+      const lbl = btn.querySelector('.lp-btn-label') as HTMLElement | null;
+      if (lbl) lbl.textContent = ctx.showBaseModel ? 'Base Model: Visible' : 'Base Model: Hidden';
+      const slash = btn.querySelector('.lp-slash') as HTMLElement | null;
+      if (slash) slash.style.display = ctx.showBaseModel ? 'none' : '';
+    }
+    if (ctx.currentView === 'top') renderTopLevel(true);
+    else if (ctx.currentView === 'grouped') ctx.renderTopLevel();
+    if (ctx.currentSidebarNode) ctx.openSidebar(ctx.currentSidebarNode);
+  }
+
+  function toggleBaseModel(): void { setBaseModelVisibility(!ctx.showBaseModel); }
+
   // Internal ForceAtlas2 — delegates to layout module via ctx
   function _layoutForceAtlas2External(nodeList: ErdNode[], edgeList: ErdEdge[], skipCache: boolean): void {
     // This is handled by layout.ts which writes directly to ctx.nodePositions
@@ -461,7 +490,7 @@ export function createRenderModule(ctx: ErdContext): RenderModule {
   return {
     renderTopLevel, drawEdges, drawHoverEdges, topLevelHoverIn, topLevelHoverOut,
     fitToViewport, updateView, updateLayoutControls, setLayoutMode, setRoutingMode,
-    toggleRelationships, toggleUnmapped, setUnmappedVisibility,
+    toggleRelationships, toggleUnmapped, setUnmappedVisibility, toggleBaseModel, setBaseModelVisibility,
     createArrowMarkers, edgeStroke, edgeDiffStroke, edgeGlowWidth, edgeGlowOpacity,
     getLeftPanelWidth, getAvailableWidth,
   };

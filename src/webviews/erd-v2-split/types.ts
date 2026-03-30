@@ -171,6 +171,7 @@ export interface ErdData {
   groupsData?: GroupsConfig | null;
   hasGroups?: boolean;
   hasUnmappedNodes?: boolean;
+  hasBaseModelNodes?: boolean;
   initialViewMode?: string;
   modelApiName?: string;
   modelLabel?: string;
@@ -217,6 +218,7 @@ export interface ErdContext {
   groupsData: GroupsConfig | null;
   hasGroups: boolean;
   hasUnmappedNodes: boolean;
+  hasBaseModelNodes: boolean;
   initialViewMode: string;
   modelApiName: string;
   modelLabel: string;
@@ -266,6 +268,7 @@ export interface ErdContext {
   currentView: ViewMode;
   routingMode: RoutingMode;
   showUnmapped: boolean;
+  showBaseModel: boolean;
   isGridMode: boolean;
   layoutMode: LayoutMode;
   hideRelationships: boolean;

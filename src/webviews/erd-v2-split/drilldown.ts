@@ -548,8 +548,8 @@ export function createDrilldownModule(ctx: ErdContext): DrilldownModule {
       const topStats = ctx.root.querySelector('#topStats') as HTMLElement | null;
       if (topStats) topStats.style.display = 'none';
 
-      const unmGrp = ctx.root.querySelector('#unmappedGroup') as HTMLElement | null;
-      if (unmGrp) unmGrp.classList.remove('visible');
+      const shGrp = ctx.root.querySelector('#showHideGroup') as HTMLElement | null;
+      if (shGrp) shGrp.classList.remove('visible');
       const gridBtn = ctx.root.querySelector('#layoutGridBtn') as HTMLElement | null;
       const forceBtn = ctx.root.querySelector('#layoutForceBtn') as HTMLElement | null;
       const autoBtn = ctx.root.querySelector('#autoLayoutBtn') as HTMLElement | null;
@@ -797,9 +797,9 @@ export function createDrilldownModule(ctx: ErdContext): DrilldownModule {
       const topStats = ctx.root.querySelector('#topStats') as HTMLElement | null;
       if (topStats) topStats.style.display = 'flex';
 
-      if (ctx.hasUnmappedNodes) {
-        const unmGrp2 = ctx.root.querySelector('#unmappedGroup') as HTMLElement | null;
-        if (unmGrp2) unmGrp2.classList.add('visible');
+      if (ctx.hasUnmappedNodes || ctx.hasBaseModelNodes) {
+        const shGrp2 = ctx.root.querySelector('#showHideGroup') as HTMLElement | null;
+        if (shGrp2) shGrp2.classList.add('visible');
       }
       const relEye2 = ctx.root.querySelector('#relToggleBtn') as HTMLElement | null;
       if (relEye2) relEye2.style.display = '';

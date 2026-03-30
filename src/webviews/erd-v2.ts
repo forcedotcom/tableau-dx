@@ -294,6 +294,7 @@ ${htmlShell}
       groupsData: ${groupsConfigJson},
       hasGroups: ${hasGroups},
       hasUnmappedNodes: ${hasUnmappedNodes},
+      hasBaseModelNodes: ${hasBaseModelNodes},
       initialViewMode: '${viewMode}',
       tableSvg: ${JSON.stringify(tableSvg)},
       dataModelSvg: ${JSON.stringify(dataModelSvg)},

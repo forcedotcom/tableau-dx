@@ -452,6 +452,7 @@ export function createGroupsModule(ctx: ErdContext): GroupsModule {
     const nodeIdSet: Record<string, boolean> = {};
     ctx.nodes.forEach(n => {
       if (!ctx.showUnmapped && n.unmapped) return;
+      if (!ctx.showBaseModel && n.baseModelApiName) return;
       nodeIdSet[n.id] = true;
     });
 
@@ -473,6 +474,7 @@ export function createGroupsModule(ctx: ErdContext): GroupsModule {
 
     ctx.nodes.forEach(n => {
       if (!ctx.showUnmapped && n.unmapped) return;
+      if (!ctx.showBaseModel && n.baseModelApiName) return;
       if (!ctx.entityToGroup[n.id]) {
         ctx.entityToGroup[n.id] = 'Other';
         let otherGroup = ctx.groupNodesList.find(g => g.name === 'Other');

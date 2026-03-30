@@ -51,6 +51,7 @@ export function initErd(root: HTMLElement, data: ErdData, embeddedMode: boolean 
     groupsData: data.groupsData || null,
     hasGroups: !!data.hasGroups,
     hasUnmappedNodes: !!data.hasUnmappedNodes,
+    hasBaseModelNodes: !!data.hasBaseModelNodes,
     initialViewMode: data.initialViewMode || 'top',
     modelApiName: data.modelApiName || '',
     modelLabel: data.modelLabel || '',
@@ -92,6 +93,7 @@ export function initErd(root: HTMLElement, data: ErdData, embeddedMode: boolean 
     currentView: 'top',
     routingMode: 'classic',
     showUnmapped: true,
+    showBaseModel: true,
     isGridMode: true,
     layoutMode: 'force',
     hideRelationships: false,
@@ -358,6 +360,7 @@ export function initErd(root: HTMLElement, data: ErdData, embeddedMode: boolean 
       case 'setRoutingMode':         if (arg) renderModule.setRoutingMode(arg as any); break;
       case 'toggleRelationships':    renderModule.toggleRelationships(); break;
       case 'toggleUnmapped':         renderModule.toggleUnmapped(); break;
+      case 'toggleBaseModel':        renderModule.toggleBaseModel(); break;
       case 'toggleHighlightChanges': legendModule.toggleHighlightChanges(); break;
       case 'toggleLeftPanel':        interactionModule.toggleLeftPanel(); break;
       case 'closeSidebar':           ctx.closeSidebar(); break;
