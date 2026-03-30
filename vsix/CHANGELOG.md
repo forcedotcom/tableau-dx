@@ -7,6 +7,7 @@
 - Added per-model viewConfig.json for persisting display preferences
 - Added extensionVersion property to all telemetry events
 - Improved text contrast for data object names and field labels in Test Model panel
+- Added "Clone and Retrieve Remote Model" command to clone a remote model with a new name/API and retrieve it locally
 - Fixed compare ERD: parent objects with only child changes no longer counted as modified in legend
 - Fixed compare ERD: drill-down center node no longer shows modified badge when only children changed
 

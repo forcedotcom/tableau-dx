@@ -91,6 +91,10 @@
         "title": "Tableau Semantic: Clone and Deploy Local Model"
       },
       {
+        "command": "semanticLayer.cloneRemoteModel",
+        "title": "Tableau Semantic: Clone and Retrieve Remote Model"
+      },
+      {
         "command": "semanticLayer.toggleFieldVisibility",
         "title": "Tableau Semantic: Toggle Optional Fields"
       },
@@ -103,8 +107,13 @@
       "explorer/context": [
         {
           "command": "semanticLayer.exportToFolder",
-          "when": "explorerResourceIsFolder",
+          "when": "explorerResourceIsFolder && resourceFilename == 'Semantic Models'",
           "group": "semantic@1"
+        },
+        {
+          "command": "semanticLayer.cloneRemoteModel",
+          "when": "explorerResourceIsFolder && resourceFilename == 'Semantic Models'",
+          "group": "semantic@2"
         },
         {
           "command": "semanticLayer.updateModel",
