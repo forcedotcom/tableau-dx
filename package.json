@@ -2,7 +2,7 @@
   "name": "Salesforce-Semantic-DX",
   "displayName": "Salesforce Semantic DX",
   "description": "Retrieve, deploy, visualize, and test Tableau Semantic Layer models from within VS Code",
-  "version": "0.0.7",
+  "version": "0.0.9",
   "publisher": "salesforce",
   "repository": {
     "type": "git",
@@ -111,17 +111,17 @@
       "explorer/context": [
         {
           "command": "semanticLayer.exportToFolder",
-          "when": "explorerResourceIsFolder && resourceFilename == 'Semantic Models'",
+          "when": "explorerResourceIsFolder && resourceFilename == 'Semantic Models' || explorerResourceIsFolder && resourcePath =~ /Semantic Models[/\\\\]/",
           "group": "semantic@1"
         },
         {
           "command": "semanticLayer.cloneRemoteModel",
-          "when": "explorerResourceIsFolder && resourceFilename == 'Semantic Models'",
+          "when": "explorerResourceIsFolder && resourceFilename == 'Semantic Models' || explorerResourceIsFolder && resourcePath =~ /Semantic Models[/\\\\]/",
           "group": "semantic@2"
         },
         {
           "command": "semanticLayer.extendRemoteModel",
-          "when": "explorerResourceIsFolder && resourceFilename == 'Semantic Models'",
+          "when": "explorerResourceIsFolder && resourceFilename == 'Semantic Models' || explorerResourceIsFolder && resourcePath =~ /Semantic Models[/\\\\]/",
           "group": "semantic@3"
         },
         {

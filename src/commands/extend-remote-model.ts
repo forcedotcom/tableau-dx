@@ -11,7 +11,7 @@ import * as path from 'path';
 import { getOrgInfo, callSalesforceApi, postSalesforceApi, SF_API_VERSION } from '../api';
 import { SemanticModelsResponse } from '../types';
 import { saveOrgInfo } from '../utils/org-info-storage';
-import { resolveModelFolder } from '../utils/model-folder';
+import { resolveModelFolder, resolveSemanticModelsFolder } from '../utils/model-folder';
 
 export async function extendRemoteModelCommand(uri: vscode.Uri) {
   try {
@@ -107,7 +107,7 @@ export async function extendRemoteModelCommand(uri: vscode.Uri) {
 
     let folderPath: string;
     if (uri) {
-      folderPath = uri.fsPath;
+      folderPath = resolveSemanticModelsFolder(uri.fsPath);
     } else {
       const selectedFolder = await vscode.window.showOpenDialog({
         canSelectFiles: false,

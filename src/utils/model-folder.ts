@@ -8,6 +8,27 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
+const SEMANTIC_MODELS_FOLDER = 'Semantic Models';
+
+/**
+ * Walks up from the given path to find the "Semantic Models" folder.
+ * If the path IS "Semantic Models", returns it directly.
+ * If the path is a child of "Semantic Models", returns the parent.
+ */
+export function resolveSemanticModelsFolder(folderPath: string): string {
+  if (path.basename(folderPath) === SEMANTIC_MODELS_FOLDER) {
+    return folderPath;
+  }
+  let current = folderPath;
+  while (current && current !== path.dirname(current)) {
+    if (path.basename(current) === SEMANTIC_MODELS_FOLDER) {
+      return current;
+    }
+    current = path.dirname(current);
+  }
+  return folderPath;
+}
+
 /**
  * Finds a safe folder path for a model, avoiding collisions with different models
  * that share the same label. If a folder already exists with a matching apiName,

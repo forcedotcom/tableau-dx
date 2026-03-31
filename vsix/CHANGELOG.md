@@ -1,6 +1,11 @@
 # Changelog
 
 ## Unreleased
+
+## 0.0.9 - 2026-03-31
+- Fixed context menu commands appearing on "Semantic Models" folder even with compact folders enabled (path-based matching instead of filename-only)
+
+## 0.0.8 - 2026-03-25
 - Added "Duplicate Local Model" command to create a server-side copy with a new label and API name
 - Added safe folder naming to prevent collisions when models share the same label but have different API names
 - Added "Hide Server Fields" CodeLens toggle to dim createdBy/createdDate/lastModifiedBy/lastModifiedDate in entity JSON files

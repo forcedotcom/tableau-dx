@@ -11,7 +11,7 @@ import * as path from 'path';
 import { getOrgInfo, callSalesforceApi, postSalesforceApi, SF_API_VERSION } from '../api';
 import { SemanticModelsResponse, UpdatePayload } from '../types';
 import { saveOrgInfo } from '../utils/org-info-storage';
-import { resolveModelFolder } from '../utils/model-folder';
+import { resolveModelFolder, resolveSemanticModelsFolder } from '../utils/model-folder';
 
 const SERVER_GENERATED_KEYS = new Set([
   'id', 'url', 'createdBy', 'createdDate', 'lastModifiedBy', 'lastModifiedDate',
@@ -126,7 +126,7 @@ export async function cloneRemoteModelCommand(uri: vscode.Uri) {
 
     let folderPath: string;
     if (uri) {
-      folderPath = uri.fsPath;
+      folderPath = resolveSemanticModelsFolder(uri.fsPath);
     } else {
       const selectedFolder = await vscode.window.showOpenDialog({
         canSelectFiles: false,
