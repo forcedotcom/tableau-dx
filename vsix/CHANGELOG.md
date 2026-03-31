@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.0.11 - 2026-03-31
+- Reverted telemetry to original code (no custom version injection) to isolate tenantId pipeline error
+
+## 0.0.10 - 2026-03-31
+- Fixed telemetry missing tenantId caused by extensionVersion overriding event properties; version now only sent via activation event TelemetryData
+
 ## 0.0.9 - 2026-03-31
 - Fixed context menu commands appearing on "Semantic Models" folder even with compact folders enabled (path-based matching instead of filename-only)
 

@@ -15,12 +15,9 @@ import {
 const EXTENSION_NAME = 'Salesforce-Semantic-DX';
 
 let telemetryService: TelemetryServiceInterface | undefined;
-let extensionVersion = '0.0.0';
 
 export async function initTelemetry(context: ExtensionContext): Promise<void> {
   try {
-    extensionVersion = context.extension.packageJSON.version ?? '0.0.0';
-
     let isAvailable = false;
     for (let i = 0; i < 5; i++) {
       isAvailable = await ServiceProvider.isServiceAvailable(ServiceType.Telemetry);
@@ -44,9 +41,7 @@ export async function initTelemetry(context: ExtensionContext): Promise<void> {
 }
 
 export function sendActivationEvent(startTime: number): void {
-  telemetryService?.sendExtensionActivationEvent(startTime, undefined, {
-    properties: { extensionVersion },
-  });
+  telemetryService?.sendExtensionActivationEvent(startTime);
 }
 
 export function sendDeactivationEvent(): void {
@@ -54,11 +49,11 @@ export function sendDeactivationEvent(): void {
 }
 
 export function sendCommandEvent(commandName: string, startTime?: number): void {
-  telemetryService?.sendCommandEvent(commandName, startTime, { extensionVersion });
+  telemetryService?.sendCommandEvent(commandName, startTime);
 }
 
 export function sendException(name: string, message: string): void {
-  telemetryService?.sendEventData('exception', { extensionVersion, name, message });
+  telemetryService?.sendException(name, message);
 }
 
 export function sendEventData(
@@ -66,7 +61,7 @@ export function sendEventData(
   properties?: Record<string, string>,
   measurements?: Record<string, number>
 ): void {
-  telemetryService?.sendEventData(eventName, { extensionVersion, ...properties }, measurements);
+  telemetryService?.sendEventData(eventName, properties, measurements);
 }
 
 export function disposeTelemetry(): void {
