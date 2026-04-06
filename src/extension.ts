@@ -87,10 +87,9 @@ export async function activate(context: vscode.ExtensionContext) {
     handler: (...args: unknown[]) => Promise<void>
   ): vscode.Disposable {
     return vscode.commands.registerCommand(commandId, async (...args: unknown[]) => {
-      const cmdStart = performance.now();
+      sendCommandEvent(commandId);
       try {
         await handler(...args);
-        sendCommandEvent(commandId, cmdStart);
       } catch (e) {
         const msg = e instanceof Error ? e.message : 'Unknown error';
         sendException(commandId, msg);

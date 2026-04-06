@@ -176,20 +176,20 @@ export async function cloneRemoteModelCommand(uri: vscode.Uri) {
     const newFolderPath = resolveModelFolder(folderPath, newLabel.trim(), newApiName.trim());
     const modelJsonUri = vscode.Uri.file(path.join(newFolderPath, 'model.json'));
 
-    const action = await vscode.window.showInformationMessage(
+    vscode.window.showInformationMessage(
       `Successfully cloned "${model.label}" as "${newLabel.trim()}" (${newApiName.trim()})`,
       'Open Folder',
       'Visualize ERD',
       'Test Model'
-    );
-
-    if (action === 'Open Folder') {
-      vscode.commands.executeCommand('revealInExplorer', modelJsonUri);
-    } else if (action === 'Visualize ERD') {
-      vscode.commands.executeCommand('semanticLayer.visualizeLocalERDV2', modelJsonUri);
-    } else if (action === 'Test Model') {
-      vscode.commands.executeCommand('semanticLayer.testModel', modelJsonUri);
-    }
+    ).then(action => {
+      if (action === 'Open Folder') {
+        vscode.commands.executeCommand('revealInExplorer', modelJsonUri);
+      } else if (action === 'Visualize ERD') {
+        vscode.commands.executeCommand('semanticLayer.visualizeLocalERDV2', modelJsonUri);
+      } else if (action === 'Test Model') {
+        vscode.commands.executeCommand('semanticLayer.testModel', modelJsonUri);
+      }
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
     if (message.includes('400') && message.toLowerCase().includes('already exists')) {

@@ -1,6 +1,25 @@
 # Changelog
 
 ## Unreleased
+- Sanitize semantic model folder names to block path traversal (`..`, separators) when exporting or creating model folders
+
+## 0.0.17 - 2026-03-31
+- Send telemetry on command invocation (click) instead of after completion
+
+## 0.0.16 - 2026-03-31
+- Fixed telemetry delay: success popup no longer blocks command handler return, so sendCommandEvent fires immediately (clone, extend, export, duplicate)
+
+## 0.0.15 - 2026-03-31
+- Changed version separator in telemetry command name from @ to __v for PDP schema compatibility
+
+## 0.0.14 - 2026-03-31
+- Added extension version to command name in telemetry (componentId shows e.g. semanticLayer.exportToFolder@0.0.14)
+
+## 0.0.13 - 2026-03-31
+- Clean revert: telemetry code identical to initial commit (no version injection)
+
+## 0.0.12 - 2026-03-31
+- Added extension version to command name in telemetry (e.g. commandName@0.0.12) without modifying event properties
 
 ## 0.0.11 - 2026-03-31
 - Reverted telemetry to original code (no custom version injection) to isolate tenantId pipeline error

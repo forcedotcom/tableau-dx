@@ -197,20 +197,20 @@ export async function exportToFolderCommand(uri: vscode.Uri) {
 
     const modelJsonUri = vscode.Uri.file(path.join(modelFolderPath, 'model.json'));
 
-    const action = await vscode.window.showInformationMessage(
+    vscode.window.showInformationMessage(
       `Successfully exported "${model.label}" to ${modelFolderPath}`,
       'Open Folder',
       'Visualize ERD',
       'Test Model'
-    );
-
-    if (action === 'Open Folder') {
-      vscode.commands.executeCommand('revealInExplorer', vscode.Uri.file(path.join(modelFolderPath, 'model.json')));
-    } else if (action === 'Visualize ERD') {
-      vscode.commands.executeCommand('semanticLayer.visualizeLocalERDV2', modelJsonUri);
-    } else if (action === 'Test Model') {
-      vscode.commands.executeCommand('semanticLayer.testModel', modelJsonUri);
-    }
+    ).then(action => {
+      if (action === 'Open Folder') {
+        vscode.commands.executeCommand('revealInExplorer', vscode.Uri.file(path.join(modelFolderPath, 'model.json')));
+      } else if (action === 'Visualize ERD') {
+        vscode.commands.executeCommand('semanticLayer.visualizeLocalERDV2', modelJsonUri);
+      } else if (action === 'Test Model') {
+        vscode.commands.executeCommand('semanticLayer.testModel', modelJsonUri);
+      }
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
     vscode.window.showErrorMessage(`Failed to export semantic models: ${message}`);
