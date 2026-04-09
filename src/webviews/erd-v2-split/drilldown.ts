@@ -6,7 +6,7 @@
  */
 
 import type { ErdContext, ErdNode, Position } from './types';
-import { getDiffClassFromStatus, getNodeClass, getNodeIcon } from './utils';
+import { getDiffClassFromStatus, getNodeClass, getNodeIcon, escapeHtmlStr } from './utils';
 import { generateClassicPath, generateRoutedPath } from './pathGenerators';
 
 export interface DrilldownModule {
@@ -597,7 +597,7 @@ export function createDrilldownModule(ctx: ErdContext): DrilldownModule {
       const centerBaseBadge = isCenterBase ? '<div class="base-model-badge">BASE</div>' : '';
       const centerCircle = '<div class="node-circle"><div class="node-icon">' + centerIcon + '</div></div>';
       let centerHtml = centerNeedsWrap ? '<div class="node-circle-wrap">' + centerCircle + centerSharedBadge + centerBaseBadge + '</div>' : centerCircle;
-      centerHtml += '<div class="node-label"><div class="node-title">' + nodeData.label + '</div>';
+      centerHtml += '<div class="node-label"><div class="node-title">' + escapeHtmlStr(nodeData.label) + '</div>';
       centerHtml += '<div class="center-badges">';
       if (dims.length > 0) centerHtml += '<span class="center-badge dim">' + dims.length + ' dims</span>';
       if (meas.length > 0) centerHtml += '<span class="center-badge meas">' + meas.length + ' meas</span>';
@@ -640,12 +640,12 @@ export function createDrilldownModule(ctx: ErdContext): DrilldownModule {
         const iconContent = svgIcon ? '<div class="entity-circle-icon">' + svgIcon + '</div>' : '<span class="entity-circle-icon-text">' + fallback + '</span>';
         const entBaseBadge = ent.baseModelApiName ? '<div class="base-model-badge">BASE</div>' : '';
         let html = '<div class="entity-circle" style="' + (ent.baseModelApiName ? 'position:relative;overflow:visible;' : '') + '">' + iconContent + entBaseBadge + '</div>';
-        html += '<div class="entity-label-wrap"><div class="entity-title">' + ent.label + '</div>';
+        html += '<div class="entity-label-wrap"><div class="entity-title">' + escapeHtmlStr(ent.label) + '</div>';
         html += '<div class="entity-type-label">' + ent.typeLabel + '</div>';
         if (ent.placement === 'crossObject') {
           const others = (ent.referencedObjects || []).filter((o: string) => o !== nodeData.id);
           if (others.length > 0) {
-            const otherLabels = others.map((o: string) => { const nd = ctx.nodes.find(nn => nn.id === o); return nd ? nd.label : o; });
+            const otherLabels = others.map((o: string) => { const nd = ctx.nodes.find(nn => nn.id === o); return nd ? escapeHtmlStr(nd.label) : escapeHtmlStr(o); });
             html += '<div class="entity-refs">' + otherLabels.join(', ') + '</div>';
           }
         }
@@ -692,7 +692,7 @@ export function createDrilldownModule(ctx: ErdContext): DrilldownModule {
         div.style.left = (cp.x - ctx.EDGE_OBJ_SIZE / 2) + 'px';
         div.style.top = (cp.y - ctx.EDGE_OBJ_SIZE / 2) + 'px';
         div.innerHTML = '<div class="edge-object-circle"><div class="edge-object-icon">' + icon + '</div></div>' +
-          '<div class="edge-object-label">' + objLabel + '</div>';
+          '<div class="edge-object-label">' + escapeHtmlStr(objLabel) + '</div>';
         div.addEventListener('mousedown', (e) => {
           e.stopPropagation();
           ctx.draggingNode = key;
@@ -839,7 +839,7 @@ export function createDrilldownModule(ctx: ErdContext): DrilldownModule {
         const morphBaseBadge = isMorphBase ? '<div class="base-model-badge">BASE</div>' : '';
         const morphCircle = '<div class="node-circle"><div class="node-icon">' + iconSvg + '</div></div>';
         div.innerHTML = (morphNeedsWrap ? '<div class="node-circle-wrap">' + morphCircle + morphSharedBadge + morphBaseBadge + '</div>' : morphCircle) +
-          '<div class="node-label"><div class="node-title">' + n.label + '</div></div>';
+          '<div class="node-label"><div class="node-title">' + escapeHtmlStr(n.label) + '</div></div>';
 
         const finalPos = ctx.nodePositions[n.id];
         if (n.id === ctx.savedDrillNodeId) {

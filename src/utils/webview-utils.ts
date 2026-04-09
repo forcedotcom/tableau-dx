@@ -10,6 +10,7 @@ import * as path from 'path';
 
 export interface WebviewResources {
   sldsUri: string;
+  cspSource: string;
 }
 
 /**
@@ -40,15 +41,21 @@ export function createWebviewPanel(
     vscode.Uri.file(path.join(context.extensionPath, 'media', 'slds', 'salesforce-lightning-design-system.min.css'))
   ).toString();
 
-  return { panel, resources: { sldsUri } };
+  const cspSource = panel.webview.cspSource;
+
+  return { panel, resources: { sldsUri, cspSource } };
 }
 
 /**
- * Returns the standard HTML head with SLDS CSS linked and optional custom styles.
+ * Returns the standard HTML head with SLDS CSS linked, CSP meta tag, and optional custom styles.
  */
-export function sldsHead(sldsUri: string, customStyles?: string): string {
+export function sldsHead(sldsUri: string, customStyles?: string, cspSource?: string): string {
+  const csp = cspSource
+    ? `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${cspSource} 'unsafe-inline'; script-src 'unsafe-inline'; font-src ${cspSource}; img-src ${cspSource} data:;" />`
+    : '';
   return `<meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  ${csp}
   <link rel="stylesheet" href="${sldsUri}" />
   ${customStyles ? `<style>${customStyles}</style>` : ''}`;
 }

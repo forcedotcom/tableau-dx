@@ -137,7 +137,7 @@ function showERDV2Panel(
     context, 'semanticERDV2', `ERD V2: ${modelUI.model.label}`, vscode.ViewColumn.One
   );
 
-  panel.webview.html = getERDV2WebviewContent(modelUI, icons, resources.sldsUri, groupsConfig, viewMode);
+  panel.webview.html = getERDV2WebviewContent(modelUI, icons, resources.sldsUri, groupsConfig, viewMode, resources.cspSource);
 
   const rawModel = loadSemanticModelFiles(folderPath);
 

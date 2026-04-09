@@ -25,7 +25,8 @@ export function getERDV2WebviewContent(
   icons: Record<string, string> = {},
   sldsUri: string = '',
   groupsConfig: GroupsConfig | null = null,
-  viewMode: string = 'flat'
+  viewMode: string = 'flat',
+  cspSource: string = ''
 ): string {
   const tableSvg = icons.table || '';
   const dataModelSvg = icons.data_model || '';
@@ -275,7 +276,7 @@ export function getERDV2WebviewContent(
   return `<!DOCTYPE html>
 <html>
 <head>
-  ${sldsHead(sldsUri)}
+  ${sldsHead(sldsUri, undefined, cspSource)}
   <style>${css}</style>
 </head>
 <body>

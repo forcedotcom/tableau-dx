@@ -42,7 +42,7 @@ export async function listModelsCommand(context: vscode.ExtensionContext) {
           defaultFilter ? `Semantic Models (filtered: ${defaultFilter})` : 'Semantic Models',
           vscode.ViewColumn.One
         );
-        panel.webview.html = getModelsWebviewContent(orgInfo, modelsResponse, defaultFilter || undefined, resources.sldsUri);
+        panel.webview.html = getModelsWebviewContent(orgInfo, modelsResponse, defaultFilter || undefined, resources.sldsUri, resources.cspSource);
       }
     );
   } catch (error) {

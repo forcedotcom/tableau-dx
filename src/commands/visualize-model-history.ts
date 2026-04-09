@@ -114,7 +114,7 @@ function showHistoryPanel(
     { retainContextWhenHidden: true }
   );
 
-  panel.webview.html = getERDV2WebviewContent(modelUI, icons, resources.sldsUri);
+  panel.webview.html = getERDV2WebviewContent(modelUI, icons, resources.sldsUri, null, 'flat', resources.cspSource);
 
   const outputChannel = vscode.window.createOutputChannel('Semantic Layer History');
   const positionStorage = new FilePositionStorage(folderPath);

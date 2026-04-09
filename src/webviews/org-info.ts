@@ -9,7 +9,7 @@ import { OrgInfo } from '../types';
 import { escapeHtml, formatLimitName } from '../utils/formatting';
 import { sldsHead } from '../utils/webview-utils';
 
-export function getOrgInfoWebviewContent(orgInfo: OrgInfo, apiResult: unknown, sldsUri: string): string {
+export function getOrgInfoWebviewContent(orgInfo: OrgInfo, apiResult: unknown, sldsUri: string, cspSource: string = ''): string {
   const org = orgInfo.result;
   
   const limits = apiResult as Record<string, { Max: number; Remaining: number }>;
@@ -52,7 +52,7 @@ export function getOrgInfoWebviewContent(orgInfo: OrgInfo, apiResult: unknown, s
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
-  ${sldsHead(sldsUri, customStyles)}
+  ${sldsHead(sldsUri, customStyles, cspSource)}
   <title>Salesforce Org Info</title>
 </head>
 <body>

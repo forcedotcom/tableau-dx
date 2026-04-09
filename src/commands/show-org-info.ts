@@ -29,7 +29,7 @@ export async function showOrgInfoCommand(context: vscode.ExtensionContext) {
         const { panel, resources } = createWebviewPanel(
           context, 'orgInfo', 'Salesforce Org Info', vscode.ViewColumn.One
         );
-        panel.webview.html = getOrgInfoWebviewContent(orgInfo, apiResult, resources.sldsUri);
+        panel.webview.html = getOrgInfoWebviewContent(orgInfo, apiResult, resources.sldsUri, resources.cspSource);
       }
     );
   } catch (error) {

@@ -6,9 +6,10 @@
  */
 
 import { SemanticModelUI } from '../v2/types';
+import { escapeHtml } from '../utils/formatting';
 import { sldsHead } from '../utils/webview-utils';
 
-export function getTestModelWebviewContent(modelUI: SemanticModelUI, sldsUri: string): string {
+export function getTestModelWebviewContent(modelUI: SemanticModelUI, sldsUri: string, cspSource: string = ''): string {
 
   // Build field tree: objects -> (dims, meas, calcDims, calcMeas)
   const objectTree: any[] = [];
@@ -299,7 +300,7 @@ export function getTestModelWebviewContent(modelUI: SemanticModelUI, sldsUri: st
   return `<!DOCTYPE html>
 <html>
 <head>
-  ${sldsHead(sldsUri, customStyles)}
+  ${sldsHead(sldsUri, customStyles, cspSource)}
 </head>
 <body>
   <div class="slds-scope">
@@ -310,7 +311,7 @@ export function getTestModelWebviewContent(modelUI: SemanticModelUI, sldsUri: st
             <div class="slds-media__body">
               <div class="slds-page-header__name">
                 <div class="slds-page-header__name-title">
-                  <h1><span class="slds-page-header__title slds-truncate">Test Model: ${modelLabel}</span></h1>
+                  <h1><span class="slds-page-header__title slds-truncate">Test Model: ${escapeHtml(modelLabel)}</span></h1>
                 </div>
               </div>
               <p class="slds-page-header__name-meta">
@@ -411,9 +412,9 @@ export function getTestModelWebviewContent(modelUI: SemanticModelUI, sldsUri: st
             if (f.placement === 'crossObject') {
               tags = '<span class="field-placement-tag crossObject">cross</span>' + tags;
             }
-            fieldsHtml += '<div class="field-item' + sel + '" data-key="' + key + '" onclick="toggleField(this, ' + oi + ', ' + "'" + key + "'" + ')">';
+            fieldsHtml += '<div class="field-item' + sel + '" data-key="' + escapeHtml(key) + '" onclick="toggleField(this, ' + oi + ', ' + "'" + key + "'" + ')">';
             fieldsHtml += '<span class="field-cb">' + (sel ? '\\u2713' : '') + '</span>';
-            fieldsHtml += '<span class="field-label" title="' + (f.label || f.apiName) + '">' + (f.label || f.apiName) + '</span>';
+            fieldsHtml += '<span class="field-label" title="' + escapeHtml(f.label || f.apiName) + '">' + escapeHtml(f.label || f.apiName) + '</span>';
             fieldsHtml += tags;
             fieldsHtml += '</div>';
           });
@@ -436,7 +437,7 @@ export function getTestModelWebviewContent(modelUI: SemanticModelUI, sldsUri: st
         html += '<div class="object-header" onclick="toggleObject(this)">';
         html += '<span class="object-chevron' + chevronClass + '">\\u25B6</span>';
         html += '<span class="object-icon ' + iconClass + baseClass + '">' + iconText + '</span>';
-        html += '<span class="object-name">' + obj.label + '</span>';
+        html += '<span class="object-name">' + escapeHtml(obj.label) + '</span>';
         html += '<span class="object-count">' + totalFields + '</span>';
         html += '</div>';
         html += '<div class="object-body' + openClass + '">' + groupsHtml + '</div>';

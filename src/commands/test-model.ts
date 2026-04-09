@@ -83,7 +83,7 @@ function showTestModelPanel(
     context, 'semanticTestModel', `Test: ${modelUI.model.label}`, vscode.ViewColumn.One
   );
 
-  panel.webview.html = getTestModelWebviewContent(modelUI, resources.sldsUri);
+  panel.webview.html = getTestModelWebviewContent(modelUI, resources.sldsUri, resources.cspSource);
 
   const fullSemanticModel = buildFullSemanticModel(rawModel);
 

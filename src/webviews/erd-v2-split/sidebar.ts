@@ -49,10 +49,10 @@ export function createSidebarModule(ctx: ErdContext): SidebarModule {
       : nodeData.dataObjectType === 'Dlo' ? 'Data Lake Object'
       : 'Data Model Object';
     const sharedLabel = nodeData.tableType === 'Shared' ? ' <span class="sidebar-shared-badge">Shared Table</span>' : '';
-    const baseLabel = nodeData.baseModelApiName ? ' <span class="sidebar-base-badge">Base: ' + (ctx.baseModelLabels[nodeData.baseModelApiName] || nodeData.baseModelApiName) + '</span>' : '';
+    const baseLabel = nodeData.baseModelApiName ? ' <span class="sidebar-base-badge">Base: ' + escapeHtmlStr(ctx.baseModelLabels[nodeData.baseModelApiName] || nodeData.baseModelApiName) + '</span>' : '';
     const unmappedLabel = nodeData.unmapped ? ' <span class="sidebar-unmapped-badge">Unmapped</span>' : '';
 
-    (ctx.root.querySelector('#sidebar-title') as HTMLElement).innerHTML = nodeData.label + diffBadgeHtml(ctx, nodeData.diffStatus) + sharedLabel + baseLabel + unmappedLabel;
+    (ctx.root.querySelector('#sidebar-title') as HTMLElement).innerHTML = escapeHtmlStr(nodeData.label) + diffBadgeHtml(ctx, nodeData.diffStatus) + sharedLabel + baseLabel + unmappedLabel;
     (ctx.root.querySelector('#sidebar-type') as HTMLElement).textContent = typeLabel;
     (ctx.root.querySelector('#sidebar-api') as HTMLElement).textContent = nodeData.id;
 
@@ -73,46 +73,46 @@ export function createSidebarModule(ctx: ErdContext): SidebarModule {
     const isLV = nodeData.type === 'logicalView';
 
     html += buildSidebarSection('dim', 'Dimensions', dims, (d: any) =>
-      '<div><div class="field-name">' + (d.label || d.apiName) + unmappedBadge(d) + '</div><div class="field-api">' + d.apiName + '</div>' +
-      (isLV && d.sourceObject ? '<div class="field-source">from ' + d.sourceObject + '</div>' : '') +
+      '<div><div class="field-name">' + escapeHtmlStr(d.label || d.apiName) + unmappedBadge(d) + '</div><div class="field-api">' + escapeHtmlStr(d.apiName) + '</div>' +
+      (isLV && d.sourceObject ? '<div class="field-source">from ' + escapeHtmlStr(d.sourceObject) + '</div>' : '') +
       '</div><span class="field-type">' + (d.dataType || 'Text') + '</span>'
     );
     html += buildSidebarSection('meas', 'Measurements', meas, (m: any) =>
-      '<div><div class="field-name">' + (m.label || m.apiName) + unmappedBadge(m) + '</div><div class="field-api">' + m.apiName + '</div>' +
-      (isLV && m.sourceObject ? '<div class="field-source">from ' + m.sourceObject + '</div>' : '') +
+      '<div><div class="field-name">' + escapeHtmlStr(m.label || m.apiName) + unmappedBadge(m) + '</div><div class="field-api">' + escapeHtmlStr(m.apiName) + '</div>' +
+      (isLV && m.sourceObject ? '<div class="field-source">from ' + escapeHtmlStr(m.sourceObject) + '</div>' : '') +
       '</div><span class="field-type">' + (m.dataType || 'Number') + '</span>'
     );
     if (calcDims.length > 0) {
       html += buildSidebarSection('calc', 'Calc Dimensions', calcDims, (c: any) =>
-        '<div><div class="field-name">' + (c.label || c.apiName) + '</div><div class="field-api">' + c.apiName + '</div>' +
-        (c.placement === 'crossObject' ? '<div class="field-placement cross">' + c.placement + '</div><div class="field-refs">→ ' + (c.referencedObjects || []).join(', ') + '</div>' : '') +
+        '<div><div class="field-name">' + escapeHtmlStr(c.label || c.apiName) + '</div><div class="field-api">' + escapeHtmlStr(c.apiName) + '</div>' +
+        (c.placement === 'crossObject' ? '<div class="field-placement cross">' + c.placement + '</div><div class="field-refs">→ ' + (c.referencedObjects || []).map((o: string) => escapeHtmlStr(o)).join(', ') + '</div>' : '') +
         '</div><span class="field-type">' + (c.dataType || 'Calc') + '</span>'
       );
     }
     if (calcMeas.length > 0) {
       html += buildSidebarSection('calc', 'Calc Measurements', calcMeas, (c: any) =>
-        '<div><div class="field-name">' + (c.label || c.apiName) + '</div><div class="field-api">' + c.apiName + '</div>' +
-        (c.placement === 'crossObject' ? '<div class="field-placement cross">' + c.placement + '</div><div class="field-refs">→ ' + (c.referencedObjects || []).join(', ') + '</div>' : '') +
+        '<div><div class="field-name">' + escapeHtmlStr(c.label || c.apiName) + '</div><div class="field-api">' + escapeHtmlStr(c.apiName) + '</div>' +
+        (c.placement === 'crossObject' ? '<div class="field-placement cross">' + c.placement + '</div><div class="field-refs">→ ' + (c.referencedObjects || []).map((o: string) => escapeHtmlStr(o)).join(', ') + '</div>' : '') +
         '</div><span class="field-type">' + (c.dataType || 'Calc') + '</span>'
       );
     }
     if (hiers.length > 0) {
       html += buildSidebarSection('hier', 'Dim Hierarchies', hiers, (h: any) =>
-        '<div><div class="field-name">' + (h.label || h.apiName) + '</div><div class="field-api">' + h.apiName + '</div>' +
-        (h.placement === 'crossObject' ? '<div class="field-placement cross">' + h.placement + '</div><div class="field-refs">→ ' + (h.referencedObjects || []).join(', ') + '</div>' : '') +
+        '<div><div class="field-name">' + escapeHtmlStr(h.label || h.apiName) + '</div><div class="field-api">' + escapeHtmlStr(h.apiName) + '</div>' +
+        (h.placement === 'crossObject' ? '<div class="field-placement cross">' + h.placement + '</div><div class="field-refs">→ ' + (h.referencedObjects || []).map((o: string) => escapeHtmlStr(o)).join(', ') + '</div>' : '') +
         '</div><span class="field-type">Hierarchy</span>'
       );
     }
     if (metrics.length > 0) {
       html += buildSidebarSection('met', 'Metrics', metrics, (m: any) =>
-        '<div><div class="field-name">' + (m.label || m.apiName) + '</div><div class="field-api">' + m.apiName + '</div>' +
-        (m.placement === 'crossObject' ? '<div class="field-placement cross">' + m.placement + '</div><div class="field-refs">→ ' + (m.referencedObjects || []).join(', ') + '</div>' : '') +
+        '<div><div class="field-name">' + escapeHtmlStr(m.label || m.apiName) + '</div><div class="field-api">' + escapeHtmlStr(m.apiName) + '</div>' +
+        (m.placement === 'crossObject' ? '<div class="field-placement cross">' + m.placement + '</div><div class="field-refs">→ ' + (m.referencedObjects || []).map((o: string) => escapeHtmlStr(o)).join(', ') + '</div>' : '') +
         '</div><span class="field-type">' + (m.aggregationType || 'Metric') + '</span>'
       );
     }
     if (groupings.length > 0) {
       html += buildSidebarSection('grp', 'Groupings', groupings, (g: any) =>
-        '<div><div class="field-name">' + (g.label || g.apiName) + '</div><div class="field-api">' + g.apiName + '</div>' +
+        '<div><div class="field-name">' + escapeHtmlStr(g.label || g.apiName) + '</div><div class="field-api">' + escapeHtmlStr(g.apiName) + '</div>' +
         '</div><span class="field-type">' + (g.type || 'Group') + '</span>'
       );
     }
@@ -140,8 +140,8 @@ export function createSidebarModule(ctx: ErdContext): SidebarModule {
       ? '<span class="entity-type-badge ' + (ent.cssClass || ent.type) + '">' + ctx.entitySvgIcons[ent.cssClass || ent.type] + ' ' + (typeLabelMap[ent.type] || ent.typeLabel || 'Entity') + '</span>'
       : '<span class="entity-type-badge ' + (ent.cssClass || ent.type) + '">' + (typeLabelMap[ent.type] || ent.typeLabel || 'Entity') + '</span>';
 
-    const entBaseLabel = ent.baseModelApiName ? ' <span class="sidebar-base-badge">Base: ' + (ctx.baseModelLabels[ent.baseModelApiName] || ent.baseModelApiName) + '</span>' : '';
-    (ctx.root.querySelector('#sidebar-title') as HTMLElement).innerHTML = (ent.label || ent.apiName) + diffBadgeHtml(ctx, ent.diffStatus) + entBaseLabel;
+    const entBaseLabel = ent.baseModelApiName ? ' <span class="sidebar-base-badge">Base: ' + escapeHtmlStr(ctx.baseModelLabels[ent.baseModelApiName] || ent.baseModelApiName) + '</span>' : '';
+    (ctx.root.querySelector('#sidebar-title') as HTMLElement).innerHTML = escapeHtmlStr(ent.label || ent.apiName) + diffBadgeHtml(ctx, ent.diffStatus) + entBaseLabel;
     (ctx.root.querySelector('#sidebar-type') as HTMLElement).innerHTML = iconHtml;
     (ctx.root.querySelector('#sidebar-api') as HTMLElement).textContent = ent.apiName;
 
@@ -167,7 +167,7 @@ export function createSidebarModule(ctx: ErdContext): SidebarModule {
         refs.forEach((objApiName: string) => {
           const nd = ctx.nodes.find(n => n.id === objApiName);
           const lbl = nd ? nd.label : objApiName.replace(/_/g, ' ');
-          html += '<li class="entity-ref-item"><span class="entity-ref-icon obj">O</span><div><div style="color:#080707;font-size:12px">' + lbl + '</div><div style="color:#706e6b;font-size:10px;font-family:monospace">' + objApiName + '</div></div></li>';
+          html += '<li class="entity-ref-item"><span class="entity-ref-icon obj">O</span><div><div style="color:#080707;font-size:12px">' + escapeHtmlStr(lbl) + '</div><div style="color:#706e6b;font-size:10px;font-family:monospace">' + escapeHtmlStr(objApiName) + '</div></div></li>';
         });
         html += '</ul></div>';
       }
@@ -207,8 +207,8 @@ export function createSidebarModule(ctx: ErdContext): SidebarModule {
 
         function renderChainNode(node: any, isRoot: boolean): void {
           html += '<div class="entity-chain-node' + (isRoot ? ' entity-chain-root' : '') + '">';
-          html += '<div class="entity-chain-step' + (isRoot ? ' current' : '') + '"><div class="entity-chain-step-name">' + node.name + '</div>';
-          if (node.api) html += '<div class="entity-chain-step-api">' + node.api + '</div>';
+          html += '<div class="entity-chain-step' + (isRoot ? ' current' : '') + '"><div class="entity-chain-step-name">' + escapeHtmlStr(node.name) + '</div>';
+          if (node.api) html += '<div class="entity-chain-step-api">' + escapeHtmlStr(node.api) + '</div>';
           html += '<div class="entity-chain-step-type">' + node.type + '</div></div>';
           if (node.children && node.children.length > 0) {
             node.children.forEach((child: any) => { renderChainNode(child, false); });
@@ -234,7 +234,7 @@ export function createSidebarModule(ctx: ErdContext): SidebarModule {
           const nd3 = ctx.nodes.find(n => n.id === sourceName);
           const srcLabel = nd3 ? nd3.label : sourceName.replace(/_/g, ' ');
           html += '<div class="hier-level"><div class="hier-level-pos">' + (lvl.position || '?') + '</div>';
-          html += '<div class="hier-level-info"><div class="hier-level-field">' + fieldName.replace(/_/g, ' ') + '</div><div class="hier-level-source">' + srcLabel + ' → ' + fieldName + '</div></div></div>';
+          html += '<div class="hier-level-info"><div class="hier-level-field">' + escapeHtmlStr(fieldName.replace(/_/g, ' ')) + '</div><div class="hier-level-source">' + escapeHtmlStr(srcLabel) + ' → ' + escapeHtmlStr(fieldName) + '</div></div></div>';
         });
         html += '</div>';
       }
@@ -247,7 +247,7 @@ export function createSidebarModule(ctx: ErdContext): SidebarModule {
         hierRefs.forEach((objApiName: string) => {
           const nd4 = ctx.nodes.find(n => n.id === objApiName);
           const lbl = nd4 ? nd4.label : objApiName.replace(/_/g, ' ');
-          html += '<li class="entity-ref-item"><span class="entity-ref-icon obj">O</span><div><div style="color:#080707;font-size:12px">' + lbl + '</div><div style="color:#706e6b;font-size:10px;font-family:monospace">' + objApiName + '</div></div></li>';
+          html += '<li class="entity-ref-item"><span class="entity-ref-icon obj">O</span><div><div style="color:#080707;font-size:12px">' + escapeHtmlStr(lbl) + '</div><div style="color:#706e6b;font-size:10px;font-family:monospace">' + escapeHtmlStr(objApiName) + '</div></div></li>';
         });
         html += '</ul></div>';
       }
@@ -264,7 +264,7 @@ export function createSidebarModule(ctx: ErdContext): SidebarModule {
         metRefs.forEach((objApiName: string) => {
           const nd5 = ctx.nodes.find(n => n.id === objApiName);
           const lbl = nd5 ? nd5.label : objApiName.replace(/_/g, ' ');
-          html += '<li class="entity-ref-item"><span class="entity-ref-icon obj">O</span><div><div style="color:#080707;font-size:12px">' + lbl + '</div><div style="color:#706e6b;font-size:10px;font-family:monospace">' + objApiName + '</div></div></li>';
+          html += '<li class="entity-ref-item"><span class="entity-ref-icon obj">O</span><div><div style="color:#080707;font-size:12px">' + escapeHtmlStr(lbl) + '</div><div style="color:#706e6b;font-size:10px;font-family:monospace">' + escapeHtmlStr(objApiName) + '</div></div></li>';
         });
         html += '</ul></div>';
       }
@@ -281,7 +281,7 @@ export function createSidebarModule(ctx: ErdContext): SidebarModule {
         grpRefs.forEach((objApiName: string) => {
           const nd6 = ctx.nodes.find(n => n.id === objApiName);
           const lbl = nd6 ? nd6.label : objApiName.replace(/_/g, ' ');
-          html += '<li class="entity-ref-item"><span class="entity-ref-icon obj">O</span><div><div style="color:#080707;font-size:12px">' + lbl + '</div><div style="color:#706e6b;font-size:10px;font-family:monospace">' + objApiName + '</div></div></li>';
+          html += '<li class="entity-ref-item"><span class="entity-ref-icon obj">O</span><div><div style="color:#080707;font-size:12px">' + escapeHtmlStr(lbl) + '</div><div style="color:#706e6b;font-size:10px;font-family:monospace">' + escapeHtmlStr(objApiName) + '</div></div></li>';
         });
         html += '</ul></div>';
       }
@@ -315,9 +315,9 @@ export function createSidebarModule(ctx: ErdContext): SidebarModule {
       html += '<div class="sidebar-section"><div class="sidebar-section-header"><span class="sidebar-section-title"><span class="dot calc"></span> Cross-Object</span>';
       html += '<span class="sidebar-section-count">' + ctx.crossObjectEntities.length + '</span></div><div class="sidebar-section-body">';
       ctx.crossObjectEntities.forEach(e => {
-        html += '<div class="field-item"><div><div class="field-name">' + (e as any).entityApiName + '</div>';
+        html += '<div class="field-item"><div><div class="field-name">' + escapeHtmlStr((e as any).entityApiName) + '</div>';
         html += '<div class="field-placement cross">' + (typeMap[(e as any).entityType] || (e as any).entityType) + '</div>';
-        html += '<div class="field-refs">→ ' + ((e as any).referencedObjects || []).join(', ') + '</div></div></div>';
+        html += '<div class="field-refs">→ ' + ((e as any).referencedObjects || []).map((o: string) => escapeHtmlStr(o)).join(', ') + '</div></div></div>';
       });
       html += '</div></div>';
     }

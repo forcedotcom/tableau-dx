@@ -10,7 +10,7 @@ import {
   generateClassicPath, generateRoutedPath, getSide, buildPortMap,
   getPortOffset, getPortPoint, getEdgeMidpoint,
 } from './pathGenerators';
-import { getNodeClass, getNodeIcon, getDiffClassFromStatus, isClassicMode } from './utils';
+import { getNodeClass, getNodeIcon, getDiffClassFromStatus, isClassicMode, escapeHtmlStr } from './utils';
 
 export interface RenderModule {
   renderTopLevel(forceRelayout?: boolean): void;
@@ -359,7 +359,7 @@ export function createRenderModule(ctx: ErdContext): RenderModule {
       const sharedBadge = isShared ? '<div class="shared-badge">' + ctx.sharedSvg + '</div>' : '';
       const baseBadge = isBase ? '<div class="base-model-badge">BASE</div>' : '';
       const circleHtml = '<div class="node-circle"><div class="node-icon">' + iconSvg + '</div></div>';
-      div.innerHTML = (needsWrap ? '<div class="node-circle-wrap">' + circleHtml + sharedBadge + baseBadge + '</div>' : circleHtml) + '<div class="node-label"><div class="node-title">' + n.label + '</div></div>';
+      div.innerHTML = (needsWrap ? '<div class="node-circle-wrap">' + circleHtml + sharedBadge + baseBadge + '</div>' : circleHtml) + '<div class="node-label"><div class="node-title">' + escapeHtmlStr(n.label) + '</div></div>';
 
       const pos = ctx.nodePositions[n.id];
       div.style.left = pos.x + 'px'; div.style.top = pos.y + 'px';

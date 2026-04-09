@@ -3,6 +3,8 @@
 ## Unreleased
 - Sanitize semantic model folder names to block path traversal (`..`, separators) when exporting or creating model folders
 - Added HTTPS request timeout (120s) and GET status checks for Salesforce REST calls
+- Added explicit Content-Security-Policy to all webview panels
+- Added HTML escaping for labels, API names, and expressions in all webview templates to prevent XSS
 
 ## 0.0.17 - 2026-03-31
 - Send telemetry on command invocation (click) instead of after completion

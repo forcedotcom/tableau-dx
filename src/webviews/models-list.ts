@@ -14,7 +14,8 @@ export function getModelsWebviewContent(
   orgInfo: OrgInfo,
   modelsResponse: SemanticModelsResponse,
   searchTerm?: string,
-  sldsUri?: string
+  sldsUri?: string,
+  cspSource?: string
 ): string {
   const org = orgInfo.result;
   const models = modelsResponse?.items ?? [];
@@ -127,7 +128,7 @@ export function getModelsWebviewContent(
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
-  ${sldsHead(sldsUri || '', customStyles)}
+  ${sldsHead(sldsUri || '', customStyles, cspSource)}
   <title>Semantic Models</title>
 </head>
 <body>
