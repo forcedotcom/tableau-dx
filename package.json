@@ -127,7 +127,7 @@
         },
         {
           "command": "semanticLayer.updateModel",
-          "when": "resourceExtname == .json",
+          "when": "resourceFilename == model.json",
           "group": "semantic@3"
         },
         {

@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Restricted Deploy Model command to model.json only (always deploys the full model)
 - Added extension icon (icon.png) for Marketplace and Extensions sidebar
 - Sanitize semantic model folder names to block path traversal (`..`, separators) when exporting or creating model folders
 - Added HTTPS request timeout (120s) and GET status checks for Salesforce REST calls

@@ -22,8 +22,8 @@ export async function updateModelCommand(uri: vscode.Uri) {
       canSelectFiles: true,
       canSelectFolders: false,
       canSelectMany: false,
-      filters: { 'JSON Files': ['json'] },
-      openLabel: 'Select JSON File to Update',
+      filters: { 'model.json': ['json'] },
+      openLabel: 'Select model.json to Deploy',
     });
     
     if (!selectedFile || selectedFile.length === 0) {
@@ -33,29 +33,19 @@ export async function updateModelCommand(uri: vscode.Uri) {
   }
 
   const fileName = path.basename(filePath);
+  if (fileName !== 'model.json') {
+    vscode.window.showErrorMessage('Deploy must be run from model.json.');
+    return;
+  }
+
   const folderPath = path.dirname(filePath);
   
   try {
-    const fileContent = fs.readFileSync(filePath, 'utf8');
-    const jsonData = JSON.parse(fileContent);
+    const modelContent = fs.readFileSync(filePath, 'utf8');
+    const modelData: Record<string, unknown> = JSON.parse(modelContent);
+    const modelApiName = modelData.apiName as string;
 
-    let modelApiName: string;
-    let modelData: Record<string, unknown>;
-    let payload: UpdatePayload = {};
-
-    const modelFilePath = fileName === 'model.json' 
-      ? filePath 
-      : path.join(folderPath, 'model.json');
-    
-    if (!fs.existsSync(modelFilePath)) {
-      vscode.window.showErrorMessage('Cannot find model.json. Please ensure you\'re updating from a valid semantic model folder.');
-      return;
-    }
-
-    const modelContent = fs.readFileSync(modelFilePath, 'utf8');
-    modelData = JSON.parse(modelContent);
-    modelApiName = modelData.apiName as string;
-
+    const payload: UpdatePayload = {};
     payload.dataspace = modelData.dataspace as string;
     payload.label = modelData.label as string;
     if (modelData.queryUnrelatedDataObjects) {
@@ -76,22 +66,13 @@ export async function updateModelCommand(uri: vscode.Uri) {
       'modelFilters.json': 'semanticModelFilters',
     };
 
-    if (fileName === 'model.json') {
-      for (const [entityFileName, payloadKey] of Object.entries(entityFiles)) {
-        const entityFilePath = path.join(folderPath, entityFileName);
-        if (fs.existsSync(entityFilePath)) {
-          const entityContent = fs.readFileSync(entityFilePath, 'utf8');
-          const entityData = JSON.parse(entityContent);
-          (payload as Record<string, unknown>)[payloadKey] = entityData.items ?? entityData.groupings ?? entityData;
-        }
+    for (const [entityFileName, payloadKey] of Object.entries(entityFiles)) {
+      const entityFilePath = path.join(folderPath, entityFileName);
+      if (fs.existsSync(entityFilePath)) {
+        const entityContent = fs.readFileSync(entityFilePath, 'utf8');
+        const entityData = JSON.parse(entityContent);
+        (payload as Record<string, unknown>)[payloadKey] = entityData.items ?? entityData.groupings ?? entityData;
       }
-    } else {
-      const payloadKey = entityFiles[fileName];
-      if (!payloadKey) {
-        vscode.window.showErrorMessage(`Unknown entity file: ${fileName}. Expected one of: ${Object.keys(entityFiles).join(', ')}`);
-        return;
-      }
-      (payload as Record<string, unknown>)[payloadKey] = jsonData.items ?? jsonData.groupings ?? jsonData;
     }
 
     let orgInfo = await getOrgInfo();
