@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Added extension icon (icon.png) for Marketplace and Extensions sidebar
 - Sanitize semantic model folder names to block path traversal (`..`, separators) when exporting or creating model folders
 - Added HTTPS request timeout (120s) and GET status checks for Salesforce REST calls
 - Added explicit Content-Security-Policy to all webview panels
