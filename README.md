@@ -1,4 +1,4 @@
-# Salesforce Semantic Layer
+# Salesforce Semantic DX
 
 > Retrieve, edit, visualize, compare, test, and deploy **Salesforce Data Cloud Semantic Layer** models — directly from VS Code.
 
@@ -27,8 +27,11 @@ This extension requires a connection to a Salesforce org with **Data Cloud** ena
 | **Compare** | See additions, deletions, and modifications between local and remote. | Right-click `model.json` → *Visualize and Compare* |
 | **Test** | Run semantic queries using local model definitions before deploying. | Right-click `model.json` → *Test Model* |
 | **History** | Git-powered version timeline — compare any two commits side by side. | Right-click `model.json` → *View Model History* |
+| **Clone** | Clone a local or remote model with a new name and API name. | Right-click `model.json` or a `Semantic Models` folder |
+| **Extend** | Create a new model extending a remote base model. | Right-click a `Semantic Models` folder → *Extend and Retrieve* |
+| **Custom SQL** | Edit logical view SQL in a formatted editor with auto-sync. | CodeLens button in `logicalViews.json` |
+| **Field Visibility** | Dim system-managed fields to reduce noise in entity JSON files. | CodeLens toggle in entity JSON files |
 | **Org Info** | View connected org details, username, org ID, and API limits. | Command Palette → *Show Org Info* |
-| **Groups** | Auto-organize ERD nodes into logical groups by naming conventions. | Right-click `model.json` → *Auto-Generate Groups* |
 
 ---
 
@@ -126,15 +129,17 @@ All commands are available from the Command Palette (`Cmd+Shift+P` / `Ctrl+Shift
 |---------|---------------------|-------------|
 | **Show Org Info** | — | Display details about the connected Salesforce org (username, org ID, instance URL, API limits). |
 | **List Models** | — | Fetch and display all semantic models in the org. Supports a default filter via settings. |
-| **Retrieve Model to Folder** | Right-click a folder | Export a semantic model from the org into structured JSON files in the selected folder. |
-| **Deploy Model** | Right-click any `.json` in a model folder | Push local model changes back to the org. Shows a confirmation dialog and payload preview. |
+| **Retrieve Model to Folder** | Right-click a `Semantic Models` folder | Export a semantic model from the org into structured JSON files in the selected folder. |
+| **Deploy Model** | Right-click `model.json` | Push local model changes back to the org. Shows a confirmation dialog and payload preview. |
 | **Visualize Local ERD** | Right-click `model.json` | Open an interactive entity-relationship diagram of the local model. Click nodes to see field details, click edges to see relationship info. |
 | **Visualize and Compare Local to Remote** | Right-click `model.json` | Side-by-side ERD comparison highlighting differences between local files and the remote org. |
 | **View Model History** | Right-click `model.json` or a folder | Browse Git commit history for the model and compare any two versions. |
 | **Test Model** | Right-click `model.json` | Run semantic queries against the org using the local model definition. Useful for testing un-deployed changes. |
-| **Auto-Generate Groups** | Right-click `model.json` | Automatically generate ERD groupings for data objects based on naming conventions. |
-| **Clear Position Cache** | Command Palette only | Reset cached ERD node positions. |
-| **Show Position Cache Stats** | Command Palette only | Display statistics about the ERD position cache. |
+| **Clone and Deploy Local Model** | Right-click `model.json` | Create a server-side copy of the local model with a new label and API name, then retrieve it. |
+| **Clone and Retrieve Remote Model** | Right-click a `Semantic Models` folder | Pick a remote model, clone it on the server with a new name, and retrieve it locally. |
+| **Extend and Retrieve Remote Model** | Right-click a `Semantic Models` folder | Create a new model that extends a remote base model, and retrieve it locally. |
+| **Toggle Optional Fields** | Command Palette only | Dim or show system-managed fields (`createdBy`, `createdDate`, etc.) in entity JSON files. |
+| **Edit Custom SQL** | CodeLens in `logicalViews.json` | Open a logical view's custom SQL in a formatted `.sql` editor with auto-sync on save. |
 
 ---
 
@@ -152,7 +157,6 @@ My Sales Model/
 ├── logicalViews.json              # Logical views (HardJoin, Union)
 ├── dimensionHierarchies.json      # Dimension hierarchy definitions
 ├── metrics.json                   # Metric definitions
-├── groupings.json                 # Grouping definitions
 ├── parameters.json                # Parameter definitions
 ├── modelInfo.json                 # Model permissions and settings
 ├── fieldsOverrides.json           # Field-level overrides
@@ -161,22 +165,18 @@ My Sales Model/
 ├── metadata/
 │   ├── orgInfo.json               # Org this model was retrieved from (for deploy matching)
 │   ├── positions.json             # Saved ERD node positions
-│   └── groups.json                # ERD grouping configuration (auto-generated)
+│   └── viewConfig.json            # Display preferences (e.g. field visibility toggle)
 │
 ├── base/                          # Present only if the model extends a base model
 │   └── BaseModelLabel/
 │       ├── dataObjects.json
 │       ├── relationships.json
 │       └── ...                    # Same entity files as the root
-│
-└── _raw_api_response/
-    └── fullModel.json             # Unmodified API response (for reference)
 ```
 
 ### File format
 
 - Most entity files wrap their content in `{ "items": [...] }`.
-- `groupings.json` uses `{ "groupings": [...] }`.
 - `modelInfo.json` is a bare object (no wrapper).
 - `model.json` contains the model-level metadata and is the entry point for all context-menu actions.
 - Missing files are treated as empty — only `model.json` is required.
@@ -203,9 +203,15 @@ The interactive ERD (Entity Relationship Diagram) renders your model as a graph:
 - **Nodes** represent data objects and logical views, styled with Salesforce-themed icons.
 - **Edges** represent relationships (joins) between entities.
 - **Click a node** to open a sidebar with the entity's dimensions, measurements, and calculated fields.
+- **Double-click a node** to drill down into it, showing only related entities in a focused view.
 - **Click an edge** to see relationship details (cardinality, join fields).
 - **Jump to Code** — from the sidebar, navigate directly to the entity's definition in the JSON file.
+- **Preview Query** — from the sidebar, send selected fields to the semantic engine to preview query results.
+- **Cross-object entities** — the sidebar highlights calculated fields, hierarchies, and metrics that span multiple data objects.
 - **Graph controls** — Fit All, Reset Zoom, Re-layout.
+- **Layout modes** — force-directed (ForceAtlas2) layout with automatic grid mode for complex models.
+- **Unmapped field toggle** — show or hide unmapped fields with a badge indicator; preview query excludes unmapped fields.
+- **Base model toggle** — show or hide base model objects and relationships in the left panel.
 - **Position persistence** — node positions are saved and restored between sessions.
 
 ### Compare mode
@@ -241,85 +247,36 @@ The **View Model History** command uses Git to show a timeline of changes:
 
 ---
 
----
+## Cloning and Extending Models
 
-## Developer Guide
+The extension supports three ways to create new models from existing ones:
 
-### Project Structure
+- **Clone and Deploy Local Model** — right-click `model.json` to create a server-side copy with a new label and API name, then retrieve the result locally.
+- **Clone and Retrieve Remote Model** — right-click a `Semantic Models` folder, pick any remote model, clone it on the server with a new name, and retrieve it.
+- **Extend and Retrieve Remote Model** — right-click a `Semantic Models` folder, pick a remote model to use as a base, and create a new extending model.
 
-```
-src/
-├── extension.ts                      # Extension entry point
-├── types.ts                          # Shared API/model types
-├── v2/
-│   ├── types.ts                      # UI-layer types (SemanticModelUI, DataObjectUI, etc.)
-│   ├── model-loader.ts
-│   └── ui-representation-builder.ts
-├── webviews/
-│   ├── erd-v2.ts                     # ERD assembler — reads split files and builds the webview HTML
-│   └── erd-v2-split/                 # ERD source files (single source of truth)
-│       ├── index.ts                  # Entry point — exports initErd()
-│       ├── types.ts                  # ERD-specific data types
-│       ├── render.ts                 # Node/edge SVG rendering
-│       ├── sidebar.ts                # Sidebar open/close/content
-│       ├── interaction.ts            # Drag, pan, zoom, click handlers
-│       ├── history.ts                # History panel
-│       ├── legend.ts                 # Legend counts and filtering
-│       └── utils.ts                  # escapeHtml and other helpers
-dist/
-└── erd-v2.js                         # Built ERD bundle (generated — do not edit directly)
-```
-
-> **Important:** `dist/erd-v2.js` is a generated file. Always edit the source files in `src/webviews/erd-v2-split/`, never the bundle directly.
+After each operation, you're offered quick actions to open the folder, visualize the ERD, or test the model.
 
 ---
 
-### ERD Development Workflow
+## Custom SQL Editing
 
-The ERD logic lives in `src/webviews/erd-v2-split/` and is shared between two environments:
+Logical views with a `customSQLV2` property show an **Edit Custom SQL** CodeLens button directly in `logicalViews.json`. Clicking it:
 
-| Environment | How it's used |
-|-------------|--------------|
-| **VSIX webview** | `erd-v2.ts` reads `dist/erd-v2.js` and injects it as a `<script>` string |
-| **Salesforce core (LWC)** | `sync-vsix-erd.js` copies `dist/erd-v2.js` to the core project |
-
-**To develop the ERD locally:**
-
-1. Open two terminals in this project root.
-
-2. **Terminal 1** — watch and rebuild the ERD on every save:
-   ```bash
-   npm run watch:erd
-   ```
-   esbuild rebuilds in ~10ms on each file change. Leave this running throughout your session.
-
-3. **Terminal 2** — run the extension in VS Code as usual (press `F5` or use the Run & Debug panel).
-
-4. Edit files in `src/webviews/erd-v2-split/` → the bundle in `dist/erd-v2.js` updates automatically → reload the webview in VS Code to see changes.
-
-**To do a one-time build** (e.g. before syncing to core):
-```bash
-npm run build:erd
-```
-
-**To sync to the Salesforce core project** (run from the core project root):
-```bash
-node scripts/sync-vsix-erd.js
-```
-This runs `build:erd` automatically before copying.
+1. Opens the SQL in a temporary `.sql` file, formatted with line breaks at major clauses (SELECT, FROM, WHERE, JOIN, etc.).
+2. Auto-syncs changes back into `logicalViews.json` when the `.sql` file is saved.
+3. Cleans up the temporary file when the editor tab is closed.
 
 ---
 
-### Adding a New Feature to the ERD
+## Field Visibility Toggle
 
-1. Edit the relevant file in `src/webviews/erd-v2-split/`
-2. Make sure `npm run watch:erd` is running
-3. Test in the VSIX webview (F5)
-4. Run `node scripts/sync-vsix-erd.js` from the core project to propagate the change
-5. Test in Salesforce core
+Entity JSON files (inside `Semantic Models/`) show a **Hide/Show Optional Fields** CodeLens toggle at the top of the editor. When hidden, system-managed fields (`createdBy`, `createdDate`, `lastModifiedBy`, `lastModifiedDate`) are dimmed to reduce visual noise.
+
+The preference is persisted per model in `metadata/viewConfig.json`.
 
 ---
 
 ## License
 
-MIT
+BSD-3-Clause
