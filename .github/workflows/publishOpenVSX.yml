@@ -11,8 +11,6 @@ jobs:
     environment: publish
     outputs:
       RELEASE_VERSION: ${{ steps.getVersion.outputs.version }}
-      GUS_BUILD: ${{ steps.getGusBuild.outputs.gusBuild }}
-      SF_CHANGE_CASE_SCHEDULE_BUILD: ${{ steps.getScheduledBuild.outputs.sfChangeCaseScheduleBuild }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -21,20 +19,9 @@ jobs:
         run: |
           echo "version=$(node -pe "require('./package.json').version")" >> $GITHUB_OUTPUT
       - run: echo "Version is ${{ steps.getVersion.outputs.version }}"
-      - id: getGusBuild
-        run: |
-          echo "gusBuild=${{ steps.getVersion.outputs.version }}" >> $GITHUB_OUTPUT
-      - id: getScheduledBuild
-        run: |
-          echo "sfChangeCaseScheduleBuild=offcore.tooling.${{ steps.getVersion.outputs.version }}" >> $GITHUB_OUTPUT
-
-  ctc-open:
-    needs: [prepare-environment]
-    uses: salesforcecli/github-workflows/.github/workflows/ctcOpen.yml@main
-    secrets: inherit
 
   publish:
-    needs: ['ctc-open', 'prepare-environment']
+    needs: ['prepare-environment']
     runs-on: ubuntu-latest
     env:
       OVSX_PAT: ${{ secrets.IDEE_OVSX_PAT }}
@@ -53,20 +40,3 @@ jobs:
         run: npx vsce package -o ./Salesforce-Semantic-DX-${{ env.PUBLISH_VERSION }}.vsix
       - name: Publish to Open VSX Registry
         run: npx ovsx publish ./Salesforce-Semantic-DX-${{ env.PUBLISH_VERSION }}.vsix --skip-duplicate -p "${{ env.OVSX_PAT }}"
-
-  ctcCloseSuccess:
-    needs: [ctc-open, publish]
-    if: needs.ctc-open.result == 'success' && needs.publish.result == 'success' && needs.ctc-open.outputs.changeCaseId
-    uses: salesforcecli/github-workflows/.github/workflows/ctcClose.yml@main
-    secrets: inherit
-    with:
-      changeCaseId: ${{ needs.ctc-open.outputs.changeCaseId }}
-
-  ctcCloseFail:
-    needs: [ctc-open, publish]
-    if: always() && needs.ctc-open.outputs.changeCaseId && (needs.ctc-open.result != 'success' || needs.publish.result != 'success')
-    uses: salesforcecli/github-workflows/.github/workflows/ctcClose.yml@main
-    secrets: inherit
-    with:
-      changeCaseId: ${{ needs.ctc-open.outputs.changeCaseId }}
-      status: Not Implemented
