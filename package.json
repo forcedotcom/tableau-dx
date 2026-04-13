@@ -1,8 +1,8 @@
 {
-  "name": "Salesforce-Semantic-DX",
-  "displayName": "Salesforce Semantic DX",
+  "name": "Salesforce-Tableau-Semantics",
+  "displayName": "Salesforce Tableau Semantics",
   "description": "Retrieve, deploy, visualize, and test Tableau Semantic Layer models from within VS Code",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "publisher": "salesforce",
   "repository": {
     "type": "git",
@@ -29,7 +29,7 @@
   "main": "./dist/extension.js",
   "contributes": {
     "configuration": {
-      "title": "Salesforce Semantic DX",
+      "title": "Salesforce Tableau Semantics",
       "properties": {
         "semanticLayer.defaultModelFilter": {
           "type": "string",

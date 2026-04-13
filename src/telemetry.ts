@@ -12,7 +12,7 @@ import {
   TelemetryServiceInterface,
 } from '@salesforce/vscode-service-provider';
 
-const EXTENSION_NAME = 'Salesforce-Semantic-DX';
+const EXTENSION_NAME = 'Salesforce-Tableau-Semantics';
 
 let telemetryService: TelemetryServiceInterface | undefined;
 let extensionVersion = '0.0.0';

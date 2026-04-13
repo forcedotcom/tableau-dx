@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Renamed extension from Salesforce Semantic DX to Salesforce Tableau Semantics
 - Updated README: renamed title to Salesforce Semantic DX, fixed license to BSD-3-Clause, added missing commands (clone, extend, duplicate, custom SQL, field visibility, restart MCP), updated ERD docs with drill-down/layout/unmapped/base-model features, added new sections for Cloning, Custom SQL, Field Visibility, and MCP Server, updated project structure to match codebase, removed grouping references
 - Restricted Deploy Model command to model.json only (always deploys the full model)
 - Added extension icon (icon.png) for Marketplace and Extensions sidebar

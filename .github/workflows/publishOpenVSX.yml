@@ -37,6 +37,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Package extension
-        run: npx vsce package -o ./Salesforce-Semantic-DX-${{ env.PUBLISH_VERSION }}.vsix
+        run: npx vsce package -o ./Salesforce-Tableau-Semantics-${{ env.PUBLISH_VERSION }}.vsix
       - name: Publish to Open VSX Registry
-        run: npx ovsx publish ./Salesforce-Semantic-DX-${{ env.PUBLISH_VERSION }}.vsix --skip-duplicate -p "${{ env.OVSX_PAT }}"
+        run: npx ovsx publish ./Salesforce-Tableau-Semantics-${{ env.PUBLISH_VERSION }}.vsix --skip-duplicate -p "${{ env.OVSX_PAT }}"

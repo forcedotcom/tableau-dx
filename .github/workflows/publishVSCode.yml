@@ -37,11 +37,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Package extension
-        run: npx vsce package -o ./Salesforce-Semantic-DX-${{ env.PUBLISH_VERSION }}.vsix
+        run: npx vsce package -o ./Salesforce-Tableau-Semantics-${{ env.PUBLISH_VERSION }}.vsix
       - name: Publish to VS Code Marketplace
-        run: npx vsce publish --skip-duplicate --pat "${{ env.VSCE_PERSONAL_ACCESS_TOKEN }}" --packagePath ./Salesforce-Semantic-DX-${{ env.PUBLISH_VERSION }}.vsix
+        run: npx vsce publish --skip-duplicate --pat "${{ env.VSCE_PERSONAL_ACCESS_TOKEN }}" --packagePath ./Salesforce-Tableau-Semantics-${{ env.PUBLISH_VERSION }}.vsix
       - name: Upload vsix to GitHub Release
         if: github.event_name == 'release'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload "v${{ env.PUBLISH_VERSION }}" ./Salesforce-Semantic-DX-${{ env.PUBLISH_VERSION }}.vsix --clobber
+        run: gh release upload "v${{ env.PUBLISH_VERSION }}" ./Salesforce-Tableau-Semantics-${{ env.PUBLISH_VERSION }}.vsix --clobber
