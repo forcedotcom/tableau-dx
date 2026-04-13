@@ -1,0 +1,22 @@
+name: Unpublish Old Extension (Salesforce-Semantic-DX)
+on:
+  workflow_dispatch:
+
+jobs:
+  unpublish:
+    runs-on: ubuntu-latest
+    environment: publish
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ vars.NODE_VERSION || 'lts/*' }}
+      - name: Install vsce and ovsx
+        run: npm install -g @vscode/vsce ovsx
+      - name: Unpublish from VS Code Marketplace
+        env:
+          VSCE_PERSONAL_ACCESS_TOKEN: ${{ secrets.VSCE_PERSONAL_ACCESS_TOKEN }}
+        run: npx vsce unpublish salesforce.Salesforce-Semantic-DX --force -p "${{ env.VSCE_PERSONAL_ACCESS_TOKEN }}"
+      - name: Unpublish from Open VSX Registry
+        env:
+          OVSX_PAT: ${{ secrets.IDEE_OVSX_PAT }}
+        run: npx ovsx delete salesforce.Salesforce-Semantic-DX -p "${{ env.OVSX_PAT }}"
