@@ -19,4 +19,8 @@ jobs:
       - name: Unpublish from Open VSX Registry
         env:
           OVSX_PAT: ${{ secrets.IDEE_OVSX_PAT }}
-        run: npx ovsx delete salesforce.Salesforce-Semantic-DX -p "${{ env.OVSX_PAT }}"
+        run: |
+          curl -s -X DELETE \
+            -H "Authorization: Bearer $OVSX_PAT" \
+            "https://open-vsx.org/api/-/namespace/salesforce/extension/Salesforce-Semantic-DX" \
+            -w "\nHTTP Status: %{http_code}\n"
