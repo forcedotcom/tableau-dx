@@ -401,25 +401,6 @@ export function createSidebarModule(ctx: ErdContext): SidebarModule {
     html += '</tbody></table>';
     body.innerHTML = html;
     if (rowCountEl) rowCountEl.textContent = rows.length + ' rows';
-
-    const tooltip = ctx.root.querySelector('#cellTooltip') as HTMLElement | null;
-    if (tooltip) {
-      body.addEventListener('mouseenter', (e: MouseEvent) => {
-        const cell = (e.target as HTMLElement).closest('.cell-text') as HTMLElement | null;
-        if (!cell || cell.scrollWidth <= cell.clientWidth) return;
-        tooltip.textContent = cell.textContent || '';
-        const rect = cell.getBoundingClientRect();
-        tooltip.style.left = rect.left + 'px';
-        tooltip.style.top = (rect.top - 6) + 'px';
-        tooltip.style.transform = 'translateY(-100%)';
-        tooltip.classList.add('visible');
-      }, true);
-      body.addEventListener('mouseleave', (e: MouseEvent) => {
-        const cell = (e.target as HTMLElement).closest('.cell-text') as HTMLElement | null;
-        if (!cell) return;
-        tooltip.classList.remove('visible');
-      }, true);
-    }
   }
 
   function closeResults(): void {

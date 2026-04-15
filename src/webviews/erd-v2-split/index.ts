@@ -16,6 +16,7 @@ import { createLvErdModule } from './lvErd';
 import { createSidebarModule } from './sidebar';
 import { createHistoryModule } from './history';
 import { createInteractionModule } from './interaction';
+import { initTooltip } from './tooltip';
 
 export function initErd(root: HTMLElement, data: ErdData, embeddedMode: boolean = false): void {
   // ── Acquire VSCode API (or no-op adapter for browser) ─────────────────────
@@ -218,6 +219,9 @@ export function initErd(root: HTMLElement, data: ErdData, embeddedMode: boolean 
 
   const historyModule = createHistoryModule(ctx);
   ctx.toggleHistoryPanel = () => historyModule.toggleHistoryPanel();
+
+  // ── Global instant tooltips (replaces native title delay) ─────────────────
+  initTooltip(root);
 
   // ── Setup embedded mode floating button ───────────────────────────────────
   interactionModule.setupEmbeddedMode();

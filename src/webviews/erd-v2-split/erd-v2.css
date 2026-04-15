@@ -647,15 +647,15 @@
       display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
       max-width: 250px;
     }
-    .cell-tooltip {
-      position: fixed; z-index: 9999; display: none;
+    .ui-tooltip {
+      position: absolute; z-index: 9999; display: none;
       background: #16325c; color: #fff; font-size: 12px; line-height: 1.4;
-      padding: 8px 12px; border-radius: 6px; white-space: pre-wrap; word-break: break-word;
-      max-width: 350px; min-width: 80px; width: max-content;
+      padding: 6px 10px; border-radius: 5px; white-space: pre-wrap; word-break: break-word;
+      max-width: 300px; width: max-content;
       box-shadow: 0 4px 14px rgba(0,0,0,0.25);
       pointer-events: none;
     }
-    .cell-tooltip.visible { display: block; }
+    .ui-tooltip.visible { display: block; }
     .results-table tr:hover td { background: #f3f3f3; }
     .results-error { padding: 20px; color: #c23934; text-align: center; }
     .results-loading { padding: 40px; text-align: center; color: #706e6b; }
