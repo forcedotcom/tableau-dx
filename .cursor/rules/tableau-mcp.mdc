@@ -10,7 +10,7 @@ You have access to a **Tableau Next MCP server** that lets you interact with Sal
 
 ## Local Model File Structure
 
-Semantic models retrieved by the **Salesforce Tableau Semantics** extension are stored as a folder of split JSON files under `Semantic Models/<Model Label>/`:
+Semantic models retrieved by the **Salesforce Semantic DX** extension are stored as a folder of split JSON files under `Semantic Models/<Model Label>/`:
 
 | File | Contents | Wrapper key |
 |---|---|---|
