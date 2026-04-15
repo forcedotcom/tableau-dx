@@ -12,6 +12,7 @@ import { createLayoutModule } from './layout';
 import { createGroupsModule } from './groups';
 import { createRenderModule } from './render';
 import { createDrilldownModule } from './drilldown';
+import { createLvErdModule } from './lvErd';
 import { createSidebarModule } from './sidebar';
 import { createHistoryModule } from './history';
 import { createInteractionModule } from './interaction';
@@ -105,6 +106,10 @@ export function initErd(root: HTMLElement, data: ErdData, embeddedMode: boolean 
     EDGE_OBJ_SIZE: 100,
     GRID_CELL: { w: 170, h: 200 },
 
+    lvErdTarget: null,
+    lvErdPositions: {},
+    lvErdElements: {},
+
     drilldownTarget: null,
     currentQueryNode: null,
     currentSidebarNode: null,
@@ -157,6 +162,9 @@ export function initErd(root: HTMLElement, data: ErdData, embeddedMode: boolean 
     closeSidebar: () => {},
     enterDrillDown: (_n) => {},
     exitDrillDown: () => {},
+    enterLvErd: (_n) => {},
+    exitLvErd: () => {},
+    drawLvErdEdges: () => {},
     renderTopLevel: (_force) => {},
     fitToViewport: () => {},
     updateView: () => {},
@@ -200,6 +208,9 @@ export function initErd(root: HTMLElement, data: ErdData, embeddedMode: boolean 
 
   const drilldownModule = createDrilldownModule(ctx);
   // drawDrillEdges, enterDrillDown, exitDrillDown set on ctx by module
+
+  const lvErdModule = createLvErdModule(ctx);
+  // enterLvErd, exitLvErd, drawLvErdEdges set on ctx by module
 
   const sidebarModule = createSidebarModule(ctx);
   ctx.openSidebar = (node) => sidebarModule.openSidebar(node);
@@ -349,7 +360,10 @@ export function initErd(root: HTMLElement, data: ErdData, embeddedMode: boolean 
     const action = target.getAttribute('data-action');
     const arg = target.getAttribute('data-arg');
     switch (action) {
-      case 'exitDrillDown':          ctx.exitDrillDown(); break;
+      case 'exitDrillDown':
+        if (ctx.currentView === 'lvErd') ctx.exitLvErd();
+        else ctx.exitDrillDown();
+        break;
       case 'toggleHistoryPanel':     ctx.toggleHistoryPanel(); break;
       case 'zoomIn':                 interactionModule.zoomIn(); break;
       case 'zoomOut':                interactionModule.zoomOut(); break;

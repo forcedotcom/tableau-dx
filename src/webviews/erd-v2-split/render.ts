@@ -53,11 +53,12 @@ export function createRenderModule(ctx: ErdContext): RenderModule {
 
   function fitToViewport(): void {
     const isDrill = ctx.currentView === 'drilldown';
-    const posMap = isDrill ? ctx.ddPositions : ctx.nodePositions;
+    const isLvErd = ctx.currentView === 'lvErd';
+    const posMap = isLvErd ? ctx.lvErdPositions : isDrill ? ctx.ddPositions : ctx.nodePositions;
     if (Object.keys(posMap).length === 0) return;
     const positions = Object.values(posMap);
     const xs = positions.map(p => p.x), ys = positions.map(p => p.y);
-    const itemSize = isDrill ? ctx.ENTITY_SIZE : ctx.NODE_SIZE;
+    const itemSize = isDrill ? ctx.ENTITY_SIZE : isLvErd ? ctx.NODE_SIZE : ctx.NODE_SIZE;
     const minX = Math.min(...xs), maxX = Math.max(...xs) + itemSize + 40;
     const minY = Math.min(...ys), maxY = Math.max(...ys) + itemSize + 40;
     const w = maxX - minX, h = maxY - minY;
@@ -274,7 +275,7 @@ export function createRenderModule(ctx: ErdContext): RenderModule {
     const relBtn = ctx.root.querySelector('#relToggleBtn') as HTMLElement | null;
     if (gridBtn) gridBtn.classList.toggle('route-active', ctx.layoutMode === 'grid');
     if (forceBtn) forceBtn.classList.toggle('route-active', ctx.layoutMode === 'force');
-    if (autoBtn) autoBtn.style.display = (ctx.layoutMode === 'grid' && ctx.currentView !== 'drilldown') ? 'none' : '';
+    if (autoBtn) autoBtn.style.display = (ctx.layoutMode === 'grid' && ctx.currentView !== 'drilldown' && ctx.currentView !== 'lvErd') ? 'none' : '';
     if (relBtn) {
       relBtn.classList.toggle('route-active', !ctx.hideRelationships);
       relBtn.title = ctx.hideRelationships ? 'Show Connectors' : 'Hide Connectors';
@@ -367,7 +368,14 @@ export function createRenderModule(ctx: ErdContext): RenderModule {
       if (ctx.layoutMode === 'grid') {
         div.style.cursor = 'pointer';
         div.addEventListener('click', e => { e.stopPropagation(); ctx.openSidebar(n); });
-        div.addEventListener('dblclick', e => { e.stopPropagation(); e.preventDefault(); ctx.enterDrillDown(n); });
+        div.addEventListener('dblclick', e => {
+          e.stopPropagation(); e.preventDefault();
+          if (n.type === 'logicalView' && ((n as any).lvInnerObjects?.length || (n as any).lvUnions?.length)) {
+            ctx.enterLvErd(n);
+          } else {
+            ctx.enterDrillDown(n);
+          }
+        });
         div.addEventListener('mouseenter', () => { topLevelHoverIn(n.id); });
         div.addEventListener('mouseleave', () => { topLevelHoverOut(); });
       } else {
@@ -384,7 +392,14 @@ export function createRenderModule(ctx: ErdContext): RenderModule {
           const dist = Math.sqrt(Math.pow(e.clientX - clickStartPos.x, 2) + Math.pow(e.clientY - clickStartPos.y, 2));
           if (dur < 300 && dist < 10) ctx.openSidebar(n);
         });
-        div.addEventListener('dblclick', e => { e.stopPropagation(); e.preventDefault(); ctx.enterDrillDown(n); });
+        div.addEventListener('dblclick', e => {
+          e.stopPropagation(); e.preventDefault();
+          if (n.type === 'logicalView' && ((n as any).lvInnerObjects?.length || (n as any).lvUnions?.length)) {
+            ctx.enterLvErd(n);
+          } else {
+            ctx.enterDrillDown(n);
+          }
+        });
         div.addEventListener('mouseenter', () => { topLevelHoverIn(n.id); });
         div.addEventListener('mouseleave', () => { topLevelHoverOut(); });
       }
@@ -418,6 +433,7 @@ export function createRenderModule(ctx: ErdContext): RenderModule {
       else (el as HTMLElement).classList.remove('edge-label-classic');
     });
     if (ctx.currentView === 'drilldown') ctx.drawDrillEdges();
+    else if (ctx.currentView === 'lvErd') ctx.drawLvErdEdges();
     else if (ctx.currentView === 'grouped') ctx.redrawGroupEdges();
     else drawEdges();
   }
@@ -428,6 +444,11 @@ export function createRenderModule(ctx: ErdContext): RenderModule {
     if (ctx.currentView === 'drilldown') {
       if (ctx.hideRelationships) ctx.svg.innerHTML = '';
       else ctx.drawDrillEdges();
+    } else if (ctx.currentView === 'lvErd') {
+      if (ctx.hideRelationships) {
+        ctx.svg.innerHTML = '';
+        ctx.root.querySelectorAll('.lv-erd-edge-label').forEach(el => el.remove());
+      } else ctx.drawLvErdEdges();
     } else if (ctx.currentView === 'top') {
       if (ctx.hideRelationships) {
         ctx.svg.innerHTML = '';

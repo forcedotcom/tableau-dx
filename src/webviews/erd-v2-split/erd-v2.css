@@ -641,8 +641,21 @@
     .results-header .close-btn:hover { color: #080707; }
     .results-body { flex: 1; overflow: auto; padding: 0; }
     .results-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-    .results-table th { background: #f3f3f3; color: #706e6b; font-weight: 600; text-align: left; padding: 10px 16px; border-bottom: 1px solid #dddbda; position: sticky; top: 0; text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px; }
-    .results-table td { padding: 10px 16px; border-bottom: 1px solid #e5e5e5; color: #080707; }
+    .results-table th { background: #f3f3f3; color: #706e6b; font-weight: 600; text-align: left; padding: 10px 16px; border-bottom: 1px solid #dddbda; position: sticky; top: 0; z-index: 2; text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px; }
+    .results-table td { padding: 10px 16px; border-bottom: 1px solid #e5e5e5; color: #080707; max-width: 250px; }
+    .results-table td .cell-text {
+      display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      max-width: 250px;
+    }
+    .cell-tooltip {
+      position: fixed; z-index: 9999; display: none;
+      background: #16325c; color: #fff; font-size: 12px; line-height: 1.4;
+      padding: 8px 12px; border-radius: 6px; white-space: pre-wrap; word-break: break-word;
+      max-width: 350px; min-width: 80px; width: max-content;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+      pointer-events: none;
+    }
+    .cell-tooltip.visible { display: block; }
     .results-table tr:hover td { background: #f3f3f3; }
     .results-error { padding: 20px; color: #c23934; text-align: center; }
     .results-loading { padding: 40px; text-align: center; color: #706e6b; }
@@ -1044,6 +1057,38 @@
     .list-hover-related .entity-circle {
       box-shadow: 0 0 0 3px rgba(0,112,210,0.5), 0 0 14px rgba(0,112,210,0.25) !important;
       transform: scale(1.08);
+    }
+
+    /* ── LV ERD / Union hub styles ─────────────────────────────── */
+    .lv-union-hub {
+      position: absolute; cursor: pointer; z-index: 5;
+      display: flex; flex-direction: column; align-items: center;
+      width: 80px;
+      transition: left 0.5s ease, top 0.5s ease;
+    }
+    .union-hub-circle {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: linear-gradient(135deg, #b388ff, #7c4dff);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 12px rgba(124,77,255,0.3);
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+    .lv-union-hub:hover .union-hub-circle {
+      box-shadow: 0 6px 18px rgba(124,77,255,0.45);
+      transform: scale(1.05);
+    }
+    .union-hub-label {
+      color: #ffffff; font-size: 13px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .lv-union-hub .node-label {
+      margin-top: 8px; text-align: center;
+    }
+    .lv-union-hub .node-title {
+      font-size: 11px; color: #706e6b; font-weight: 500;
+    }
+    .lv-erd-counts {
+      font-size: 10px; color: #939393; margin-top: 2px; text-align: center;
     }
 
     .group-entity-appear {

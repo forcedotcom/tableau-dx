@@ -3,6 +3,9 @@
 ## Unreleased
 - Added "(Beta)" to extension display name
 - Added Logical View inner ERD: double-click a logical view to see its internal structure (HardJoin shows mini-ERD with joins, Union shows menorah layout)
+- Fixed preview data for inner objects inside logical views (queries now use logical view as table context)
+- Improved preview data table: long cell values truncate with ellipsis and show tooltip only when text is clipped
+- Fixed preview data table header transparency: column headers no longer show row content when scrolling
 - Renamed extension from Salesforce Semantic DX to Salesforce Tableau Semantics
 - Updated README: renamed title to Salesforce Semantic DX, fixed license to BSD-3-Clause, added missing commands (clone, extend, duplicate, custom SQL, field visibility, restart MCP), updated ERD docs with drill-down/layout/unmapped/base-model features, added new sections for Cloning, Custom SQL, Field Visibility, and MCP Server, updated project structure to match codebase, removed grouping references
 - Restricted Deploy Model command to model.json only (always deploys the full model)

@@ -333,11 +333,20 @@ export function createSidebarModule(ctx: ErdContext): SidebarModule {
     btn.disabled = true; btn.textContent = 'Querying...';
     const dims = (ctx.currentQueryNode.dimensions || []).filter(d => !(d as any).unmapped);
     const meas = (ctx.currentQueryNode.measurements || []).filter(m => !(m as any).unmapped);
+    const lvParent = (ctx.currentQueryNode as any).lvParentApiName as string | undefined;
     const fields = [
       ...dims.map(d => ({ apiName: d.apiName, label: d.label, dataType: d.dataType, dataObjectFieldName: d.dataObjectFieldName, tableApiName: ctx.currentQueryNode!.id, fieldType: 'dimension' })),
       ...meas.map(m => ({ apiName: m.apiName, label: m.label, dataType: m.dataType, dataObjectFieldName: (m as any).dataObjectFieldName, tableApiName: ctx.currentQueryNode!.id, fieldType: 'measurement' })),
     ];
-    ctx.vscode.postMessage({ command: 'runSemanticQuery', nodeId: ctx.currentQueryNode.id, nodeLabel: ctx.currentQueryNode.label, nodeType: ctx.currentQueryNode.type, dataObjectName: ctx.currentQueryNode.dataObjectName || ctx.currentQueryNode.id, fields });
+    ctx.vscode.postMessage({
+      command: 'runSemanticQuery',
+      nodeId: ctx.currentQueryNode.id,
+      nodeLabel: ctx.currentQueryNode.label,
+      nodeType: ctx.currentQueryNode.type,
+      dataObjectName: ctx.currentQueryNode.dataObjectName || ctx.currentQueryNode.id,
+      lvParentApiName: lvParent || undefined,
+      fields,
+    });
     (ctx.root.querySelector('#resultsBody') as HTMLElement).innerHTML = '<div class="results-loading">Running query...</div>';
     (ctx.root.querySelector('#resultsPanel') as HTMLElement).classList.add('open');
   }
@@ -380,13 +389,37 @@ export function createSidebarModule(ctx: ErdContext): SidebarModule {
     rows.forEach((r: any) => {
       html += '<tr>';
       r.values.forEach((v: any) => {
-        html += '<td>' + (v === null ? '<em style="color:#706e6b">null</em>' : escapeHtmlStr(String(v))) + '</td>';
+        if (v === null) {
+          html += '<td><em style="color:#706e6b">null</em></td>';
+        } else {
+          const str = String(v);
+          html += '<td><span class="cell-text">' + escapeHtmlStr(str) + '</span></td>';
+        }
       });
       html += '</tr>';
     });
     html += '</tbody></table>';
     body.innerHTML = html;
     if (rowCountEl) rowCountEl.textContent = rows.length + ' rows';
+
+    const tooltip = ctx.root.querySelector('#cellTooltip') as HTMLElement | null;
+    if (tooltip) {
+      body.addEventListener('mouseenter', (e: MouseEvent) => {
+        const cell = (e.target as HTMLElement).closest('.cell-text') as HTMLElement | null;
+        if (!cell || cell.scrollWidth <= cell.clientWidth) return;
+        tooltip.textContent = cell.textContent || '';
+        const rect = cell.getBoundingClientRect();
+        tooltip.style.left = rect.left + 'px';
+        tooltip.style.top = (rect.top - 6) + 'px';
+        tooltip.style.transform = 'translateY(-100%)';
+        tooltip.classList.add('visible');
+      }, true);
+      body.addEventListener('mouseleave', (e: MouseEvent) => {
+        const cell = (e.target as HTMLElement).closest('.cell-text') as HTMLElement | null;
+        if (!cell) return;
+        tooltip.classList.remove('visible');
+      }, true);
+    }
   }
 
   function closeResults(): void {

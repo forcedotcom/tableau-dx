@@ -198,7 +198,18 @@ function showERDV2Panel(
             if (!base.currency) { base.currency = { useOrgDefault: true }; }
             semanticModel = base;
           } else {
-            const queriedDmo = rawModel.dataObjects.find(d => d.apiName === message.nodeId);
+            let queriedDmo = rawModel.dataObjects.find(d => d.apiName === message.nodeId);
+            if (!queriedDmo && message.lvParentApiName) {
+              for (const lv of rawModel.logicalViews) {
+                queriedDmo = (lv.semanticDataObjects ?? []).find((d: any) => d.apiName === message.nodeId);
+                if (queriedDmo) break;
+                for (const u of (lv.semanticUnions ?? [])) {
+                  queriedDmo = (u.semanticDataObjects ?? []).find((d: any) => d.apiName === message.nodeId);
+                  if (queriedDmo) break;
+                }
+                if (queriedDmo) break;
+              }
+            }
             if (!queriedDmo) {
               throw new Error(`Data object "${message.nodeId}" not found in local model.`);
             }

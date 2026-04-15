@@ -10,7 +10,7 @@
 export type DiffStatus = 'added' | 'modified' | 'removed' | 'unchanged' | 'modified-children';
 export type NodeType = 'dataObject' | 'logicalView';
 export type DataObjectType = 'Dmo' | 'Dlo' | 'Cio';
-export type ViewMode = 'top' | 'grouped' | 'listGrouped' | 'drilldown';
+export type ViewMode = 'top' | 'grouped' | 'listGrouped' | 'drilldown' | 'lvErd';
 export type RoutingMode = 'classic' | 'orthogonal' | 'curved' | 'straight';
 export type LayoutMode = 'force' | 'grid';
 export type HistoryViewMode = 'view' | 'compare';
@@ -73,6 +73,35 @@ export interface GroupingField {
   diffStatus?: DiffStatus | null;
 }
 
+// ─── Logical View inner structure ─────────────────────────────────────────────
+
+export interface LvInnerObject {
+  apiName: string;
+  label: string;
+  dimCount: number;
+  measCount: number;
+  dataObjectType?: string;
+  dimensions: DimField[];
+  measurements: MeasField[];
+}
+
+export interface LvInnerRelationship {
+  apiName: string;
+  label: string;
+  from: string;
+  to: string;
+  cardinality: string;
+  joinType: string;
+  fromField: string;
+  toField: string;
+}
+
+export interface LvUnion {
+  apiName: string;
+  label: string;
+  objects: LvInnerObject[];
+}
+
 // ─── Core ERD data ────────────────────────────────────────────────────────────
 
 export interface ErdNode {
@@ -94,6 +123,11 @@ export interface ErdNode {
   relatedHierarchies: HierarchyField[];
   relatedMetrics: MetricField[];
   relatedGroupings: GroupingField[];
+  lvInnerObjects?: LvInnerObject[];
+  lvInnerRelationships?: LvInnerRelationship[];
+  lvUnions?: LvUnion[];
+  lvIsUnion?: boolean;
+  lvParentApiName?: string;
 }
 
 export interface ErdEdge {
@@ -331,6 +365,11 @@ export interface ErdContext {
   wheelActive: boolean;
   wheelTimer: ReturnType<typeof setTimeout> | null;
 
+  // ── LV ERD state ──
+  lvErdTarget: ErdNode | null;
+  lvErdPositions: Record<string, Position>;
+  lvErdElements: Record<string, HTMLElement>;
+
   // ── Cross-module function references (set during init) ──
   drawEdges(): void;
   drawDrillEdges(): void;
@@ -338,6 +377,9 @@ export interface ErdContext {
   closeSidebar(): void;
   enterDrillDown(node: ErdNode): void;
   exitDrillDown(): void;
+  enterLvErd(node: ErdNode): void;
+  exitLvErd(): void;
+  drawLvErdEdges(): void;
   renderTopLevel(forceRelayout?: boolean): void;
   fitToViewport(): void;
   updateView(): void;

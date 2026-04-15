@@ -120,6 +120,59 @@ export function getERDV2WebviewContent(
         lvMeas.push({ apiName: m.apiName, label: m.label, dataType: m.dataType ?? 'Number', dataObjectFieldName: m.dataObjectFieldName ?? m.apiName, sourceObject: sdo.label || sdo.apiName, unmapped: !!(m as any).unmapped });
       });
     });
+
+    const buildInnerObject = (sdo: any) => ({
+      apiName: sdo.apiName,
+      label: sdo.label || sdo.apiName,
+      dataObjectType: sdo.dataObjectType || 'Dmo',
+      dimCount: (sdo.semanticDimensions ?? []).length,
+      measCount: (sdo.semanticMeasurements ?? []).length,
+      dimensions: (sdo.semanticDimensions ?? []).map((d: any) => ({
+        apiName: d.apiName, label: d.label, dataType: d.dataType ?? 'Text',
+        dataObjectFieldName: d.dataObjectFieldName ?? d.apiName,
+      })),
+      measurements: (sdo.semanticMeasurements ?? []).map((m: any) => ({
+        apiName: m.apiName, label: m.label, dataType: m.dataType ?? 'Number',
+        dataObjectFieldName: m.dataObjectFieldName ?? m.apiName,
+      })),
+    });
+
+    const lvInnerObjects = (lv.semanticDataObjects ?? []).map(buildInnerObject);
+
+    const lvInnerRelationships = (lv.semanticRelationships ?? []).map(rel => {
+      const criteria = rel.criteria?.[0];
+      return {
+        apiName: rel.apiName,
+        label: rel.label,
+        from: rel.leftSemanticDefinitionApiName,
+        to: rel.rightSemanticDefinitionApiName,
+        cardinality: rel.cardinality || 'Unspecified',
+        joinType: rel.joinType || 'Inner',
+        fromField: criteria?.leftSemanticFieldApiName ?? '',
+        toField: criteria?.rightSemanticFieldApiName ?? '',
+      };
+    });
+
+    const hasUnions = (lv.semanticUnions ?? []).length > 0;
+    const lvUnions = (lv.semanticUnions ?? []).map(u => ({
+      apiName: u.apiName,
+      label: u.label,
+      objects: (u.semanticDataObjects ?? []).map(buildInnerObject),
+    }));
+
+    if (hasUnions) {
+      lvUnions.forEach(u => {
+        u.objects.forEach(obj => {
+          (obj.dimensions ?? []).forEach((d: any) => {
+            lvDims.push({ ...d, sourceObject: obj.label || obj.apiName });
+          });
+          (obj.measurements ?? []).forEach((m: any) => {
+            lvMeas.push({ ...m, sourceObject: obj.label || obj.apiName });
+          });
+        });
+      });
+    }
+
     return {
     id: lv.apiName,
     label: lv.label,
@@ -130,6 +183,10 @@ export function getERDV2WebviewContent(
     unmapped: !!(lv as any).unmapped,
     dimCount: lvDims.length, measCount: lvMeas.length,
     dimensions: lvDims, measurements: lvMeas,
+    lvInnerObjects,
+    lvInnerRelationships,
+    lvUnions: hasUnions ? lvUnions : undefined,
+    lvIsUnion: hasUnions,
     relatedCalcDims: lv.relatedCalculatedDimensions.map(c => ({
       apiName: c.apiName, label: c.label, expression: c.expression,
       dataType: c.dataType ?? 'Calculated', placement: c.placement,
