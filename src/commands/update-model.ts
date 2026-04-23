@@ -51,6 +51,9 @@ export async function updateModelCommand(uri: vscode.Uri) {
     if (modelData.queryUnrelatedDataObjects) {
       payload.queryUnrelatedDataObjects = modelData.queryUnrelatedDataObjects as string;
     }
+    if (modelData.businessPreferences) {
+      payload.businessPreferences = modelData.businessPreferences as string;
+    }
 
     const entityFiles: Record<string, keyof UpdatePayload> = {
       'dataObjects.json': 'semanticDataObjects',

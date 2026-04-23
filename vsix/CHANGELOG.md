@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Fixed union logical view drill: double-clicking a union LV after returning from a drilldown now correctly opens the menorah layout instead of an empty drilldown
 - Added "(Beta)" to extension display name
 - Added Logical View inner ERD: double-click a logical view to see its internal structure (HardJoin shows mini-ERD with joins, Union shows menorah layout)
 - Fixed preview data for inner objects inside logical views (queries now use logical view as table context)

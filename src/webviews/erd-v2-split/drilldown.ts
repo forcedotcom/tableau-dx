@@ -865,7 +865,14 @@ export function createDrilldownModule(ctx: ErdContext): DrilldownModule {
           const dist = Math.sqrt((e.clientX - clickStartPos2.x) ** 2 + (e.clientY - clickStartPos2.y) ** 2);
           if (dur < 300 && dist < 10) { ctx.openSidebar(n); }
         });
-        div.addEventListener('dblclick', (e) => { e.stopPropagation(); e.preventDefault(); enterDrillDown(n); });
+        div.addEventListener('dblclick', (e) => {
+          e.stopPropagation(); e.preventDefault();
+          if (n.type === 'logicalView' && ((n as any).lvInnerObjects?.length || (n as any).lvUnions?.length)) {
+            ctx.enterLvErd(n);
+          } else {
+            enterDrillDown(n);
+          }
+        });
         div.addEventListener('mouseenter', () => {
           const renderModule = (ctx as any)._renderModule;
           if (renderModule) renderModule.topLevelHoverIn(n.id);

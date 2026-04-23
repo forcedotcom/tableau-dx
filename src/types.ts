@@ -119,6 +119,7 @@ export interface UpdatePayload {
   dataspace?: string;
   label?: string;
   queryUnrelatedDataObjects?: string;
+  businessPreferences?: string;
   // Entity arrays
   semanticDataObjects?: unknown[];
   semanticRelationships?: unknown[];
