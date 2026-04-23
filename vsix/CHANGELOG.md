@@ -1,14 +1,16 @@
 # Changelog
 
 ## Unreleased
-- Fixed union logical view drill: double-clicking a union LV after returning from a drilldown now correctly opens the menorah layout instead of an empty drilldown
-- Added "(Beta)" to extension display name
+
+## 0.0.20 - 2026-04-23
 - Added Logical View inner ERD: double-click a logical view to see its internal structure (HardJoin shows mini-ERD with joins, Union shows menorah layout)
 - Fixed preview data for inner objects inside logical views (queries now use logical view as table context)
 - Added instant tooltips across the entire UI (toolbar buttons, legend items, preview data cells) — replaces slow native browser tooltips
 - Fixed preview data table header transparency: column headers no longer show row content when scrolling
+- Fixed union logical view drill: double-clicking a union LV after returning from a drilldown now correctly opens the menorah layout instead of an empty drilldown
+- Added "(Beta)" to extension display name
 - Renamed extension from Salesforce Semantic DX to Salesforce Tableau Semantics
-- Updated README: renamed title to Salesforce Semantic DX, fixed license to BSD-3-Clause, added missing commands (clone, extend, duplicate, custom SQL, field visibility, restart MCP), updated ERD docs with drill-down/layout/unmapped/base-model features, added new sections for Cloning, Custom SQL, Field Visibility, and MCP Server, updated project structure to match codebase, removed grouping references
+- Updated README: renamed title, fixed license to BSD-3-Clause, added missing commands, updated ERD docs, added new sections
 - Restricted Deploy Model command to model.json only (always deploys the full model)
 - Added extension icon (icon.png) for Marketplace and Extensions sidebar
 - Sanitize semantic model folder names to block path traversal (`..`, separators) when exporting or creating model folders
