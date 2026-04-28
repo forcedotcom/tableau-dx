@@ -45,9 +45,6 @@ import {
   sendException,
   disposeTelemetry,
 } from './telemetry';
-import { McpServerManager } from './mcp/manager';
-
-let mcpManager: McpServerManager | null = null;
 
 export async function activate(context: vscode.ExtensionContext) {
   const activationStart = performance.now();
@@ -76,12 +73,6 @@ export async function activate(context: vscode.ExtensionContext) {
   await initTelemetry(context);
   sendActivationEvent(activationStart);
 
-  mcpManager = new McpServerManager(context);
-  context.subscriptions.push(mcpManager);
-  mcpManager.start().catch((err) => {
-    console.error('MCP server registration failed:', err);
-  });
-
   function trackedCommand(
     commandId: string,
     handler: (...args: unknown[]) => Promise<void>
@@ -97,14 +88,6 @@ export async function activate(context: vscode.ExtensionContext) {
       }
     });
   }
-
-  const restartMcpDisposable = trackedCommand(
-    'semanticLayer.restartMcp',
-    async () => {
-      await mcpManager?.restart();
-      vscode.window.showInformationMessage('Tableau Next MCP server config updated.');
-    }
-  );
 
   const showOrgInfoDisposable = trackedCommand(
     'semanticLayer.showOrgInfo',
@@ -219,7 +202,6 @@ export async function activate(context: vscode.ExtensionContext) {
   // );
 
   context.subscriptions.push(
-    restartMcpDisposable,
     showOrgInfoDisposable,
     listModelsDisposable,
     exportToFolderDisposable,
@@ -245,10 +227,6 @@ export async function activate(context: vscode.ExtensionContext) {
 }
 
 export function deactivate() {
-  if (mcpManager) {
-    mcpManager.dispose();
-    mcpManager = null;
-  }
   sendDeactivationEvent();
   disposeTelemetry();
 }

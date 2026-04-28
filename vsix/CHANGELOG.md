@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Removed embedded MCP server integration
 
 ## 0.0.20 - 2026-04-23
 - Added Logical View inner ERD: double-click a logical view to see its internal structure (HardJoin shows mini-ERD with joins, Union shows menorah layout)

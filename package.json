@@ -84,10 +84,6 @@
         "title": "Tableau Semantic: Auto-Generate Groups"
       },
       {
-        "command": "semanticLayer.restartMcp",
-        "title": "Tableau Semantic: Restart MCP Server"
-      },
-      {
         "command": "semanticLayer.duplicateModel",
         "title": "Tableau Semantic: Clone and Deploy Local Model"
       },
@@ -163,11 +159,7 @@
     "build": "npm run build:ext && npm run build:erd",
     "build:ext": "node esbuild.config.js",
     "build:erd": "esbuild src/webviews/erd-v2-split/index.ts --bundle --format=esm --outfile=dist/erd-v2.js",
-    "compile": "tsc -p ./ && npm run copy:mcp-assets",
-    "copy:mcp-assets": "npm run copy:mcp-server && npm run copy:mcp-rule",
-    "copy:mcp-rule": "node -e \"const fs=require('fs'),p=require('path');const src=p.join(__dirname,'src','mcp','tableau-mcp-rule.md'),dest=p.join(__dirname,'out','mcp');fs.mkdirSync(dest,{recursive:true});fs.copyFileSync(src,p.join(dest,'tableau-mcp-rule.md'));console.log('Copied MCP rule template to out/mcp/')\"",
-    "build:mcp-server": "cd ../tableau-next-mcp && npm run mcp:build:stdio",
-    "copy:mcp-server": "node -e \"const fs=require('fs'),p=require('path');const src=p.resolve(__dirname,'../tableau-next-mcp/packages/tableau-next-mcp/dist/stdio-server.mjs'),dest=p.resolve(__dirname,'out/mcp-server');fs.mkdirSync(dest,{recursive:true});fs.copyFileSync(src,p.join(dest,'stdio-server.mjs'));console.log('Copied MCP server bundle to out/mcp-server/')\"",
+    "compile": "tsc -p ./",
     "watch": "node esbuild.config.js --watch & npm run watch:erd",
     "watch:erd": "esbuild src/webviews/erd-v2-split/index.ts --bundle --format=esm --outfile=dist/erd-v2.js --watch",
     "lint": "eslint src --ext ts",
