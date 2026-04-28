@@ -165,10 +165,10 @@ export async function activate(context: vscode.ExtensionContext) {
     async (...args: unknown[]) => { await validateModelCommand(args[0] as vscode.Uri); }
   );
 
-  const editCustomSQLDisposable = vscode.commands.registerCommand(
+  const editCustomSQLDisposable = trackedCommand(
     'semanticLayer.editCustomSQL',
-    async (sourceUri: vscode.Uri, apiName: string, label: string) => {
-      await editCustomSQLCommand(sourceUri, apiName, label);
+    async (...args: unknown[]) => {
+      await editCustomSQLCommand(args[0] as vscode.Uri, args[1] as string, args[2] as string);
     }
   );
 
@@ -182,9 +182,9 @@ export async function activate(context: vscode.ExtensionContext) {
     new FieldVisibilityCodeLensProvider()
   );
 
-  const toggleFieldVisibilityDisposable = vscode.commands.registerCommand(
+  const toggleFieldVisibilityDisposable = trackedCommand(
     'semanticLayer.toggleFieldVisibility',
-    async (uri?: vscode.Uri) => { await toggleFieldVisibilityCommand(uri); }
+    async (...args: unknown[]) => { await toggleFieldVisibilityCommand(args[0] as vscode.Uri | undefined); }
   );
 
   const fieldVisibilityListeners = registerFieldVisibilityListeners();
