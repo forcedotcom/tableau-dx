@@ -23,7 +23,8 @@ import {
   autoGenerateGroupsCommand,
   duplicateModelCommand,
   cloneRemoteModelCommand,
-  extendRemoteModelCommand
+  extendRemoteModelCommand,
+  validateModelCommand
 } from './commands';
 import { clearPositionCacheCommand, showPositionCacheStatsCommand } from './commands/clear-position-cache';
 import {
@@ -159,6 +160,11 @@ export async function activate(context: vscode.ExtensionContext) {
     async (...args: unknown[]) => { await extendRemoteModelCommand(args[0] as vscode.Uri); }
   );
 
+  const validateModelDisposable = trackedCommand(
+    'semanticLayer.validateModel',
+    async (...args: unknown[]) => { await validateModelCommand(args[0] as vscode.Uri); }
+  );
+
   const editCustomSQLDisposable = vscode.commands.registerCommand(
     'semanticLayer.editCustomSQL',
     async (sourceUri: vscode.Uri, apiName: string, label: string) => {
@@ -216,6 +222,7 @@ export async function activate(context: vscode.ExtensionContext) {
     duplicateModelDisposable,
     cloneRemoteModelDisposable,
     extendRemoteModelDisposable,
+    validateModelDisposable,
     editCustomSQLDisposable,
     codeLensProvider,
     fieldVisibilityCodeLens,

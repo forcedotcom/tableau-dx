@@ -100,6 +100,10 @@
         "title": "Tableau Semantic: Toggle Optional Fields"
       },
       {
+        "command": "semanticLayer.validateModel",
+        "title": "Tableau Semantic: Validate Model"
+      },
+      {
         "command": "semanticLayer.editCustomSQL",
         "title": "Edit Custom SQL"
       }
@@ -125,6 +129,11 @@
           "command": "semanticLayer.updateModel",
           "when": "resourceFilename == model.json",
           "group": "semantic@3"
+        },
+        {
+          "command": "semanticLayer.validateModel",
+          "when": "resourceFilename == model.json",
+          "group": "semantic@3b"
         },
         {
           "command": "semanticLayer.visualizeLocalERDV2",
