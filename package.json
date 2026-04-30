@@ -2,7 +2,7 @@
   "name": "Salesforce-Tableau-Semantics",
   "displayName": "Salesforce Tableau Semantics (Beta)",
   "description": "Retrieve, deploy, visualize, and test Tableau Semantic Layer models from within VS Code",
-  "version": "0.0.20",
+  "version": "0.0.21",
   "publisher": "salesforce",
   "repository": {
     "type": "git",
@@ -104,6 +104,14 @@
         "title": "Tableau Semantic: Validate Model"
       },
       {
+        "command": "semanticLayer.addDataObjects",
+        "title": "Tableau Semantic: Add Data Objects"
+      },
+      {
+        "command": "semanticLayer.createModel",
+        "title": "Tableau Semantic: Create and Deploy New Semantic Model"
+      },
+      {
         "command": "semanticLayer.editCustomSQL",
         "title": "Edit Custom SQL"
       }
@@ -159,18 +167,30 @@
           "command": "semanticLayer.duplicateModel",
           "when": "resourceFilename == model.json",
           "group": "semantic@8"
+        },
+        {
+          "command": "semanticLayer.addDataObjects",
+          "when": "resourceFilename == dataObjects.json",
+          "group": "semantic@9"
+        },
+        {
+          "command": "semanticLayer.createModel",
+          "when": "explorerResourceIsFolder && resourceFilename == 'Semantic Models' || explorerResourceIsFolder && resourcePath =~ /Semantic Models[/\\\\]/",
+          "group": "semantic@4"
         }
       ]
     }
   },
   "scripts": {
     "vscode:prepublish": "npm run build",
-    "build": "npm run build:ext && npm run build:erd",
+    "build": "npm run build:ext && npm run build:erd && npm run build:picker",
     "build:ext": "node esbuild.config.js",
     "build:erd": "esbuild src/webviews/erd-v2-split/index.ts --bundle --format=esm --outfile=dist/erd-v2.js",
+    "build:picker": "esbuild src/webviews/data-objects-picker-split/index.ts --bundle --format=iife --global-name=PickerApp --outfile=dist/data-objects-picker.js",
     "compile": "tsc -p ./",
-    "watch": "node esbuild.config.js --watch & npm run watch:erd",
+    "watch": "node esbuild.config.js --watch & npm run watch:erd & npm run watch:picker",
     "watch:erd": "esbuild src/webviews/erd-v2-split/index.ts --bundle --format=esm --outfile=dist/erd-v2.js --watch",
+    "watch:picker": "esbuild src/webviews/data-objects-picker-split/index.ts --bundle --format=iife --global-name=PickerApp --outfile=dist/data-objects-picker.js --watch",
     "lint": "eslint src --ext ts",
     "package": "vsce package"
   },

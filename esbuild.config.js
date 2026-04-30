@@ -31,6 +31,14 @@ const STATIC_DIR = join(DIST, 'webview-static');
     );
   }
 
+  const pickerStaticFiles = ['data-objects-picker.css'];
+  for (const f of pickerStaticFiles) {
+    copyFileSync(
+      join(__dirname, 'src', 'webviews', 'data-objects-picker-split', f),
+      join(STATIC_DIR, f)
+    );
+  }
+
   // Copy pino's own worker/file transports (they have minimal deps)
   copyFileSync(
     join(__dirname, 'node_modules/pino/lib/worker.js'),

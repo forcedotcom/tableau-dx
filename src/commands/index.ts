@@ -18,3 +18,5 @@ export { duplicateModelCommand } from './duplicate-model';
 export { cloneRemoteModelCommand } from './clone-remote-model';
 export { extendRemoteModelCommand } from './extend-remote-model';
 export { validateModelCommand } from './validate-model';
+export { addDataObjectsCommand } from './add-data-objects';
+export { createModelCommand } from './create-model';

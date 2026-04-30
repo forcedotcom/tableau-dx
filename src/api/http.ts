@@ -9,7 +9,10 @@ import type { ClientRequest } from 'http';
 import * as https from 'https';
 
 /** Inactivity timeout for HTTPS requests (connect + request + response). */
-const API_REQUEST_TIMEOUT_MS = 120000;
+const API_REQUEST_TIMEOUT_MS = 300000;
+
+/** Agent that never reuses sockets (avoids stale keep-alive after host restart). */
+const freshAgent = new https.Agent({ keepAlive: false });
 
 function attachHttpsTimeout(req: ClientRequest, reject: (reason?: unknown) => void): void {
   req.setTimeout(API_REQUEST_TIMEOUT_MS, () => {
@@ -38,6 +41,7 @@ export async function callSalesforceApi(
       hostname: url.hostname,
       path: url.pathname + url.search,
       method: 'GET',
+      agent: freshAgent,
       headers: {
         Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
@@ -98,6 +102,7 @@ export async function putSalesforceApi(
       hostname: url.hostname,
       path: url.pathname,
       method: 'PUT',
+      agent: freshAgent,
       headers: {
         Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
@@ -173,8 +178,9 @@ export async function postSalesforceApi(
     
     const options = {
       hostname: url.hostname,
-      path: url.pathname,
+      path: url.pathname + url.search,
       method: 'POST',
+      agent: freshAgent,
       headers: {
         Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'application/json',

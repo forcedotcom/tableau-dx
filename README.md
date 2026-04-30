@@ -29,6 +29,9 @@ This extension requires a connection to a Salesforce org with **Data Cloud** ena
 | **History** | Git-powered version timeline — compare any two commits side by side. | Right-click `model.json` → *View Model History* |
 | **Clone** | Clone a local or remote model with a new name and API name. | Right-click `model.json` or a `Semantic Models` folder |
 | **Extend** | Create a new model extending a remote base model. | Right-click a `Semantic Models` folder → *Extend and Retrieve* |
+| **Create** | Build a new semantic model from scratch — pick data objects and deploy to the org. | Right-click a `Semantic Models` folder → *Create and Deploy New Semantic Model* |
+| **Add Data Objects** | Browse and add DMO/DLO/CI objects to an existing model with per-field selection. | Right-click `dataObjects.json` → *Add Data Objects* |
+| **Validate** | Send the local model to the server for validation before deploying. | Right-click `model.json` → *Validate Model* |
 | **Custom SQL** | Edit logical view SQL in a formatted editor with auto-sync. | CodeLens button in `logicalViews.json` |
 | **Field Visibility** | Dim system-managed fields to reduce noise in entity JSON files. | CodeLens toggle in entity JSON files |
 | **Org Info** | View connected org details, username, org ID, and API limits. | Command Palette → *Show Org Info* |
@@ -138,6 +141,9 @@ All commands are available from the Command Palette (`Cmd+Shift+P` / `Ctrl+Shift
 | **Clone and Deploy Local Model** | Right-click `model.json` | Create a server-side copy of the local model with a new label and API name, then retrieve it. |
 | **Clone and Retrieve Remote Model** | Right-click a `Semantic Models` folder | Pick a remote model, clone it on the server with a new name, and retrieve it locally. |
 | **Extend and Retrieve Remote Model** | Right-click a `Semantic Models` folder | Create a new model that extends a remote base model, and retrieve it locally. |
+| **Create and Deploy New Semantic Model** | Right-click a `Semantic Models` folder | Build a new model from scratch: enter metadata, browse and select data objects (DMOs, DLOs, CIOs) with per-field control, deploy to the org, and retrieve locally. |
+| **Add Data Objects** | Right-click `dataObjects.json` | Browse available data objects in the org and add them — with per-field selection — to an existing local model. |
+| **Validate Model** | Right-click `model.json` | Send the local model definition to the server's validation endpoint and display any errors in the Output panel. |
 | **Toggle Optional Fields** | Command Palette only | Dim or show system-managed fields (`createdBy`, `createdDate`, etc.) in entity JSON files. |
 | **Edit Custom SQL** | CodeLens in `logicalViews.json` | Open a logical view's custom SQL in a formatted `.sql` editor with auto-sync on save. |
 
@@ -256,6 +262,46 @@ The extension supports three ways to create new models from existing ones:
 - **Extend and Retrieve Remote Model** — right-click a `Semantic Models` folder, pick a remote model to use as a base, and create a new extending model.
 
 After each operation, you're offered quick actions to open the folder, visualize the ERD, or test the model.
+
+---
+
+## Creating a New Semantic Model
+
+The **Create and Deploy New Semantic Model** command lets you build a model from scratch without touching any JSON by hand:
+
+1. Right-click a `Semantic Models` folder → **Create and Deploy New Semantic Model**.
+2. A picker panel opens showing all available data objects in the org, organized by type (DMO, DLO, CIO).
+3. Select a dataspace from the dropdown — changing it reloads the available objects.
+4. Search or scroll to find objects. The list lazy-loads in pages of 50.
+5. For each object, expand it to select individual dimensions and measurements — or select the entire object.
+6. Enter the model metadata: **Label**, **API Name**, and **Dataspace**.
+7. Click **Create** — the extension deploys the model to the org and retrieves the result as local JSON files.
+8. After creation you're offered quick actions to **Visualize ERD** or **Open model.json**.
+
+---
+
+## Adding Data Objects to an Existing Model
+
+The **Add Data Objects** command lets you browse available data objects in the org and add them to a model you've already retrieved:
+
+1. Right-click `dataObjects.json` inside a model folder → **Add Data Objects**.
+2. The same picker panel opens, pre-filtered to the model's dataspace.
+3. Objects already in the model are marked and cannot be re-added.
+4. Select new objects and their fields, then click **Confirm**.
+5. The selected objects are appended to `dataObjects.json`. You can then deploy the updated model or visualize the ERD.
+
+---
+
+## Validating a Model
+
+The **Validate Model** command checks your local model definition against the server's validation rules without deploying:
+
+1. Right-click `model.json` → **Validate Model**.
+2. The extension assembles the full model payload from local JSON files and sends it to the `/validate` endpoint.
+3. If the model is valid, a success notification appears.
+4. If there are validation errors, a warning notification appears and the full error details are printed in the **Semantic Layer Validate** Output panel.
+
+This is useful for catching issues (missing relationships, invalid expressions, etc.) before attempting a deploy.
 
 ---
 

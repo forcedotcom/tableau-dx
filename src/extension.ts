@@ -24,7 +24,9 @@ import {
   duplicateModelCommand,
   cloneRemoteModelCommand,
   extendRemoteModelCommand,
-  validateModelCommand
+  validateModelCommand,
+  addDataObjectsCommand,
+  createModelCommand
 } from './commands';
 import { clearPositionCacheCommand, showPositionCacheStatsCommand } from './commands/clear-position-cache';
 import {
@@ -165,6 +167,16 @@ export async function activate(context: vscode.ExtensionContext) {
     async (...args: unknown[]) => { await validateModelCommand(args[0] as vscode.Uri); }
   );
 
+  const addDataObjectsDisposable = trackedCommand(
+    'semanticLayer.addDataObjects',
+    async (...args: unknown[]) => { await addDataObjectsCommand(context, args[0] as vscode.Uri); }
+  );
+
+  const createModelDisposable = trackedCommand(
+    'semanticLayer.createModel',
+    async (...args: unknown[]) => { await createModelCommand(context, args[0] as vscode.Uri); }
+  );
+
   const editCustomSQLDisposable = trackedCommand(
     'semanticLayer.editCustomSQL',
     async (...args: unknown[]) => {
@@ -223,6 +235,8 @@ export async function activate(context: vscode.ExtensionContext) {
     cloneRemoteModelDisposable,
     extendRemoteModelDisposable,
     validateModelDisposable,
+    addDataObjectsDisposable,
+    createModelDisposable,
     editCustomSQLDisposable,
     codeLensProvider,
     fieldVisibilityCodeLens,

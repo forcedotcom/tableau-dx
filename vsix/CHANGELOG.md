@@ -4,6 +4,11 @@
 - Removed embedded MCP server integration
 - Added "Validate Model" command: sends local model to POST /ssot/semantic/models/validate (extended models send only the extended part with baseModels list)
 - Added telemetry tracking to Edit Custom SQL and Toggle Optional Fields commands
+- Added "Add Data Objects" command: browse and add DMO/DLO/CI objects to an existing local model with per-field selection
+- Added "Create New Model" command: create a new semantic model from scratch by entering metadata and selecting data objects, then export locally
+- Added server-populated dataspace dropdown to Create Model (replaces text input); changing dataspace resets selected objects and reloads data
+- Added lazy loading (infinite scroll) for data objects picker: loads 50 items per page with server-side search
+- Documented Create Model, Add Data Objects, and Validate Model commands in README
 
 ## 0.0.20 - 2026-04-23
 - Added Logical View inner ERD: double-click a logical view to see its internal structure (HardJoin shows mini-ERD with joins, Union shows menorah layout)
