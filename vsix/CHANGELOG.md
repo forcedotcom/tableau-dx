@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+- Fixed search input text color in Test Model panel (was white/invisible in some themes)
+- Improved Deploy Model notifications: consistent "Deploy" language, cleaner success message with optional "Show Details" button
 - Removed embedded MCP server integration
 - Added "Validate Model" command: sends local model to POST /ssot/semantic/models/validate (extended models send only the extended part with baseModels list)
 - Added telemetry tracking to Edit Custom SQL and Toggle Optional Fields commands

@@ -90,28 +90,28 @@ export async function updateModelCommand(uri: vscode.Uri) {
 
     const { instanceUrl, accessToken } = orgInfo.result;
 
-    const outputChannel = vscode.window.createOutputChannel('Semantic Layer Update');
+    const outputChannel = vscode.window.createOutputChannel('Semantic Layer Deploy');
     outputChannel.clear();
     outputChannel.show();
     
-    outputChannel.appendLine(`=== Update: ${modelApiName} ===`);
+    outputChannel.appendLine(`=== Deploy: ${modelApiName} ===`);
     outputChannel.appendLine(`\n--- Payload being sent ---`);
     outputChannel.appendLine(JSON.stringify(payload, null, 2));
 
     const confirm = await vscode.window.showWarningMessage(
-      `Update semantic model "${modelApiName}"? Check the Output panel for payload details.`,
+      `Deploy model "${modelApiName}" to org?`,
       { modal: true },
-      'Update'
+      'Deploy'
     );
 
-    if (confirm !== 'Update') {
+    if (confirm !== 'Deploy') {
       return;
     }
 
     await vscode.window.withProgress(
       {
         location: vscode.ProgressLocation.Notification,
-        title: `Updating ${modelApiName}...`,
+        title: `Deploying "${modelApiName}"...`,
         cancellable: false,
       },
       async () => {
@@ -125,11 +125,18 @@ export async function updateModelCommand(uri: vscode.Uri) {
         outputChannel.appendLine(`\n--- API Response ---`);
         outputChannel.appendLine(JSON.stringify(result, null, 2));
         
-        vscode.window.showInformationMessage(`Updated "${modelApiName}" - check Output panel for response`);
+        const showDetails = 'Show Details';
+        const choice = await vscode.window.showInformationMessage(
+          `Model "${modelApiName}" deployed successfully.`,
+          showDetails
+        );
+        if (choice === showDetails) {
+          outputChannel.show();
+        }
       }
     );
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
-    vscode.window.showErrorMessage(`Failed to update: ${message}`);
+    vscode.window.showErrorMessage(`Deploy failed: ${message}`);
   }
 }

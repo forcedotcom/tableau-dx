@@ -170,7 +170,7 @@
         },
         {
           "command": "semanticLayer.addDataObjects",
-          "when": "resourceFilename == dataObjects.json",
+          "when": "resourceFilename == dataObjects.json && resourcePath =~ /^(?!.*[/\\\\]base[/\\\\])/",
           "group": "semantic@9"
         },
         {

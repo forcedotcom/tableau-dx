@@ -136,6 +136,7 @@ export function getTestModelWebviewContent(modelUI: SemanticModelUI, sldsUri: st
   const customStyles = `
     html, body { height: 100%; margin: 0; overflow: hidden; }
     .slds-scope { height: 100%; display: flex; flex-direction: column; }
+    .slds-input, .slds-select { color: #181818; background-color: #fff; }
 
     .main-layout { display: flex; flex: 1; overflow: hidden; }
 
