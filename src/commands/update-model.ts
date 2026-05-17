@@ -54,6 +54,9 @@ export async function updateModelCommand(uri: vscode.Uri) {
     if (modelData.businessPreferences) {
       payload.businessPreferences = modelData.businessPreferences as string;
     }
+    if (modelData.externalConnections) {
+      payload.externalConnections = modelData.externalConnections as unknown[];
+    }
 
     const entityFiles: Record<string, keyof UpdatePayload> = {
       'dataObjects.json': 'semanticDataObjects',
@@ -117,24 +120,30 @@ export async function updateModelCommand(uri: vscode.Uri) {
       async () => {
 
         const endpoint = `/services/data/${SF_API_VERSION}/ssot/semantic/models/${modelApiName}`;
+        const queryParams: Record<string, string> = {};
+        const externalConnections = modelData.externalConnections as unknown[] | undefined;
+        if (Array.isArray(externalConnections) && externalConnections.length > 0) {
+          queryParams.allowExternalDefinitions = 'true';
+        }
+
         outputChannel.appendLine(`\n--- API Endpoint ---`);
-        outputChannel.appendLine(`PUT ${instanceUrl}${endpoint}`);
+        outputChannel.appendLine(`PUT ${instanceUrl}${endpoint}${Object.keys(queryParams).length ? '?' + new URLSearchParams(queryParams).toString() : ''}`);
         
-        const result = await putSalesforceApi(instanceUrl, accessToken, endpoint, payload);
+        const result = await putSalesforceApi(instanceUrl, accessToken, endpoint, payload, queryParams);
 
         outputChannel.appendLine(`\n--- API Response ---`);
         outputChannel.appendLine(JSON.stringify(result, null, 2));
-        
-        const showDetails = 'Show Details';
-        const choice = await vscode.window.showInformationMessage(
-          `Model "${modelApiName}" deployed successfully.`,
-          showDetails
-        );
-        if (choice === showDetails) {
-          outputChannel.show();
-        }
       }
     );
+
+    const showDetails = 'Show Details';
+    const choice = await vscode.window.showInformationMessage(
+      `Model "${modelApiName}" deployed successfully.`,
+      showDetails
+    );
+    if (choice === showDetails) {
+      outputChannel.show();
+    }
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
     vscode.window.showErrorMessage(`Deploy failed: ${message}`);

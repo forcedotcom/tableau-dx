@@ -92,15 +92,21 @@ export async function putSalesforceApi(
   instanceUrl: string,
   accessToken: string,
   endpoint: string,
-  body: unknown
+  body: unknown,
+  queryParams?: Record<string, string>
 ): Promise<unknown> {
   return new Promise((resolve, reject) => {
     const url = new URL(endpoint, instanceUrl);
+    if (queryParams) {
+      Object.keys(queryParams).forEach(key => {
+        url.searchParams.append(key, queryParams[key]);
+      });
+    }
     const bodyString = JSON.stringify(body);
     
     const options = {
       hostname: url.hostname,
-      path: url.pathname,
+      path: url.pathname + url.search,
       method: 'PUT',
       agent: freshAgent,
       headers: {

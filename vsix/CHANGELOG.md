@@ -1,6 +1,14 @@
 # Changelog
 
 ## Unreleased
+
+## 0.0.22 - 2026-05-14
+- Fixed deploy failing on PDS models with "Adding/Removing external connection after model creation is not allowed": include `externalConnections` in PUT payload body
+- Fixed deploy progress notification appearing stuck after successful deploy
+- Fixed deploy failing on PDS models: pass `allowExternalDefinitions=true` when model has external connections
+- Fixed `putSalesforceApi` silently dropping query parameters
+- Fixed deploy failing on PDS models: pass `allowExternalDefinitions=true` when model has external connections
+- Fixed `putSalesforceApi` silently dropping query parameters
 - Fixed search input text color in Test Model panel (was white/invisible in some themes)
 - Improved Deploy Model notifications: consistent "Deploy" language, cleaner success message with optional "Show Details" button
 - Removed embedded MCP server integration
