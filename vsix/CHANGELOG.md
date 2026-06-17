@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+- Fixed deploy failing on PDS models: pass `allowExternalDefinitions=true` when model has external connections
+- Fixed `putSalesforceApi` silently dropping query parameters
 - Fixed search input text color in Test Model panel (was white/invisible in some themes)
 - Improved Deploy Model notifications: consistent "Deploy" language, cleaner success message with optional "Show Details" button
 - Removed embedded MCP server integration

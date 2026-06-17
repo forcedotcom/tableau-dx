@@ -117,10 +117,16 @@ export async function updateModelCommand(uri: vscode.Uri) {
       async () => {
 
         const endpoint = `/services/data/${SF_API_VERSION}/ssot/semantic/models/${modelApiName}`;
+        const queryParams: Record<string, string> = {};
+        const externalConnections = modelData.externalConnections as unknown[] | undefined;
+        if (Array.isArray(externalConnections) && externalConnections.length > 0) {
+          queryParams.allowExternalDefinitions = 'true';
+        }
+
         outputChannel.appendLine(`\n--- API Endpoint ---`);
-        outputChannel.appendLine(`PUT ${instanceUrl}${endpoint}`);
+        outputChannel.appendLine(`PUT ${instanceUrl}${endpoint}${Object.keys(queryParams).length ? '?' + new URLSearchParams(queryParams).toString() : ''}`);
         
-        const result = await putSalesforceApi(instanceUrl, accessToken, endpoint, payload);
+        const result = await putSalesforceApi(instanceUrl, accessToken, endpoint, payload, queryParams);
 
         outputChannel.appendLine(`\n--- API Response ---`);
         outputChannel.appendLine(JSON.stringify(result, null, 2));
