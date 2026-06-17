@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+## 0.0.22 - 2026-06-17
 - Removed "(Beta)" from extension display name
 - Fixed deploy failing on PDS models: pass `allowExternalDefinitions=true` when model has external connections
 - Fixed `putSalesforceApi` silently dropping query parameters
