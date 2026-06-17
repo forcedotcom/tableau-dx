@@ -1,4 +1,4 @@
-# Salesforce Tableau Semantics (Beta)
+# Salesforce Tableau Semantics
 
 > Retrieve, edit, visualize, compare, test, and deploy **Salesforce Data Cloud Semantic Layer** models — directly from VS Code.
 

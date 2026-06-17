@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Removed "(Beta)" from extension display name
 - Fixed deploy failing on PDS models: pass `allowExternalDefinitions=true` when model has external connections
 - Fixed `putSalesforceApi` silently dropping query parameters
 - Fixed search input text color in Test Model panel (was white/invisible in some themes)
