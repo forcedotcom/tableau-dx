@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+## 0.0.23 - 2026-07-21
 - Fixed Deploy Model dropping external connections: `externalConnections` is now sent in the payload for PDS models
 
 ## 0.0.22 - 2026-06-17
