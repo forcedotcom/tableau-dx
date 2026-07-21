@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Fixed Deploy Model dropping external connections: `externalConnections` is now sent in the payload for PDS models
 
 ## 0.0.22 - 2026-06-17
 - Removed "(Beta)" from extension display name

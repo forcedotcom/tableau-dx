@@ -54,6 +54,9 @@ export async function updateModelCommand(uri: vscode.Uri) {
     if (modelData.businessPreferences) {
       payload.businessPreferences = modelData.businessPreferences as string;
     }
+    if (modelData.externalConnections) {
+      payload.externalConnections = modelData.externalConnections as unknown[];
+    }
 
     const entityFiles: Record<string, keyof UpdatePayload> = {
       'dataObjects.json': 'semanticDataObjects',
