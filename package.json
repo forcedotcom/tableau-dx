@@ -2,7 +2,7 @@
   "name": "Salesforce-Tableau-Semantics",
   "displayName": "Salesforce Tableau Semantics",
   "description": "Retrieve, deploy, visualize, and test Tableau Semantic Layer models from within VS Code",
-  "version": "0.0.23",
+  "version": "0.0.24",
   "publisher": "salesforce",
   "repository": {
     "type": "git",
