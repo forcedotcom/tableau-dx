@@ -26,7 +26,8 @@ import {
   extendRemoteModelCommand,
   validateModelCommand,
   addDataObjectsCommand,
-  createModelCommand
+  createModelCommand,
+  openModelFromLaunchContext
 } from './commands';
 import { clearPositionCacheCommand, showPositionCacheStatsCommand } from './commands/clear-position-cache';
 import {
@@ -245,6 +246,10 @@ export async function activate(context: vscode.ExtensionContext) {
     sqlSaveHandler,
     sqlCleanup
   );
+
+  // Launched from Semantic Model Builder's "Agentforce Vibes" button: load the requested model.
+  // Not awaited so activation isn't blocked on the org fetch.
+  void openModelFromLaunchContext(context);
 }
 
 export function deactivate() {

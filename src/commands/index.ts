@@ -20,3 +20,4 @@ export { extendRemoteModelCommand } from './extend-remote-model';
 export { validateModelCommand } from './validate-model';
 export { addDataObjectsCommand } from './add-data-objects';
 export { createModelCommand } from './create-model';
+export { openModelFromLaunchContext } from './open-model-from-launch';
