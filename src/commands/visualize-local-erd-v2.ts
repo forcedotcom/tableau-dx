@@ -115,6 +115,9 @@ export async function visualizeListGroupedERDCommand(context: vscode.ExtensionCo
   }
 }
 
+/** Open ERD panels keyed by view mode + model folder, so re-opening a model replaces its tab instead of stacking a stale one. */
+const openPanels = new Map<string, vscode.WebviewPanel>();
+
 function showERDV2Panel(
   context: vscode.ExtensionContext,
   modelUI: SemanticModelUI,
@@ -122,6 +125,8 @@ function showERDV2Panel(
   groupsConfig: GroupsConfig | null,
   viewMode: ViewMode = 'flat'
 ) {
+  const panelKey = `${viewMode}|${path.resolve(folderPath)}`;
+  openPanels.get(panelKey)?.dispose();
   const assetsDir = path.join(context.extensionPath, 'src', 'assets');
   const iconNames = ['table', 'data_model', 'data_lake', 'calc_dim', 'calc_mes', 'hierarchy', 'metric', 'grouping', 'shared', 'calc_insight'];
   const icons: Record<string, string> = {};
@@ -136,6 +141,13 @@ function showERDV2Panel(
   const { panel, resources } = createWebviewPanel(
     context, 'semanticERDV2', `ERD V2: ${modelUI.model.label}`, vscode.ViewColumn.One
   );
+
+  openPanels.set(panelKey, panel);
+  panel.onDidDispose(() => {
+    if (openPanels.get(panelKey) === panel) {
+      openPanels.delete(panelKey);
+    }
+  });
 
   panel.webview.html = getERDV2WebviewContent(modelUI, icons, resources.sldsUri, groupsConfig, viewMode, resources.cspSource);
 

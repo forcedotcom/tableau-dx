@@ -24,9 +24,9 @@ const SEMANTIC_MODELS_FOLDER = 'Semantic Models';
 
 /**
  * If the workspace was launched with a model API name, pull that model from the org into
- * "Semantic Models/<label>" and open its ERD. The env var persists for the life of the
- * workspace (including window reloads), so an existing local copy is never overwritten
- * silently: it is opened as-is and the user can choose to refresh it from the org.
+ * "Semantic Models/<label>" and open its ERD. The org is the source of truth: an existing
+ * local copy is overwritten on every launch. Note the env var persists for the life of the
+ * workspace, so this also runs on window reloads.
  */
 export async function openModelFromLaunchContext(context: vscode.ExtensionContext): Promise<void> {
   const apiName = process.env[LAUNCH_MODEL_ENV_KEY]?.trim();
@@ -44,18 +44,9 @@ export async function openModelFromLaunchContext(context: vscode.ExtensionContex
     const semanticModelsFolder = path.join(workspaceRoot, SEMANTIC_MODELS_FOLDER);
     const existingFolder = findLocalModelFolder(semanticModelsFolder, apiName);
 
-    if (existingFolder) {
-      await openModel(context, existingFolder);
-      const action = await vscode.window.showInformationMessage(
-        `Opened local copy of "${apiName}". Refresh it from the org? Local changes will be replaced.`,
-        'Refresh from Org'
-      );
-      if (action === 'Refresh from Org') {
-        await openModel(context, await pullModel(semanticModelsFolder, apiName));
-      }
-    } else {
-      await openModel(context, await pullModel(semanticModelsFolder, apiName));
-    }
+    // Always refresh from the org. An existing local copy is overwritten in place, even if
+    // the org label no longer matches its folder name, so there is never a second folder.
+    await openModel(context, await pullModel(semanticModelsFolder, apiName, existingFolder));
     sendCommandEvent(EVENT_NAME, startTime);
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
@@ -64,7 +55,7 @@ export async function openModelFromLaunchContext(context: vscode.ExtensionContex
   }
 }
 
-async function pullModel(semanticModelsFolder: string, apiName: string): Promise<string> {
+async function pullModel(semanticModelsFolder: string, apiName: string, targetFolder?: string): Promise<string> {
   return vscode.window.withProgress(
     {
       location: vscode.ProgressLocation.Notification,
@@ -83,7 +74,7 @@ async function pullModel(semanticModelsFolder: string, apiName: string): Promise
       ) as Record<string, unknown>;
 
       const label = typeof fullModel.label === 'string' ? fullModel.label : apiName;
-      const modelFolderPath = resolveModelFolder(semanticModelsFolder, label, apiName);
+      const modelFolderPath = targetFolder ?? resolveModelFolder(semanticModelsFolder, label, apiName);
       writeModelFiles(modelFolderPath, fullModel, orgInfo.result);
       return modelFolderPath;
     }
